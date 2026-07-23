@@ -5,199 +5,122 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// 1. Fetch All Clientes with Tracks
-export async function fetchClientesWithTracks() {
+// ==========================================
+// 1. PROJECTS MACRO (OpenProject Sync)
+// ==========================================
+export async function fetchProjectsMacroSupabase() {
   try {
-    const { data: clientesData, error: cErr } = await supabase
-      .from('clientes')
+    const { data, error } = await supabase
+      .from('projects_macro')
       .select('*')
       .order('created_at', { ascending: false });
 
-    if (cErr) throw cErr;
-
-    const { data: tracksData, error: tErr } = await supabase
-      .from('tracks')
-      .select('*');
-
-    if (tErr) throw tErr;
-
-    const combined = (clientesData || []).map(c => ({
-      ...c,
-      faseIndex: 1,
-      fases: ["Aguardando início", "Verificando requisitos", "Em implementação", "Em homologação", "Concluído"],
-      produtos: Array.from(new Set(
-        (tracksData || [])
-          .filter(t => t.projeto_id === c.id && t.produto)
-          .map(t => t.produto)
-      )),
-      tracks: (tracksData || []).filter(t => t.projeto_id === c.id)
-    }));
-
-    return combined;
-  } catch (err) {
-    console.error("Erro ao buscar clientes no Supabase:", err);
-    return null;
-  }
-}
-
-// 2. Save / Insert New Cliente and Tracks
-export async function saveClienteWithTracks(newClient) {
-  try {
-    const { error: cErr } = await supabase.from('clientes').insert([{
-      id: newClient.id,
-      cliente: newClient.cliente,
-      titulo: newClient.titulo,
-      pais: newClient.pais,
-      descricao: newClient.descricao,
-      logo: newClient.logo,
-      status: newClient.status,
-      gerente_visa: newClient.gerente_visa,
-      data_inicio: newClient.data_inicio,
-      progresso: newClient.progresso
-    }]);
-
-    if (cErr) throw cErr;
-
-    if (newClient.tracks && newClient.tracks.length > 0) {
-      const tracksToInsert = newClient.tracks.map(t => ({
-        id: t.id,
-        projeto_id: newClient.id,
-        nome: t.nome,
-        tipo: t.tipo,
-        produto: t.produto || '',
-        mandato: t.mandato || '',
-        descricao_outro: t.descricaoOutro || '',
-        status: t.status,
-        progresso: t.progresso,
-        responsavel: t.responsavel,
-        proximo_marco: t.proximo_marco
-      }));
-
-      const { error: tErr } = await supabase.from('tracks').insert(tracksToInsert);
-      if (tErr) throw tErr;
-    }
-
-    return true;
-  } catch (err) {
-    console.error("Erro ao salvar cliente no Supabase:", err);
-    return false;
-  }
-}
-
-// 3. Update Existing Cliente and Tracks
-export async function updateClienteWithTracks(updatedClient) {
-  try {
-    const { error: cErr } = await supabase
-      .from('clientes')
-      .update({
-        cliente: updatedClient.cliente,
-        titulo: updatedClient.titulo,
-        pais: updatedClient.pais,
-        descricao: updatedClient.descricao,
-        logo: updatedClient.logo,
-        status: updatedClient.status
-      })
-      .eq('id', updatedClient.id);
-
-    if (cErr) throw cErr;
-
-    await supabase.from('tracks').delete().eq('projeto_id', updatedClient.id);
-
-    if (updatedClient.tracks && updatedClient.tracks.length > 0) {
-      const tracksToInsert = updatedClient.tracks.map(t => ({
-        id: t.id || `tr-${Date.now()}-${Math.random()}`,
-        projeto_id: updatedClient.id,
-        nome: t.nome,
-        tipo: t.tipo,
-        produto: t.produto || '',
-        mandato: t.mandato || '',
-        descricao_outro: t.descricaoOutro || '',
-        status: t.status,
-        progresso: t.progresso || 20,
-        responsavel: t.responsavel,
-        proximo_marco: t.proximo_marco || 'Alinhamento Inicial'
-      }));
-
-      const { error: tErr } = await supabase.from('tracks').insert(tracksToInsert);
-      if (tErr) throw tErr;
-    }
-
-    return true;
-  } catch (err) {
-    console.error("Erro ao atualizar cliente no Supabase:", err);
-    return false;
-  }
-}
-
-// 4. Delete Cliente
-export async function deleteClienteSupabase(projectId) {
-  try {
-    const { error } = await supabase.from('clientes').delete().eq('id', projectId);
-    if (error) throw error;
-    return true;
-  } catch (err) {
-    console.error("Erro ao excluir cliente no Supabase:", err);
-    return false;
-  }
-}
-
-// 5. Fetch Reunioes
-export async function fetchReunioesSupabase() {
-  try {
-    const { data, error } = await supabase.from('reunioes').select('*').order('created_at', { ascending: false });
     if (error) throw error;
     return data;
   } catch (err) {
-    console.error("Erro ao buscar reuniões no Supabase:", err);
+    console.error("Erro ao buscar projetos no Supabase:", err);
     return null;
   }
 }
 
-// 6. Save Reuniao
-export async function saveReuniaoSupabase(newMeeting) {
+export async function saveProjectMacroSupabase(proj) {
   try {
-    const { error } = await supabase.from('reunioes').insert([{
-      id: newMeeting.id,
-      projeto_id: newMeeting.projeto_id,
-      track_id: newMeeting.track_id,
-      cliente: newMeeting.cliente,
-      track_nome: newMeeting.track_nome,
-      titulo: newMeeting.titulo,
-      data: newMeeting.data,
-      escopo: newMeeting.escopo,
-      tipo: newMeeting.tipo,
-      resumo_ia: newMeeting.resumo_ia,
-      participantes: newMeeting.participantes,
-      action_items: newMeeting.action_items
+    const { error } = await supabase.from('projects_macro').insert([{
+      id: proj.id,
+      openproject_id: proj.openproject_id,
+      titulo: proj.titulo,
+      cliente: proj.cliente,
+      pais: proj.pais,
+      bandeira: proj.bandeira,
+      status: proj.status,
+      gerente: proj.gerente,
+      progresso: proj.progresso,
+      data_inicio: proj.data_inicio,
+      data_fim: proj.data_fim,
+      descricao: proj.descricao,
+      estante_id: proj.estante_id || null
     }]);
 
     if (error) throw error;
     return true;
   } catch (err) {
-    console.error("Erro ao salvar reunião no Supabase:", err);
+    console.error("Erro ao salvar projeto no Supabase:", err);
     return false;
   }
 }
 
-// 7. Fetch Conhecimento Geral & Dicionario
-export async function fetchConhecimentoGeralSupabase() {
+// ==========================================
+// 2. WIKI SHELVES (BookStack Metaphor)
+// ==========================================
+export async function fetchShelvesSupabase() {
   try {
-    const { data, error } = await supabase.from('conhecimento_geral').select('*').order('created_at', { ascending: false });
+    const { data, error } = await supabase
+      .from('shelves')
+      .select('*')
+      .order('created_at', { ascending: false });
+
     if (error) throw error;
     return data;
   } catch (err) {
-    console.error("Erro ao buscar conhecimento geral no Supabase:", err);
+    console.error("Erro ao buscar estantes no Supabase:", err);
     return null;
   }
 }
 
-export async function fetchDicionarioSupabase() {
+export async function saveShelfSupabase(shelf) {
   try {
-    const { data, error } = await supabase.from('dicionario').select('*').order('created_at', { ascending: false });
+    const { error } = await supabase.from('shelves').insert([{
+      id: shelf.id,
+      nome: shelf.nome,
+      tipo: shelf.tipo,
+      projeto_id: shelf.projeto_id || null,
+      descricao: shelf.descricao,
+      icone: shelf.icone || 'BookOpen',
+      cor: shelf.cor || 'border-blue-500/30 bg-blue-500/5',
+      livros: shelf.livros || []
+    }]);
+
+    if (error) throw error;
+    return true;
+  } catch (err) {
+    console.error("Erro ao salvar estante no Supabase:", err);
+    return false;
+  }
+}
+
+// ==========================================
+// 3. DATA TERMS (Dicionario & Metadata)
+// ==========================================
+export async function fetchDataTermsSupabase() {
+  try {
+    const { data, error } = await supabase
+      .from('data_terms')
+      .select('*')
+      .order('created_at', { ascending: false });
+
     if (error) throw error;
     return data;
   } catch (err) {
-    console.error("Erro ao buscar dicionário no Supabase:", err);
+    console.error("Erro ao buscar termos de dados no Supabase:", err);
     return null;
+  }
+}
+
+export async function saveDataTermSupabase(term) {
+  try {
+    const { error } = await supabase.from('data_terms').insert([{
+      id: term.id,
+      termo: term.termo,
+      categoria: term.categoria,
+      formato: term.formato,
+      exemplo: term.exemplo,
+      definicao: term.definicao
+    }]);
+
+    if (error) throw error;
+    return true;
+  } catch (err) {
+    console.error("Erro ao salvar termo de dados no Supabase:", err);
+    return false;
   }
 }
