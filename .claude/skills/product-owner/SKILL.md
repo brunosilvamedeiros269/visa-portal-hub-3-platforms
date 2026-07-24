@@ -25,8 +25,9 @@ Leia o `CLAUDE.md` da raiz antes de agir.
 
 ## Hierarquia de trabalho (requisito estrutural)
 
-**Macro-projeto → micro-projeto → atividades.** Todo item de trabalho pertence a essa árvore.
-Cada micro-projeto tem suas próprias atividades, detalhes e status; o macro-projeto agrega.
+**Cliente → Projeto (macro) → Track → Atividades.** Todo item de trabalho pertence a essa
+árvore. Cada track tem suas atividades (Aberto/Em andamento/Fechado), reuniões e documentos;
+o projeto agrega os tracks; o cliente agrega os projetos.
 
 ## Critérios de aceite gerais
 

@@ -50,36 +50,35 @@ memória `notion-base-estrutura`.
   "Projetos"** para enxergar Tracks e Reuniões. Sem isso a API retorna vazio/erro.
 - Dá só permissão de **leitura** à conexão. O dashboard é read-only por design.
 
-## 3. Modelo de dados
+## 3. Modelo de dados (databases no Notion)
 
 ```
-Cliente
- └─ Macro-projeto            (tabela projects_macro)
-     └─ Micro-projeto/Track  (subprojetos[] dentro do macro)
-         └─ Atividades
-Reuniões                     (tabela meetings — a criar)
- ├─ Board mensal   → ligada ao Macro-projeto / Cliente
- ├─ Semanal        → ligada a um Micro-projeto/Track
- └─ Ad-hoc         → ligada ao projeto/track conforme necessidade
-Wiki (estantes → livros → páginas)  (tabela shelves)
-Dicionário de termos                (tabela data_terms)
+Clientes → Projetos (macro) → Tracks → Atividades
+                                 ├─ Reuniões (SteerCo mensal / Semanal / Ad-hoc)
+                                 └─ Documentos
+Wiki por tema + Dicionário de termos   (páginas/bases de conhecimento)
+```
+
+Tudo ligado por **relação** no Notion. IDs em `api/notion.js` (const `DB`) e na memória
+`notion-base-estrutura`. O antigo bloco abaixo (tabelas Supabase) está **descontinuado** e
+mantido só como referência histórica até a limpeza:
+
+```
+[legado] projects_macro · shelves · data_terms  (Supabase — a remover na limpeza)
 ```
 
 ## 4. Mapa do repositório
 
 ```
-app/                  O dashboard (React + Vite + Supabase) — a fonte da verdade
-01_Projetos/          Macro/micro-projetos em markdown (seed inicial)
-02_Reunioes/          Atas e transcrições processadas (seed inicial)
-03_Produtos/          Páginas de produtos Visa (seed da wiki)
-04_Visa_Workflows/    Mandatos e processos Visa (seed da wiki)
-05_Dicionario_Termos/ Glossário (seed do dicionário)
-.claude/skills/       Skills que guiam o trabalho com IA neste projeto
+app/                  O dashboard (React + Vite) — vitrine + edição, lê/escreve o Notion
+api/notion.js         Ponte serverless (Vercel) com o Notion; guarda o NOTION_TOKEN
+0X_*/                 Material markdown herdado (seed histórico; não é fonte da verdade)
+.claude/skills/       Skills que guiam o trabalho neste projeto
 CLAUDE.md             Este arquivo
 ```
 
-O markdown é a **fonte de seed**; depois de popular o Supabase, a alimentação do dia a dia
-acontece **pelo app** (incluindo ingestão de transcrições de reunião).
+A **fonte da verdade é o Notion** (teamspace VISA). O markdown `0X_*/` é só material inicial.
+A alimentação do dia a dia é no Notion ou pelo app (ambos gravam no Notion).
 
 ## 5. Padrão de metadados (para o conteúdo markdown / seed)
 
@@ -124,6 +123,7 @@ Ao ingerir uma transcrição, produza sempre três blocos — **Decisões**, **A
 
 ## 8. Skills disponíveis (`.claude/skills/`)
 
-- **knowledge-base-architect** — taxonomia, ingestão de reuniões/docs e ligação de conhecimento.
+- **development-workflow** — o padrão do projeto (arquitetura, dados, deploy). **Leia primeiro.**
+- **knowledge-base-architect** — modelo Notion, ingestão de reuniões/docs e ligação por relação.
 - **product-owner** — visão de produto, personas e critérios de aceite.
-- **ux-ui-designer** — design system Visa e telas do dashboard.
+- **ux-ui-designer** — design system Visa, idioma espanhol e telas do dashboard.

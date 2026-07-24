@@ -25,17 +25,27 @@ ou telas. Leia o `CLAUDE.md` da raiz antes de agir.
 - **Hierarquia de status.** Cada estado (`Em Andamento`, `Aguardando Cliente`, `Em
   Certificação`, `Mandato Pendente`, `Concluído`) tem cor/badge fixos e reutilizados.
 
-## Arquitetura de telas (referência)
+## Idioma (regra fixa)
 
-1. **Overview** — métricas (projetos ativos, reuniões da semana, ações pendentes) + lista/
-   Kanban por cliente + feed de atividades recentes.
-2. **Ingestão** — arrastar/soltar documentos + preview de metadados extraídos.
-3. **Wiki & Dicionário** — abas por produto + glossário + busca estilo Command-K.
-4. **Projeto (deep dive)** — linha do tempo de reuniões/entregáveis, participantes,
-   documentos vinculados, hierarquia micro-projetos → atividades.
+**Interface pública 100% em espanhol.** Sem seletor de idioma. Rótulos, botões, KPIs,
+mensagens e datas em ES. Valores de status vêm do Notion e são exibidos em ES via mapa
+`STATUS_LABEL` (traduza a exibição, não o dado).
+
+## Marca
+
+Header com **wordmark Visa** (branco, itálico, com acento dourado) + "Base de Conocimiento
+Activa". Menu de mercado, limpo: **Seguimiento · Proyectos · Wiki · Diccionario**. Sem
+referências a ferramentas internas (OpenProject/BookStack/Docker) e sem botões promocionais.
+
+## Arquitetura de telas (atual — 3 níveis)
+
+1. **Panel (Seguimiento)** — KPIs + cards por **proyecto** com resumo dos tracks.
+2. **Detalle de proyecto** — todos os tracks + documentos do projeto.
+3. **Detalle de track** — status, próximo paso, histórico, **Actividades**, **Reuniones**,
+   **Documentos** e dependências (Depende de / Requerido por).
 
 ## Nota de escopo
 
-A direção atual é **um único app React + Supabase publicado no Vercel** (ver `CLAUDE.md`).
-Todas as telas vivem nesse app — aplique o design system de forma consistente em todas elas.
-Não há BookStack/OpenProject para tematizar; o visual é 100% seu.
+Um único app React (`app/`) no **Vercel**, lendo/escrevendo o **Notion** via `/api/notion`.
+Todas as telas vivem nesse app; aplique o design system de forma consistente. Ver
+`development-workflow`.
