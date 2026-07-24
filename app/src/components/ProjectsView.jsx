@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   FolderGit2, 
   Plus, 
@@ -10,31 +10,64 @@ import {
   User, 
   BookOpen, 
   CheckCircle2, 
-  AlertCircle,
-  Filter,
+  Key,
+  RefreshCw,
   Search
 } from 'lucide-react';
+import { fetchOpenProjectData, createOpenProjectViaAPI } from '../services/openprojectApi';
 
 export default function ProjectsView({ 
   projects, 
   shelves, 
   onAddProject, 
-  onAddSubproject,
   onSelectShelf 
 }) {
   const [expandedProjects, setExpandedProjects] = useState({ 'op-macro-01': true, 'op-macro-02': true });
   const [searchTerm, setSearchTerm] = useState('');
+  const [apiKey, setApiKey] = useState(localStorage.getItem('openproject_api_key') || '');
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [liveProjects, setLiveProjects] = useState(null);
+  const [showApiModal, setShowApiModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
-  const [newProject, setNewProject] = useState({ titulo: '', cliente: '', pais: 'Brasil', bandeira: '🇧🇷', descricao: '' });
+  const [newProject, setNewProject] = useState({ titulo: '', cliente: '', pais: 'Brasil', bandeira: '🌐', descricao: '' });
+
+  // Salvar API Key e buscar projetos no OpenProject
+  const handleSaveApiKey = async (e) => {
+    e.preventDefault();
+    if (!apiKey.trim()) return;
+    localStorage.setItem('openproject_api_key', apiKey.trim());
+    setShowApiModal(false);
+    await syncWithOpenProject(apiKey.trim());
+  };
+
+  const syncWithOpenProject = async (tokenToUse = apiKey) => {
+    if (!tokenToUse) return;
+    setIsSyncing(true);
+    const fetchedProjects = await fetchOpenProjectData(tokenToUse);
+    if (fetchedProjects && fetchedProjects.length > 0) {
+      setLiveProjects(fetchedProjects);
+    }
+    setIsSyncing(false);
+  };
+
+  useEffect(() => {
+    if (apiKey) {
+      syncWithOpenProject(apiKey);
+    }
+  }, []);
+
+  const displayProjects = liveProjects || projects;
 
   const toggleExpand = (id) => {
     setExpandedProjects(prev => ({ ...prev, [id]: !prev[id] }));
   };
 
-  const handleCreateProject = (e) => {
+  const handleCreateProject = async (e) => {
     e.preventDefault();
     if (!newProject.titulo.trim()) return;
-    onAddProject({
+
+    // Criar localmente
+    const createdLocal = {
       ...newProject,
       id: `op-macro-${Date.now()}`,
       openproject_id: Math.floor(100 + Math.random() * 900),
@@ -44,12 +77,21 @@ export default function ProjectsView({
       data_inicio: new Date().toISOString().split('T')[0],
       data_fim: '2026-12-31',
       subprojetos: []
-    });
-    setNewProject({ titulo: '', cliente: '', pais: 'Brasil', bandeira: '🇧🇷', descricao: '' });
+    };
+
+    onAddProject(createdLocal);
+
+    // Se tiver API Key, enviar para o OpenProject em tempo real
+    if (apiKey) {
+      await createOpenProjectViaAPI(apiKey, newProject);
+      await syncWithOpenProject(apiKey);
+    }
+
+    setNewProject({ titulo: '', cliente: '', pais: 'Brasil', bandeira: '🌐', descricao: '' });
     setShowAddModal(false);
   };
 
-  const filteredProjects = projects.filter(p => 
+  const filteredProjects = displayProjects.filter(p => 
     p.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
     p.cliente.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -65,16 +107,37 @@ export default function ProjectsView({
               <FolderGit2 className="w-5 h-5" />
             </span>
             <h1 className="text-xl font-bold text-slate-100">Gestão Macro de Projetos & Subprojetos</h1>
-            <span className="text-xs px-2.5 py-0.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 font-mono">
-              OpenProject Integration
+            <span className={`text-xs px-2.5 py-0.5 rounded-full font-mono font-medium ${
+              liveProjects ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
+            }`}>
+              {liveProjects ? '⚡ OpenProject Live Sync Ativo' : 'OpenProject Integration'}
             </span>
           </div>
           <p className="text-xs text-slate-400">
-            Gerencie iniciativas macro da Visa e navegue pela árvore de subprojetos técnicos e entregáveis.
+            Espelhamento em tempo real dos projetos criados no OpenProject Server local.
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
+          <button
+            onClick={() => setShowApiModal(true)}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium border border-slate-700 transition-colors"
+          >
+            <Key className="w-3.5 h-3.5 text-amber-400" />
+            <span>{apiKey ? 'API Token Configurado' : 'Conectar Token OpenProject'}</span>
+          </button>
+
+          {apiKey && (
+            <button
+              onClick={() => syncWithOpenProject(apiKey)}
+              disabled={isSyncing}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium border border-slate-700 transition-colors"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 text-blue-400 ${isSyncing ? 'animate-spin' : ''}`} />
+              <span>Sincronizar</span>
+            </button>
+          )}
+
           <a
             href="http://localhost:8082"
             target="_blank"
@@ -109,7 +172,7 @@ export default function ProjectsView({
         </div>
 
         <div className="text-xs text-slate-400 font-mono">
-          Exibindo {filteredProjects.length} Projetos Macro
+          Exibindo {filteredProjects.length} Projetos Espelhados
         </div>
       </div>
 
@@ -188,12 +251,12 @@ export default function ProjectsView({
                 <div className="p-5 bg-slate-950/40 space-y-3 border-t border-slate-800/40">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                      <Layers className="w-3.5 h-3.5 text-blue-400" /> Subprojetos Técnicos ({proj.subprojetos.length})
+                      <Layers className="w-3.5 h-3.5 text-blue-400" /> Subprojetos Técnicos / Projetos Filhos ({proj.subprojetos.length})
                     </span>
                   </div>
 
                   {proj.subprojetos.length === 0 ? (
-                    <div className="text-xs text-slate-500 py-3 italic">Nenhum subprojeto registrado ainda neste projeto macro.</div>
+                    <div className="text-xs text-slate-500 py-3 italic">Nenhum subprojeto vinculado no OpenProject ainda.</div>
                   ) : (
                     <div className="grid grid-cols-1 gap-2.5">
                       {proj.subprojetos.map((sub) => (
@@ -233,11 +296,63 @@ export default function ProjectsView({
         })}
       </div>
 
+      {/* Modal API Token OpenProject */}
+      {showApiModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-4">
+            <div className="flex items-center gap-2">
+              <Key className="w-5 h-5 text-amber-400" />
+              <h3 className="text-lg font-bold text-slate-100">Conectar API Token do OpenProject</h3>
+            </div>
+            
+            <p className="text-xs text-slate-400">
+              Para espelhar automaticamente os projetos criados no seu OpenProject local (`:8082`):
+            </p>
+
+            <ol className="text-xs text-slate-300 space-y-1.5 list-decimal list-inside bg-slate-950 p-3 rounded-xl border border-slate-800">
+              <li>No OpenProject (`:8082`), acesse <strong>Minha Conta</strong> (canto sup. direito).</li>
+              <li>Clique em <strong>Access Tokens</strong> (Tokens de Acesso).</li>
+              <li>Clique em <strong>Generate</strong> no item <em>API Token</em> e copie o código.</li>
+            </ol>
+
+            <form onSubmit={handleSaveApiKey} className="space-y-3 pt-1">
+              <div>
+                <label className="text-xs font-semibold text-slate-400 block mb-1">OpenProject API Token</label>
+                <input
+                  type="password"
+                  required
+                  placeholder="Cole seu token aqui..."
+                  value={apiKey}
+                  onChange={e => setApiKey(e.target.value)}
+                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-amber-500 font-mono"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowApiModal(false)}
+                  className="px-4 py-2 rounded-xl text-xs font-medium text-slate-400 hover:bg-slate-800"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold shadow-md shadow-amber-600/30"
+                >
+                  Salvar & Espelhar Agora
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       {/* Modal Criar Projeto Macro */}
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4">
           <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 space-y-4">
-            <h3 className="text-lg font-bold text-slate-100">Criar Novo Projeto Macro (OpenProject)</h3>
+            <h3 className="text-lg font-bold text-slate-100">Criar Novo Projeto Macro</h3>
             <form onSubmit={handleCreateProject} className="space-y-3">
               <div>
                 <label className="text-xs font-semibold text-slate-400 block mb-1">Título do Projeto Macro</label>
@@ -306,7 +421,7 @@ export default function ProjectsView({
                   type="submit"
                   className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-md shadow-blue-600/30"
                 >
-                  Criar no OpenProject
+                  Criar Projeto
                 </button>
               </div>
             </form>
