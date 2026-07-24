@@ -107,9 +107,71 @@ async function getBlocks(pageId) {
   return out;
 }
 
+// ---- helpers de escrita (Notion property builders) ----
+const pTitle = (v) => ({ title: [{ text: { content: String(v || '') } }] });
+const pText = (v) => (v ? { rich_text: [{ text: { content: String(v) } }] } : { rich_text: [] });
+const pSelect = (v) => (v ? { select: { name: String(v) } } : { select: null });
+const pDate = (v) => (v ? { date: { start: v } } : { date: null });
+const pRel = (ids) => ({ relation: (Array.isArray(ids) ? ids : [ids]).filter(Boolean).map((id) => ({ id })) });
+const pCheck = (v) => ({ checkbox: !!v });
+
+async function createPage(databaseId, properties, icon) {
+  const body = { parent: { database_id: databaseId }, properties };
+  if (icon) body.icon = { type: 'emoji', emoji: icon };
+  return notionFetch('/pages', { method: 'POST', body: JSON.stringify(body) });
+}
+async function updatePage(pageId, properties) {
+  return notionFetch(`/pages/${pageId}`, { method: 'PATCH', body: JSON.stringify({ properties }) });
+}
+
+async function handleWrite(body) {
+  const b = body || {};
+  switch (b.action) {
+    case 'createActivity': {
+      const props = {
+        'Atividade': pTitle(b.name),
+        'Track': pRel(b.trackId),
+        'Status': pSelect(b.status || 'Aberto'),
+        'Responsável': pText(b.responsavel),
+        'Comentário': pText(b.comentario),
+      };
+      if (b.dataAbertura) props['Data de abertura'] = pDate(b.dataAbertura);
+      if (b.prazo) props['Precisa fechar até'] = pDate(b.prazo);
+      const page = await createPage(DB.activities, props);
+      return { ok: true, id: page.id };
+    }
+    case 'updateActivityStatus': {
+      await updatePage(b.pageId, { 'Status': pSelect(b.status) });
+      return { ok: true };
+    }
+    case 'createTrack': {
+      const props = {
+        'Track': pTitle(b.name),
+        'Cliente': pSelect(b.cliente),
+        'Frente': pSelect(b.frente),
+        'Status': pSelect(b.status || 'Sin iniciar'),
+        'Ruta crítica': pCheck(b.rutaCritica),
+        'Responsável': pText(b.responsavel),
+        'Próximo passo': pText(b.proximoPasso),
+        'Projeto': pRel(b.projetoId),
+      };
+      const page = await createPage(DB.tracks, props);
+      return { ok: true, id: page.id };
+    }
+    default: {
+      const e = new Error('action inválida (createActivity | updateActivityStatus | createTrack)');
+      e.status = 400;
+      throw e;
+    }
+  }
+}
+
 module.exports = async (req, res) => {
   const { resource, id } = req.query || {};
   try {
+    if (req.method === 'POST') {
+      return res.status(200).json(await handleWrite(req.body));
+    }
     if (resource === 'health') {
       return res.status(200).json({ ok: true, hasToken: !!process.env.NOTION_TOKEN });
     }

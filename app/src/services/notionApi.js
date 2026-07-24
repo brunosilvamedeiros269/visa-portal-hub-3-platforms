@@ -23,3 +23,23 @@ export const fetchActivities = () => call({ resource: 'activities' }).then((d) =
 export const fetchDocuments = () => call({ resource: 'documents' }).then((d) => d.documents || []);
 export const fetchTrack = (id) => call({ resource: 'track', id });
 export const checkHealth = () => call({ resource: 'health' });
+
+async function post(body) {
+  const res = await fetch('/api/notion', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  let data = null;
+  try { data = await res.json(); } catch (e) { /* não-JSON */ }
+  if (!res.ok) {
+    const err = new Error((data && data.error) || `Erro ${res.status} al escribir en Notion`);
+    err.notion = data && data.notion;
+    throw err;
+  }
+  return data;
+}
+
+export const createActivity = (payload) => post({ action: 'createActivity', ...payload });
+export const updateActivityStatus = (pageId, status) => post({ action: 'updateActivityStatus', pageId, status });
+export const createTrack = (payload) => post({ action: 'createTrack', ...payload });

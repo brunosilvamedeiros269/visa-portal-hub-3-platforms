@@ -1,11 +1,17 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   ArrowLeft, AlertTriangle, CalendarClock, Flag, Loader2, RefreshCw,
-  Link2, ChevronRight, ExternalLink, ListChecks, FolderKanban, FileText, CheckSquare
+  Link2, ChevronRight, ExternalLink, ListChecks, FolderKanban, FileText, CheckSquare, Plus
 } from 'lucide-react';
 import {
   fetchTracks, fetchMeetings, fetchProjects, fetchActivities, fetchDocuments, fetchTrack,
+  createActivity, updateActivityStatus, createTrack,
 } from '../services/notionApi';
+
+const ACT_CYCLE = { 'Aberto': 'Em andamento', 'Em andamento': 'Fechado', 'Fechado': 'Aberto' };
+const FRENTES = ['PCR 1913', 'Tokenização TD', 'Google Pay', 'Apple Pay', 'Garmin Pay', 'Click to Pay', 'Mandato OCT-AFT', 'Mandato ANI'];
+const TRACK_STATUSES = ['Sin iniciar', 'Pendente', 'Em curso', 'Em curso - atrasado', 'Bloqueado', 'Concluído'];
+const inputCls = 'w-full bg-[#0b1626] border border-[#273647] rounded-lg px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:border-[#FAA61A]/50 outline-none';
 
 // ---------- estilos/rótulos (chave = dado no Notion; rótulo = espanhol) ----------
 const STATUS_STYLE = {
@@ -37,6 +43,96 @@ function fmtDate(iso) {
   return d && m && y ? `${d}/${m}/${y}` : iso;
 }
 const first = (v) => (Array.isArray(v) ? v[0] : v);
+
+// ---------- formulários de escrita ----------
+function NewActivityForm({ trackId, onDone }) {
+  const [open, setOpen] = useState(false);
+  const [name, setName] = useState('');
+  const [responsavel, setResponsavel] = useState('');
+  const [prazo, setPrazo] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState(null);
+
+  const submit = async (e) => {
+    e.preventDefault();
+    if (!name.trim()) return;
+    setSaving(true); setError(null);
+    try {
+      await createActivity({ trackId, name: name.trim(), responsavel: responsavel.trim(), status: 'Aberto', prazo: prazo || undefined });
+      setName(''); setResponsavel(''); setPrazo(''); setOpen(false);
+      onDone && onDone();
+    } catch (err) { setError(err.message); } finally { setSaving(false); }
+  };
+
+  if (!open) return (
+    <button onClick={() => setOpen(true)} className="flex items-center gap-1.5 text-xs text-[#FAA61A] hover:text-[#ffca6a] mt-2">
+      <Plus className="w-3.5 h-3.5" /> Nueva actividad
+    </button>
+  );
+  return (
+    <form onSubmit={submit} className="bg-[#0b1626] border border-[#273647] rounded-xl p-3 mt-2 space-y-2">
+      <input className={inputCls} placeholder="Actividad…" value={name} onChange={(e) => setName(e.target.value)} autoFocus />
+      <div className="grid grid-cols-2 gap-2">
+        <input className={inputCls} placeholder="Responsable" value={responsavel} onChange={(e) => setResponsavel(e.target.value)} />
+        <input type="date" className={inputCls} value={prazo} onChange={(e) => setPrazo(e.target.value)} />
+      </div>
+      {error && <p className="text-xs text-rose-400">{error}</p>}
+      <div className="flex gap-2">
+        <button type="submit" disabled={saving} className="text-xs font-semibold bg-[#FAA61A] text-[#0A142F] px-3 py-1.5 rounded-lg disabled:opacity-60">{saving ? 'Guardando…' : 'Guardar'}</button>
+        <button type="button" onClick={() => setOpen(false)} className="text-xs text-slate-400 px-2">Cancelar</button>
+      </div>
+    </form>
+  );
+}
+
+function NewTrackForm({ projetoId, cliente, onDone }) {
+  const [open, setOpen] = useState(false);
+  const [name, setName] = useState('');
+  const [frente, setFrente] = useState('');
+  const [status, setStatus] = useState('Sin iniciar');
+  const [responsavel, setResponsavel] = useState('');
+  const [rutaCritica, setRutaCritica] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState(null);
+
+  const submit = async (e) => {
+    e.preventDefault();
+    if (!name.trim()) return;
+    setSaving(true); setError(null);
+    try {
+      await createTrack({ projetoId, cliente, name: name.trim(), frente: frente || undefined, status, responsavel: responsavel.trim(), rutaCritica });
+      setName(''); setFrente(''); setResponsavel(''); setRutaCritica(false); setStatus('Sin iniciar'); setOpen(false);
+      onDone && onDone();
+    } catch (err) { setError(err.message); } finally { setSaving(false); }
+  };
+
+  if (!open) return (
+    <button onClick={() => setOpen(true)} className="flex items-center gap-1.5 text-xs font-semibold text-[#FAA61A] hover:text-[#ffca6a]">
+      <Plus className="w-3.5 h-3.5" /> Nueva track
+    </button>
+  );
+  return (
+    <form onSubmit={submit} className="bg-[#0b1626] border border-[#273647] rounded-xl p-3 mb-3 space-y-2 max-w-lg">
+      <input className={inputCls} placeholder="Nombre de la track…" value={name} onChange={(e) => setName(e.target.value)} autoFocus />
+      <div className="grid grid-cols-2 gap-2">
+        <select className={inputCls} value={frente} onChange={(e) => setFrente(e.target.value)}>
+          <option value="">Frente…</option>
+          {FRENTES.map((f) => <option key={f} value={f}>{f}</option>)}
+        </select>
+        <select className={inputCls} value={status} onChange={(e) => setStatus(e.target.value)}>
+          {TRACK_STATUSES.map((s) => <option key={s} value={s}>{statusLabel(s)}</option>)}
+        </select>
+      </div>
+      <input className={inputCls} placeholder="Responsable" value={responsavel} onChange={(e) => setResponsavel(e.target.value)} />
+      <label className="flex items-center gap-2 text-xs text-slate-300"><input type="checkbox" checked={rutaCritica} onChange={(e) => setRutaCritica(e.target.checked)} /> Ruta crítica</label>
+      {error && <p className="text-xs text-rose-400">{error}</p>}
+      <div className="flex gap-2">
+        <button type="submit" disabled={saving} className="text-xs font-semibold bg-[#FAA61A] text-[#0A142F] px-3 py-1.5 rounded-lg disabled:opacity-60">{saving ? 'Guardando…' : 'Guardar track'}</button>
+        <button type="button" onClick={() => setOpen(false)} className="text-xs text-slate-400 px-2">Cancelar</button>
+      </div>
+    </form>
+  );
+}
 
 function Badge({ status, className = '' }) {
   return (
@@ -134,7 +230,7 @@ function Dashboard({ projects, tracksByProject, onOpenProject, onOpenTrack }) {
 }
 
 // ---------- Detalhe do projeto ----------
-function ProjectDetail({ project, tracks, documents, onBack, onOpenTrack }) {
+function ProjectDetail({ project, tracks, documents, onBack, onOpenTrack, onChange }) {
   const p = project.props || {};
   const st = trackStats(tracks);
   const cliente = clienteOf(tracks);
@@ -169,7 +265,10 @@ function ProjectDetail({ project, tracks, documents, onBack, onOpenTrack }) {
         <Kpi n={st.atrasados} label="Atrasados" />
       </div>
 
-      <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-2">Tracks del proyecto</h3>
+      <div className="flex items-center justify-between mb-2 gap-3 flex-wrap">
+        <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-400">Tracks del proyecto</h3>
+        <div><NewTrackForm projetoId={project.id} cliente={cliente} onDone={onChange} /></div>
+      </div>
       <div className="bg-[#122131]/60 border border-[#273647] rounded-2xl p-2 mb-6 divide-y divide-[#273647]/60">
         {tracks.length ? tracks.map((t) => <TrackRow key={t.id} track={t} onOpen={onOpenTrack} />)
           : <p className="text-sm text-slate-400 p-3">Sin tracks todavía.</p>}
@@ -204,7 +303,7 @@ function DocRow({ doc }) {
     : <div className="bg-[#1C2B3C] border border-[#273647] rounded-xl px-3 py-2.5">{inner}</div>;
 }
 
-function ActivityRow({ act }) {
+function ActivityRow({ act, onCycle }) {
   const p = act.props || {};
   return (
     <div className="bg-[#122131] border border-[#273647] rounded-xl px-3 py-2.5">
@@ -213,7 +312,14 @@ function ActivityRow({ act }) {
           <CheckSquare className="w-3.5 h-3.5 text-slate-400 mt-0.5 flex-none" />
           <span className="text-[13px] text-slate-200">{p['Atividade']}</span>
         </div>
-        <Badge status={p['Status']} className="flex-none" />
+        <button
+          type="button"
+          onClick={() => onCycle && onCycle(act.id, ACT_CYCLE[p['Status']] || 'Aberto')}
+          title="Cambiar estado"
+          className="flex-none hover:opacity-80 cursor-pointer"
+        >
+          <Badge status={p['Status']} />
+        </button>
       </div>
       <div className="text-[11px] text-slate-400 mt-1.5 ml-5 flex flex-wrap gap-x-3 gap-y-0.5">
         {p['Responsável'] && <span>👤 {p['Responsável']}</span>}
@@ -262,10 +368,17 @@ function RelList({ icon, title, ids, resolve }) {
 }
 
 // ---------- Detalhe do track ----------
-function TrackDetail({ trackId, tracksById, meetingsById, activitiesByTrack, documentsByTrack, onBack }) {
+function TrackDetail({ trackId, tracksById, meetingsById, activitiesByTrack, documentsByTrack, onBack, onChange }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [writeError, setWriteError] = useState(null);
+
+  const cycleActivity = async (pageId, status) => {
+    setWriteError(null);
+    try { await updateActivityStatus(pageId, status); onChange && onChange(); }
+    catch (e) { setWriteError(e.message); }
+  };
 
   useEffect(() => {
     let active = true;
@@ -338,10 +451,16 @@ function TrackDetail({ trackId, tracksById, meetingsById, activitiesByTrack, doc
 
               <div>
                 <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-2">Actividades ({activities.length})</h3>
+                {writeError && (
+                  <div className="text-xs text-amber-300 bg-amber-500/10 border border-amber-500/25 rounded-lg px-3 py-2 mb-2">
+                    No se pudo escribir: {writeError}. ¿La conexión de Notion tiene permiso de <b>Insertar/Actualizar contenido</b>?
+                  </div>
+                )}
                 <div className="space-y-2">
-                  {activities.length ? activities.map((a) => <ActivityRow key={a.id} act={a} />)
+                  {activities.length ? activities.map((a) => <ActivityRow key={a.id} act={a} onCycle={cycleActivity} />)
                     : <p className="text-sm text-slate-400">Sin actividades registradas.</p>}
                 </div>
+                <NewActivityForm trackId={trackId} onDone={onChange} />
               </div>
             </div>
 
@@ -458,11 +577,12 @@ export default function TrackingView() {
       {!loading && !error && (() => {
         if (selTrack) {
           return <TrackDetail trackId={selTrack} tracksById={tracksById} meetingsById={meetingsById}
-            activitiesByTrack={activitiesByTrack} documentsByTrack={documentsByTrack} onBack={() => setSelTrack(null)} />;
+            activitiesByTrack={activitiesByTrack} documentsByTrack={documentsByTrack}
+            onBack={() => setSelTrack(null)} onChange={load} />;
         }
         if (selProject && projectsById[selProject]) {
           return <ProjectDetail project={projectsById[selProject]} tracks={tracksByProject[selProject] || []}
-            documents={documentsByProject[selProject] || []} onBack={backToPanel} onOpenTrack={setSelTrack} />;
+            documents={documentsByProject[selProject] || []} onBack={backToPanel} onOpenTrack={setSelTrack} onChange={load} />;
         }
         return <Dashboard projects={projects} tracksByProject={tracksByProject}
           onOpenProject={setSelProject} onOpenTrack={setSelTrack} />;
