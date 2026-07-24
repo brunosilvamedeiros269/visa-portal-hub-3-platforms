@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ArrowLeft, Clock, FileText, AlertTriangle, Layers, Calendar, User, Sparkles, Plus, Edit3, Globe } from 'lucide-react';
 import { renderStatusBadge } from './DashboardView';
+import ProjectDescription from './ProjectDescription';
 
 export default function ProjectDetailView({ project, meetings, onBack, onOpenIngestion, onOpenAddTrack, onOpenEditClient }) {
   const [activeSubTab, setActiveSubTab] = useState('tracks'); // 'tracks' | 'reunioes'
@@ -53,7 +54,7 @@ export default function ProjectDetailView({ project, meetings, onBack, onOpenIng
             </div>
 
             <h1 className="text-2xl font-bold text-white mt-2">{project.titulo}</h1>
-            <p className="text-xs text-slate-300 mt-1 max-w-3xl">{project.descricao}</p>
+            <ProjectDescription description={project.descricao} className="max-w-3xl" />
           </div>
 
           <div className="flex items-center space-x-2 self-start md:self-center">

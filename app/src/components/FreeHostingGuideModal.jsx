@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { X, Cloud, Server, Database, Globe, CheckCircle2, Copy, ExternalLink, ShieldCheck, Zap } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function FreeHostingGuideModal({ isOpen, onClose }) {
+  const { t } = useLanguage();
   const [copiedStep, setCopiedStep] = useState(null);
 
   if (!isOpen) return null;
@@ -24,13 +26,13 @@ export default function FreeHostingGuideModal({ isOpen, onClose }) {
             </div>
             <div>
               <h2 className="text-xl font-bold text-slate-100 flex items-center gap-2">
-                Guia de Hospedagem 100% Gratuita na Web
+                {t('hostingGuideTitle')}
                 <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-medium">
                   R$ 0,00 / mês
                 </span>
               </h2>
               <p className="text-xs text-slate-400">
-                Como implantar a arquitetura completa (Portal Hub + Supabase + OpenProject + BookStack) online sem custos.
+                {t('hostingGuideSubtitle')}
               </p>
             </div>
           </div>
@@ -49,27 +51,27 @@ export default function FreeHostingGuideModal({ isOpen, onClose }) {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="p-4 rounded-xl bg-slate-800/50 border border-slate-700/50 hover:border-blue-500/40 transition-all">
               <div className="flex items-center gap-2 text-blue-400 font-semibold mb-1">
-                <Globe className="w-4 h-4" /> 1. Portal Frontend
+                <Globe className="w-4 h-4" /> {t('step1Title')}
               </div>
-              <p className="text-xs text-slate-400 mb-2">Hospedagem da interface React</p>
+              <p className="text-xs text-slate-400 mb-2">{t('step1Desc')}</p>
               <div className="text-sm font-bold text-slate-200">Vercel / Netlify</div>
               <span className="text-[10px] text-emerald-400 font-mono">Grátis para sempre (SSL Incluso)</span>
             </div>
 
             <div className="p-4 rounded-xl bg-slate-800/50 border border-slate-700/50 hover:border-indigo-500/40 transition-all">
               <div className="flex items-center gap-2 text-indigo-400 font-semibold mb-1">
-                <Database className="w-4 h-4" /> 2. Banco & API Dados
+                <Database className="w-4 h-4" /> {t('step2Title')}
               </div>
-              <p className="text-xs text-slate-400 mb-2">Persistência & Autenticação</p>
+              <p className="text-xs text-slate-400 mb-2">{t('step2Desc')}</p>
               <div className="text-sm font-bold text-slate-200">Supabase Cloud</div>
               <span className="text-[10px] text-emerald-400 font-mono">Plano Free (2 Projetos Postgres)</span>
             </div>
 
             <div className="p-4 rounded-xl bg-slate-800/50 border border-slate-700/50 hover:border-amber-500/40 transition-all">
               <div className="flex items-center gap-2 text-amber-400 font-semibold mb-1">
-                <Server className="w-4 h-4" /> 3. Docker Containers
+                <Server className="w-4 h-4" /> {t('step3Title')}
               </div>
-              <p className="text-xs text-slate-400 mb-2">OpenProject & BookStack</p>
+              <p className="text-xs text-slate-400 mb-2">{t('step3Desc')}</p>
               <div className="text-sm font-bold text-slate-200">Oracle Free / Render</div>
               <span className="text-[10px] text-emerald-400 font-mono">4 vCPU + 24GB RAM Grátis</span>
             </div>
@@ -150,7 +152,7 @@ export default function FreeHostingGuideModal({ isOpen, onClose }) {
             onClick={onClose}
             className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs transition-colors shadow-lg shadow-blue-500/20"
           >
-            Entendido, Fechar Guia
+            {t('close')}
           </button>
         </div>
 
@@ -158,3 +160,4 @@ export default function FreeHostingGuideModal({ isOpen, onClose }) {
     </div>
   );
 }
+

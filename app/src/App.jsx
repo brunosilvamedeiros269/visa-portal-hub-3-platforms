@@ -4,6 +4,7 @@ import ProjectsView from './components/ProjectsView';
 import WikiShelvesView from './components/WikiShelvesView';
 import DataWikiView from './components/DataWikiView';
 import FreeHostingGuideModal from './components/FreeHostingGuideModal';
+import { LanguageProvider } from './context/LanguageContext';
 
 import { 
   initialProjectsMacro, 
@@ -113,57 +114,59 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans antialiased selection:bg-blue-500 selection:text-white">
-      
-      {/* Header Fixo */}
-      <Header
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        openHostingGuide={() => setIsHostingGuideOpen(true)}
-      />
+    <LanguageProvider>
+      <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans antialiased selection:bg-blue-500 selection:text-white">
+        
+        {/* Header Fixo */}
+        <Header
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          openHostingGuide={() => setIsHostingGuideOpen(true)}
+        />
 
-      {/* Conteúdo Principal */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {activeTab === 'projects' && (
-          <ProjectsView
-            projects={projects}
-            shelves={shelves}
-            onAddProject={handleAddProject}
-            onSelectShelf={handleSelectShelfFromProject}
-          />
-        )}
+        {/* Conteúdo Principal */}
+        <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {activeTab === 'projects' && (
+            <ProjectsView
+              projects={projects}
+              shelves={shelves}
+              onAddProject={handleAddProject}
+              onSelectShelf={handleSelectShelfFromProject}
+            />
+          )}
 
-        {activeTab === 'shelves' && (
-          <WikiShelvesView
-            shelves={shelves}
-            projects={projects}
-            selectedShelfId={selectedShelfId}
-            onAddShelf={handleAddShelf}
-          />
-        )}
+          {activeTab === 'shelves' && (
+            <WikiShelvesView
+              shelves={shelves}
+              projects={projects}
+              selectedShelfId={selectedShelfId}
+              onAddShelf={handleAddShelf}
+            />
+          )}
 
-        {activeTab === 'data' && (
-          <DataWikiView
-            dataTerms={dataTerms}
-            onAddDataTerm={handleAddDataTerm}
-          />
-        )}
-      </main>
+          {activeTab === 'data' && (
+            <DataWikiView
+              dataTerms={dataTerms}
+              onAddDataTerm={handleAddDataTerm}
+            />
+          )}
+        </main>
 
-      {/* Footer */}
-      <footer className="border-t border-slate-900 bg-slate-950/80 py-6 text-center text-xs text-slate-500">
-        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <span>Visa Portal Hub — 3-Platforms Enterprise Architecture</span>
-          <span className="font-mono text-[11px] text-slate-600">OpenProject (:8082) • BookStack (:8080) • Supabase Cloud</span>
-        </div>
-      </footer>
+        {/* Footer */}
+        <footer className="border-t border-slate-900 bg-slate-950/80 py-6 text-center text-xs text-slate-500">
+          <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <span>Visa Portal Hub — 3-Platforms Enterprise Architecture</span>
+            <span className="font-mono text-[11px] text-slate-600">OpenProject (:8082) • BookStack (:8080) • Supabase Cloud</span>
+          </div>
+        </footer>
 
-      {/* Modal de Guia de Hospedagem Web Gratuita */}
-      <FreeHostingGuideModal
-        isOpen={isHostingGuideOpen}
-        onClose={() => setIsHostingGuideOpen(false)}
-      />
+        {/* Modal de Guia de Hospedagem Web Gratuita */}
+        <FreeHostingGuideModal
+          isOpen={isHostingGuideOpen}
+          onClose={() => setIsHostingGuideOpen(false)}
+        />
 
-    </div>
+      </div>
+    </LanguageProvider>
   );
 }

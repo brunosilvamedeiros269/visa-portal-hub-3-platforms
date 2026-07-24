@@ -15,6 +15,8 @@ import {
   Search
 } from 'lucide-react';
 import { fetchOpenProjectData, createOpenProjectViaAPI } from '../services/openprojectApi';
+import ProjectDescription from './ProjectDescription';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function ProjectsView({ 
   projects, 
@@ -22,6 +24,7 @@ export default function ProjectsView({
   onAddProject, 
   onSelectShelf 
 }) {
+  const { t } = useLanguage();
   const [expandedProjects, setExpandedProjects] = useState({ 'op-macro-01': true, 'op-macro-02': true });
   const [searchTerm, setSearchTerm] = useState('');
   const [apiKey, setApiKey] = useState(localStorage.getItem('openproject_api_key') || '');
@@ -96,6 +99,14 @@ export default function ProjectsView({
     p.cliente.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const translateStatus = (statusStr) => {
+    if (statusStr === 'Em Progresso') return t('inProgress');
+    if (statusStr === 'Em Homologação') return t('inHomologation');
+    if (statusStr === 'Concluído') return t('completedStatus');
+    if (statusStr === 'Planejado') return t('plannedStatus');
+    return statusStr;
+  };
+
   return (
     <div className="space-y-6">
       
@@ -106,15 +117,15 @@ export default function ProjectsView({
             <span className="p-1.5 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400">
               <FolderGit2 className="w-5 h-5" />
             </span>
-            <h1 className="text-xl font-bold text-slate-100">Gestão Macro de Projetos & Subprojetos</h1>
+            <h1 className="text-xl font-bold text-slate-100">{t('projectsTitle')}</h1>
             <span className={`text-xs px-2.5 py-0.5 rounded-full font-mono font-medium ${
               liveProjects ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
             }`}>
-              {liveProjects ? '⚡ OpenProject Live Sync Ativo' : 'OpenProject Integration'}
+              {liveProjects ? t('liveSyncActive') : t('openprojectIntegration')}
             </span>
           </div>
           <p className="text-xs text-slate-400">
-            Espelhamento em tempo real dos projetos criados no OpenProject Server local.
+            {t('projectsSubtitle')}
           </p>
         </div>
 
@@ -124,7 +135,7 @@ export default function ProjectsView({
             className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium border border-slate-700 transition-colors"
           >
             <Key className="w-3.5 h-3.5 text-amber-400" />
-            <span>{apiKey ? 'API Token Configurado' : 'Conectar Token OpenProject'}</span>
+            <span>{apiKey ? t('apiTokenConfigured') : t('connectToken')}</span>
           </button>
 
           {apiKey && (
@@ -134,7 +145,7 @@ export default function ProjectsView({
               className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium border border-slate-700 transition-colors"
             >
               <RefreshCw className={`w-3.5 h-3.5 text-blue-400 ${isSyncing ? 'animate-spin' : ''}`} />
-              <span>Sincronizar</span>
+              <span>{isSyncing ? t('syncing') : t('sync')}</span>
             </button>
           )}
 
@@ -145,7 +156,7 @@ export default function ProjectsView({
             className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium border border-slate-700 transition-colors"
           >
             <ExternalLink className="w-3.5 h-3.5 text-blue-400" />
-            <span>Abrir OpenProject Local (:8082)</span>
+            <span>{t('openProjectLocal')}</span>
           </a>
 
           <button
@@ -153,7 +164,7 @@ export default function ProjectsView({
             className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-lg shadow-blue-600/30 transition-all"
           >
             <Plus className="w-4 h-4" />
-            <span>Novo Projeto Macro</span>
+            <span>{t('newMacroProject')}</span>
           </button>
         </div>
       </div>
@@ -164,7 +175,7 @@ export default function ProjectsView({
           <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             type="text"
-            placeholder="Buscar por nome do projeto ou cliente..."
+            placeholder={t('searchPlaceholder')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-10 pr-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-blue-500/60"
@@ -172,7 +183,7 @@ export default function ProjectsView({
         </div>
 
         <div className="text-xs text-slate-400 font-mono">
-          Exibindo {filteredProjects.length} Projetos Espelhados
+          {t('showingProjects', { count: filteredProjects.length })}
         </div>
       </div>
 
@@ -211,20 +222,20 @@ export default function ProjectsView({
                       <span className={`text-[10px] px-2 py-0.5 rounded-full font-mono ${
                         proj.status === 'Em Progresso' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
                       }`}>
-                        {proj.status}
+                        {translateStatus(proj.status)}
                       </span>
                     </div>
 
-                    <p className="text-xs text-slate-400 mt-1">{proj.descricao}</p>
+                    <ProjectDescription description={proj.descricao} />
 
                     <div className="flex items-center gap-4 mt-3 text-xs text-slate-400">
                       <div className="flex items-center gap-1.5">
                         <User className="w-3.5 h-3.5 text-slate-500" />
-                        <span>Gerente: <strong className="text-slate-300">{proj.gerente}</strong></span>
+                        <span>{t('manager')}: <strong className="text-slate-300">{proj.gerente}</strong></span>
                       </div>
                       <div className="flex items-center gap-1.5">
                         <Clock className="w-3.5 h-3.5 text-slate-500" />
-                        <span>Prazo: {proj.data_inicio} até {proj.data_fim}</span>
+                        <span>{t('deadline')}: {proj.data_inicio} {t('until')} {proj.data_fim}</span>
                       </div>
                       {linkedShelf && (
                         <button 
@@ -248,7 +259,7 @@ export default function ProjectsView({
                       style={{ width: `${proj.progresso}%` }}
                     />
                   </div>
-                  <span className="text-xs text-slate-300 font-semibold">{proj.progresso}% Concluído</span>
+                  <span className="text-xs text-slate-300 font-semibold">{proj.progresso}% {t('completed')}</span>
                 </div>
               </div>
 
@@ -257,12 +268,12 @@ export default function ProjectsView({
                 <div className="p-5 bg-slate-950/40 space-y-3 border-t border-slate-800/40">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                      <Layers className="w-3.5 h-3.5 text-blue-400" /> Subprojetos Técnicos / Projetos Filhos ({subList.length})
+                      <Layers className="w-3.5 h-3.5 text-blue-400" /> {t('subprojectsCount', { count: subList.length })}
                     </span>
                   </div>
 
                   {subList.length === 0 ? (
-                    <div className="text-xs text-slate-500 py-3 italic">Nenhum subprojeto vinculado no OpenProject ainda.</div>
+                    <div className="text-xs text-slate-500 py-3 italic">{t('noSubprojects')}</div>
                   ) : (
                     <div className="grid grid-cols-1 gap-2.5">
                       {subList.map((sub) => (
@@ -274,16 +285,16 @@ export default function ProjectsView({
                             <div>
                               <div className="text-xs font-bold text-slate-200">{sub.titulo}</div>
                               <div className="text-[11px] text-slate-400 mt-0.5 flex items-center gap-3">
-                                <span>Responsável: <strong className="text-slate-300">{sub.responsavel}</strong></span>
+                                <span>{t('responsible')}: <strong className="text-slate-300">{sub.responsavel}</strong></span>
                                 <span>•</span>
-                                <span>Entregável: <span className="text-blue-400">{sub.entregavel}</span></span>
+                                <span>{t('deliverable')}: <span className="text-blue-400">{sub.entregavel}</span></span>
                               </div>
                             </div>
                           </div>
 
                           <div className="flex items-center gap-3">
                             <span className="text-[10px] px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 border border-slate-700/60 font-mono">
-                              {sub.status}
+                              {translateStatus(sub.status)}
                             </span>
                             <div className="w-20 bg-slate-800 rounded-full h-1.5 overflow-hidden">
                               <div className="bg-blue-400 h-full rounded-full" style={{ width: `${sub.progresso}%` }}></div>
@@ -308,22 +319,22 @@ export default function ProjectsView({
           <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-4">
             <div className="flex items-center gap-2">
               <Key className="w-5 h-5 text-amber-400" />
-              <h3 className="text-lg font-bold text-slate-100">Conectar API Token do OpenProject</h3>
+              <h3 className="text-lg font-bold text-slate-100">{t('connectTokenTitle')}</h3>
             </div>
             
             <p className="text-xs text-slate-400">
-              Para espelhar automaticamente os projetos criados no seu OpenProject local (`:8082`):
+              {t('connectTokenDescription')}
             </p>
 
             <ol className="text-xs text-slate-300 space-y-1.5 list-decimal list-inside bg-slate-950 p-3 rounded-xl border border-slate-800">
-              <li>No OpenProject (`:8082`), acesse <strong>Minha Conta</strong> (canto sup. direito).</li>
-              <li>Clique em <strong>Access Tokens</strong> (Tokens de Acesso).</li>
-              <li>Clique em <strong>Generate</strong> no item <em>API Token</em> e copie o código.</li>
+              <li>No OpenProject (`:8082`), acesse <strong>Minha Conta</strong>.</li>
+              <li>Clique em <strong>Access Tokens</strong>.</li>
+              <li>Clique em <strong>Generate</strong> em <em>API Token</em> e copie o código.</li>
             </ol>
 
             <form onSubmit={handleSaveApiKey} className="space-y-3 pt-1">
               <div>
-                <label className="text-xs font-semibold text-slate-400 block mb-1">OpenProject API Token</label>
+                <label className="text-xs font-semibold text-slate-400 block mb-1">{t('apiKeyLabel')}</label>
                 <input
                   type="password"
                   required
@@ -340,13 +351,13 @@ export default function ProjectsView({
                   onClick={() => setShowApiModal(false)}
                   className="px-4 py-2 rounded-xl text-xs font-medium text-slate-400 hover:bg-slate-800"
                 >
-                  Cancelar
+                  {t('cancel')}
                 </button>
                 <button
                   type="submit"
                   className="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold shadow-md shadow-amber-600/30"
                 >
-                  Salvar & Espelhar Agora
+                  {t('saveToken')}
                 </button>
               </div>
             </form>
@@ -358,10 +369,10 @@ export default function ProjectsView({
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4">
           <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 space-y-4">
-            <h3 className="text-lg font-bold text-slate-100">Criar Novo Projeto Macro</h3>
+            <h3 className="text-lg font-bold text-slate-100">{t('newProjectTitle')}</h3>
             <form onSubmit={handleCreateProject} className="space-y-3">
               <div>
-                <label className="text-xs font-semibold text-slate-400 block mb-1">Título do Projeto Macro</label>
+                <label className="text-xs font-semibold text-slate-400 block mb-1">{t('projectTitleLabel')}</label>
                 <input
                   type="text"
                   required
@@ -374,7 +385,7 @@ export default function ProjectsView({
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-semibold text-slate-400 block mb-1">Cliente / Emissor</label>
+                  <label className="text-xs font-semibold text-slate-400 block mb-1">{t('clientLabel')}</label>
                   <input
                     type="text"
                     required
@@ -386,7 +397,7 @@ export default function ProjectsView({
                 </div>
 
                 <div>
-                  <label className="text-xs font-semibold text-slate-400 block mb-1">País</label>
+                  <label className="text-xs font-semibold text-slate-400 block mb-1">{t('countryLabel')}</label>
                   <select
                     value={newProject.pais}
                     onChange={e => {
@@ -405,7 +416,7 @@ export default function ProjectsView({
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-slate-400 block mb-1">Descrição</label>
+                <label className="text-xs font-semibold text-slate-400 block mb-1">{t('descriptionLabel')}</label>
                 <textarea
                   rows="3"
                   placeholder="Resumo do projeto macro e objetivos estratégicos..."
@@ -421,13 +432,13 @@ export default function ProjectsView({
                   onClick={() => setShowAddModal(false)}
                   className="px-4 py-2 rounded-xl text-xs font-medium text-slate-400 hover:bg-slate-800"
                 >
-                  Cancelar
+                  {t('cancel')}
                 </button>
                 <button
                   type="submit"
                   className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-md shadow-blue-600/30"
                 >
-                  Criar Projeto
+                  {t('createProjectButton')}
                 </button>
               </div>
             </form>
@@ -438,3 +449,4 @@ export default function ProjectsView({
     </div>
   );
 }
+

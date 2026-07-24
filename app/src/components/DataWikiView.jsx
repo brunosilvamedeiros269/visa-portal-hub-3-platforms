@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { Database, Plus, Search, Tag, Code, FileText, CheckCircle2 } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function DataWikiView({ dataTerms, onAddDataTerm }) {
+  const { t } = useLanguage();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [showAddModal, setShowAddModal] = useState(false);
@@ -37,13 +39,13 @@ export default function DataWikiView({ dataTerms, onAddDataTerm }) {
             <span className="p-1.5 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400">
               <Database className="w-5 h-5" />
             </span>
-            <h1 className="text-xl font-bold text-slate-100">Wiki de Dados & Dicionário de Termos</h1>
+            <h1 className="text-xl font-bold text-slate-100">{t('dataWikiTitle')}</h1>
             <span className="text-xs px-2.5 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 font-mono">
               Supabase Metadata Store
             </span>
           </div>
           <p className="text-xs text-slate-400">
-            Catálogo técnico unificado de termos EMV, formatos de campos ISO 8583, criptogramas e esquemas de dados.
+            {t('dataWikiSubtitle')}
           </p>
         </div>
 
@@ -52,9 +54,10 @@ export default function DataWikiView({ dataTerms, onAddDataTerm }) {
           className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-lg shadow-indigo-600/30 transition-all self-start md:self-auto"
         >
           <Plus className="w-4 h-4" />
-          <span>Novo Termo Técnico</span>
+          <span>{t('newTerm')}</span>
         </button>
       </div>
+
 
       {/* Search & Categories */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

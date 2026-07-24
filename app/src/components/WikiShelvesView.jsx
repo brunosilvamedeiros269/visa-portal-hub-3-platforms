@@ -15,6 +15,7 @@ import {
   Layers,
   Info
 } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function WikiShelvesView({ 
   shelves, 
@@ -23,6 +24,7 @@ export default function WikiShelvesView({
   onAddShelf,
   onAddBookToShelf 
 }) {
+  const { t } = useLanguage();
   const [filterType, setFilterType] = useState('all'); // 'all', 'geral', 'projeto'
   const [activeShelfId, setActiveShelfId] = useState(selectedShelfId || shelves[0]?.id);
   const [activeBookId, setActiveBookId] = useState(null);
@@ -66,13 +68,13 @@ export default function WikiShelvesView({
             <span className="p-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
               <BookOpen className="w-5 h-5" />
             </span>
-            <h1 className="text-xl font-bold text-slate-100">Wiki Corporativa — Estantes & Livros</h1>
+            <h1 className="text-xl font-bold text-slate-100">{t('wikiTitle')}</h1>
             <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-mono">
               BookStack Architecture
             </span>
           </div>
           <p className="text-xs text-slate-400">
-            Navegue por Estantes Gerais (Arquitetura, Normas, SOPs) e Estantes dedicadas a Projetos Macro.
+            {t('wikiSubtitle')}
           </p>
         </div>
 
@@ -84,7 +86,7 @@ export default function WikiShelvesView({
             className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium border border-slate-700 transition-colors"
           >
             <ExternalLink className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Abrir BookStack Local (:8080)</span>
+            <span>{t('openBookStackLocal')}</span>
           </a>
 
           <button
@@ -92,10 +94,11 @@ export default function WikiShelvesView({
             className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-lg shadow-emerald-600/30 transition-all"
           >
             <Plus className="w-4 h-4" />
-            <span>Nova Estante</span>
+            <span>{t('newShelf')}</span>
           </button>
         </div>
       </div>
+
 
       {/* Filter Tabs (Estantes Gerais vs Estantes de Projetos) */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

@@ -16,6 +16,7 @@ import {
   Sparkles,
   ArrowUpRight
 } from 'lucide-react';
+import ProjectDescription from './ProjectDescription';
 import { renderStatusBadge } from './DashboardView';
 
 export default function DashboardView({ 
@@ -190,7 +191,7 @@ export default function DashboardView({
                     {project.titulo}
                     <ArrowUpRight className="w-4 h-4 text-slate-500 group-hover:text-[#FAA61A]" />
                   </h3>
-                  <p className="text-xs text-slate-300 max-w-3xl leading-relaxed">{project.descricao}</p>
+                  <ProjectDescription description={project.descricao} className="max-w-3xl" />
                 </div>
 
                 {/* Managerial Quick Actions */}
