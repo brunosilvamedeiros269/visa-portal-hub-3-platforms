@@ -21,7 +21,7 @@ services:
     name: visa-openproject
     runtime: image
     image:
-      url: openproject/community:14
+      url: docker.io/openproject/community:latest
     plan: free
     envVars:
       - key: OPENPROJECT_SECRET_KEY_BASE
