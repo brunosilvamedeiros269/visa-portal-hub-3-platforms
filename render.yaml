@@ -6,7 +6,7 @@ services:
     name: visa-bookstack-wiki
     runtime: image
     image:
-      url: lscr.io/linuxserver/bookstack:latest
+      url: docker.io/solidnerd/bookstack:latest
     plan: free
     envVars:
       - key: PUID
@@ -21,7 +21,7 @@ services:
     name: visa-openproject
     runtime: image
     image:
-      url: openproject/openproject:latest
+      url: docker.io/openproject/openproject:14
     plan: free
     envVars:
       - key: OPENPROJECT_SECRET_KEY_BASE
