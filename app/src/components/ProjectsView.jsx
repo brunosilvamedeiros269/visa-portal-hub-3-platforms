@@ -179,8 +179,14 @@ export default function ProjectsView({
       {/* Project Cards List */}
       <div className="space-y-4">
         {filteredProjects.map((proj) => {
-          const isExpanded = expandedProjects[proj.id];
+          const isExpanded = expandedProjects[proj.id] !== false; // Expandido por padrão
           const linkedShelf = shelves.find(s => s.id === proj.estante_id || s.projeto_id === proj.id);
+
+          let subList = proj.subprojetos || [];
+          if (typeof subList === 'string') {
+            try { subList = JSON.parse(subList); } catch(e) { subList = []; }
+          }
+          if (!Array.isArray(subList)) subList = [];
 
           return (
             <div key={proj.id} className="bg-slate-900/80 border border-slate-800 rounded-2xl overflow-hidden transition-all hover:border-slate-700/80 shadow-md">
@@ -251,15 +257,15 @@ export default function ProjectsView({
                 <div className="p-5 bg-slate-950/40 space-y-3 border-t border-slate-800/40">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                      <Layers className="w-3.5 h-3.5 text-blue-400" /> Subprojetos Técnicos / Projetos Filhos ({proj.subprojetos.length})
+                      <Layers className="w-3.5 h-3.5 text-blue-400" /> Subprojetos Técnicos / Projetos Filhos ({subList.length})
                     </span>
                   </div>
 
-                  {proj.subprojetos.length === 0 ? (
+                  {subList.length === 0 ? (
                     <div className="text-xs text-slate-500 py-3 italic">Nenhum subprojeto vinculado no OpenProject ainda.</div>
                   ) : (
                     <div className="grid grid-cols-1 gap-2.5">
-                      {proj.subprojetos.map((sub) => (
+                      {subList.map((sub) => (
                         <div key={sub.id} className="p-3.5 rounded-xl bg-slate-900 border border-slate-800/80 hover:border-slate-700 flex items-center justify-between gap-4 transition-all">
                           <div className="flex items-center gap-3">
                             <div className="p-1.5 rounded-lg bg-blue-500/10 text-blue-400">

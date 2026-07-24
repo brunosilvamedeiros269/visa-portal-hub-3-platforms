@@ -36,9 +36,14 @@ export default function App() {
         // Garantir subprojetos mock se não houver
         const merged = dbProjects.map(p => {
           const matchMock = initialProjectsMacro.find(m => m.id === p.id || m.openproject_id === p.openproject_id);
+          let rawSub = p.subprojetos;
+          if (typeof rawSub === 'string') {
+            try { rawSub = JSON.parse(rawSub); } catch(e) {}
+          }
+          const validSub = (Array.isArray(rawSub) && rawSub.length > 0) ? rawSub : (matchMock ? matchMock.subprojetos : []);
           return {
             ...p,
-            subprojetos: matchMock ? matchMock.subprojetos : []
+            subprojetos: validSub
           };
         });
         setProjects(merged);
