@@ -1,0 +1,60 @@
+services:
+  # ==========================================
+  # 1. BOOKSTACK WIKI (Render Web Service)
+  # ==========================================
+  - type: web
+    name: visa-bookstack-wiki
+    runtime: image
+    image:
+      url: lscr.io/linuxserver/bookstack:latest
+    plan: free
+    envVars:
+      - key: PUID
+        value: "1000"
+      - key: PGID
+        value: "1000"
+      - key: DB_HOST
+        value: bookstack-db-mariadb
+      - key: DB_USER
+        value: bookstack_user
+      - key: DB_PASS
+        value: bookstack_pass
+      - key: DB_DATABASE
+        value: bookstack
+
+  # ==========================================
+  # 2. BOOKSTACK MARIADB DATABASE
+  # ==========================================
+  - type: pserv
+    name: bookstack-db-mariadb
+    runtime: image
+    image:
+      url: lscr.io/linuxserver/mariadb:latest
+    envVars:
+      - key: MYSQL_ROOT_PASSWORD
+        value: bookstack_root_pass
+      - key: MYSQL_DATABASE
+        value: bookstack
+      - key: MYSQL_USER
+        value: bookstack_user
+      - key: MYSQL_PASSWORD
+        value: bookstack_pass
+    disk:
+      name: mariadb-data
+      mountPath: /config
+      sizeGB: 1
+
+  # ==========================================
+  # 3. OPENPROJECT (Render Web Service)
+  # ==========================================
+  - type: web
+    name: visa-openproject
+    runtime: image
+    image:
+      url: openproject/community:14
+    plan: free
+    envVars:
+      - key: OPENPROJECT_SECRET_KEY_BASE
+        value: visa_secret_key_super_secure_12345
+      - key: OPENPROJECT_HTTPS
+        value: "true"
