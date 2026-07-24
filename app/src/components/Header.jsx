@@ -1,9 +1,10 @@
 import React from 'react';
-import { 
-  FolderGit2, 
-  BookOpen, 
-  Database, 
-  Globe, 
+import {
+  LayoutDashboard,
+  FolderGit2,
+  BookOpen,
+  Database,
+  Globe,
   CheckCircle2, 
   Server, 
   Layers,
@@ -44,6 +45,18 @@ export default function Header({
 
           {/* Center Navigation Tabs */}
           <nav className="flex items-center gap-1 bg-slate-950/60 p-1.5 rounded-xl border border-slate-800/80">
+            <button
+              onClick={() => setActiveTab('tracking')}
+              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                activeTab === 'tracking'
+                  ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+              }`}
+            >
+              <LayoutDashboard className="w-4 h-4" />
+              <span>Tracking</span>
+            </button>
+
             <button
               onClick={() => setActiveTab('projects')}
               className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all ${

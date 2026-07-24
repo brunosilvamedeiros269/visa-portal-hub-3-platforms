@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Header from './components/Header';
+import TrackingView from './components/TrackingView';
 import ProjectsView from './components/ProjectsView';
 import WikiShelvesView from './components/WikiShelvesView';
 import DataWikiView from './components/DataWikiView';
@@ -22,7 +23,7 @@ import {
 } from './supabaseClient';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('projects');
+  const [activeTab, setActiveTab] = useState('tracking');
   const [projects, setProjects] = useState(initialProjectsMacro);
   const [shelves, setShelves] = useState(initialShelves);
   const [dataTerms, setDataTerms] = useState(initialDataTerms);
@@ -126,6 +127,10 @@ export default function App() {
 
         {/* Conteúdo Principal */}
         <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {activeTab === 'tracking' && (
+            <TrackingView />
+          )}
+
           {activeTab === 'projects' && (
             <ProjectsView
               projects={projects}
