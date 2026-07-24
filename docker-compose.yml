@@ -43,7 +43,7 @@ services:
   # 2. OPENPROJECT (Gestão Macro/Micro Projetos)
   # ==========================================
   openproject:
-    image: openproject/openproject:latest
+    image: openproject/openproject:14
     container_name: visa_openproject
     environment:
       - OPENPROJECT_SECRET_KEY_BASE=visa_secret_key_super_secure_12345

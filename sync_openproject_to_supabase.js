@@ -1,5 +1,4 @@
 // Sincronizador Automático Bidirecional (OpenProject -> Supabase Cloud)
-// Este script lê os projetos do OpenProject local e atualiza o Supabase em tempo real.
 
 const { createClient } = require('./app/node_modules/@supabase/supabase-js');
 
@@ -14,16 +13,15 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 async function syncOpenProjectToSupabase() {
   let apiKey = DEFAULT_API_KEY;
 
-  // Pegar o argumento que não seja flag
-  const argToken = process.argv.find(arg => !arg.startsWith('--') && !arg.endsWith('.js') && !arg.endsWith('node'));
-  if (argToken) apiKey = argToken;
+  // Pegar argumentos a partir da posição 2 ignorando flags
+  const userToken = process.argv.slice(2).find(arg => !arg.startsWith('--'));
+  if (userToken) apiKey = userToken;
 
   const authHeader = 'Basic ' + Buffer.from('apikey:' + apiKey.trim()).toString('base64');
 
   console.log(`[${new Date().toLocaleTimeString()}] 🔄 Sincronizando OpenProject (:8082) com Supabase Cloud...`);
 
   try {
-    // 1. Buscar todos os projetos no OpenProject
     const res = await fetch(`${OPENPROJECT_URL}/api/v3/projects`, {
       headers: {
         'Authorization': authHeader,
@@ -39,57 +37,80 @@ async function syncOpenProjectToSupabase() {
     const data = await res.json();
     const rawProjects = data._embedded?.elements || [];
 
-    console.log(`📊 Encontrados ${rawProjects.length} projetos no OpenProject.`);
+    console.log(`📊 Encontrados ${rawProjects.length} itens no OpenProject.`);
 
-    // 2. Filtrar apenas projetos Macro (sem pai)
-    const macroProjects = [];
+    // 1. Agrupar subprojetos por ID do pai
     const subProjectsMap = {};
-
     rawProjects.forEach(proj => {
-      const parentLink = proj._links?.parent?.href;
-      if (!parentLink) {
-        // Projeto Macro
-        macroProjects.push({
-          id: `op-live-${proj.id}`,
-          openproject_id: proj.id,
-          titulo: proj.name,
-          cliente: proj.name.split('—')[1]?.trim() || proj.name.split('-')[0]?.trim() || proj.name,
-          pais: proj.name.includes('Alfa') ? 'Brasil' : proj.name.includes('Sul') ? 'Argentina' : 'Uruguai',
-          bandeira: proj.name.includes('Alfa') ? '🇧🇷' : proj.name.includes('Sul') ? '🇦🇷' : '🇺🇾',
-          status: 'Em Progresso',
-          gerente: 'Bruno',
-          progresso: 60,
-          data_inicio: proj.createdAt ? proj.createdAt.split('T')[0] : '2026-07-24',
-          data_fim: '2026-12-31',
-          descricao: proj.description?.raw || 'Projeto sincronizado do OpenProject Server.',
-          estante_id: proj.name.includes('Alfa') ? 'shelf-alfa-01' : proj.name.includes('Sul') ? 'shelf-sul-02' : null
-        });
-      } else {
-        // Subprojeto (Filho)
-        const parentId = parentLink.split('/').pop();
+      const parentHref = proj._links?.parent?.href;
+      if (parentHref) {
+        const parentId = parentHref.split('/').pop();
         if (!subProjectsMap[parentId]) subProjectsMap[parentId] = [];
+
         subProjectsMap[parentId].push({
           id: `op-sub-${proj.id}`,
+          openproject_id: proj.id,
           titulo: proj.name,
-          status: 'Em Desenvolvimento',
-          progresso: 50,
+          status: 'Em Homologação',
+          progresso: 80,
           responsavel: 'Equipe OpenProject',
-          entregavel: 'Entregável Sincronizado'
+          entregavel: proj.description?.raw || 'Subprojeto Técnico'
         });
       }
     });
 
-    // 3. Atualizar tabela projects_macro no Supabase
+    // 2. Montar Projetos Macro (sem pai) com seus subprojetos inclusos
+    const macroProjects = [];
+    const validMacroIds = [];
+
+    rawProjects.forEach(proj => {
+      const parentHref = proj._links?.parent?.href;
+      if (!parentHref) {
+        validMacroIds.push(`op-live-${proj.id}`);
+
+        const children = subProjectsMap[proj.id.toString()] || [];
+
+        macroProjects.push({
+          id: `op-live-${proj.id}`,
+          openproject_id: proj.id,
+          titulo: proj.name,
+          cliente: proj.name.includes('Alfa') ? 'Banco Alfa' : proj.name.includes('Sul') ? 'Banco Sul' : proj.name.includes('Uruguai') ? 'Fintech Uruguai' : proj.name,
+          pais: proj.name.includes('Alfa') ? 'Brasil' : proj.name.includes('Sul') ? 'Argentina' : 'Uruguai',
+          bandeira: proj.name.includes('Alfa') ? '🇧🇷' : proj.name.includes('Sul') ? '🇦🇷' : '🇺🇾',
+          status: 'Em Progresso',
+          gerente: 'Bruno',
+          progresso: children.length > 0 ? 60 : 20,
+          data_inicio: proj.createdAt ? proj.createdAt.split('T')[0] : '2026-07-24',
+          data_fim: '2026-12-31',
+          descricao: proj.description?.raw || 'Projeto espelhado em tempo real do OpenProject Server.',
+          estante_id: proj.name.includes('Alfa') ? 'shelf-alfa-01' : proj.name.includes('Sul') ? 'shelf-sul-02' : null,
+          subprojetos: children
+        });
+      }
+    });
+
+    // 3. Salvar/Atualizar no Supabase
     for (const macro of macroProjects) {
       const { error } = await supabase.from('projects_macro').upsert([macro], { onConflict: 'id' });
       if (error) {
         console.error(`⚠️ Erro ao enviar '${macro.titulo}' para o Supabase:`, error.message);
       } else {
-        console.log(`✅ Sincronizado: ${macro.titulo} (ID OpenProject: #${macro.openproject_id})`);
+        console.log(`✅ Sincronizado: ${macro.titulo} (${macro.subprojetos.length} subprojetos filhos)`);
       }
     }
 
-    console.log(`✨ Sincronização concluída com sucesso! Portal atualizado.\n`);
+    // 4. LIMPAR do Supabase qualquer projeto que foi excluído no OpenProject (ex: Banco Alfa #4)
+    const { data: currentDbProjects } = await supabase.from('projects_macro').select('id');
+    if (currentDbProjects) {
+      for (const dbProj of currentDbProjects) {
+        if (!validMacroIds.includes(dbProj.id)) {
+          console.log(`🗑️ Limpando projeto excluído do OpenProject: ${dbProj.id}`);
+          await supabase.from('projects_macro').delete().eq('id', dbProj.id);
+        }
+      }
+    }
+
+    console.log(`✨ Sincronização concluída com sucesso! Portal alinhado em tempo real.\n`);
 
   } catch (err) {
     console.error("❌ Erro no processo de sincronização:", err.message);
