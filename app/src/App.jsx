@@ -160,8 +160,8 @@ export default function App() {
         {/* Footer */}
         <footer className="border-t border-slate-900 bg-slate-950/80 py-6 text-center text-xs text-slate-500">
           <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <span>Visa Portal Hub — 3-Platforms Enterprise Architecture</span>
-            <span className="font-mono text-[11px] text-slate-600">OpenProject (:8082) • BookStack (:8080) • Supabase Cloud</span>
+            <span>Base de Conocimiento Activa · Visa Implementation Services</span>
+            <span className="text-[11px] text-slate-600">Datos en vivo desde Notion</span>
           </div>
         </footer>
 

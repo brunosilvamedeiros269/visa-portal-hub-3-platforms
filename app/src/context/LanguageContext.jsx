@@ -4,19 +4,16 @@ import { translations } from '../i18n/translations';
 const LanguageContext = createContext();
 
 export function LanguageProvider({ children }) {
-  const [language, setLanguageState] = useState(() => {
-    return localStorage.getItem('visa_portal_lang') || 'pt';
-  });
+  // Interface pública em espanhol (fixo). Ver pedido do produto: "toda a interface deve estar em espanhol".
+  const [language, setLanguageState] = useState('es');
 
-  const setLanguage = (lang) => {
-    if (lang === 'pt' || lang === 'es') {
-      setLanguageState(lang);
-      localStorage.setItem('visa_portal_lang', lang);
-    }
+  const setLanguage = () => {
+    // Idioma fixo em espanhol; seletor removido do header.
+    setLanguageState('es');
   };
 
   const t = (key, params = {}) => {
-    let text = translations[language]?.[key] || translations['pt']?.[key] || key;
+    let text = translations['es']?.[key] || translations['pt']?.[key] || key;
     Object.keys(params).forEach((paramKey) => {
       text = text.replace(`{${paramKey}}`, params[paramKey]);
     });

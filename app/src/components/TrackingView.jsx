@@ -6,6 +6,7 @@ import {
 import { fetchTracks, fetchMeetings, fetchTrack } from '../services/notionApi';
 
 // ---------- helpers ----------
+// Chaves = valores de dado no Notion; rótulos exibidos em espanhol.
 const STATUS_STYLE = {
   'Em curso': 'text-blue-300 bg-blue-500/15 border-blue-500/25',
   'Em curso - atrasado': 'text-orange-300 bg-orange-500/15 border-orange-500/25',
@@ -14,7 +15,16 @@ const STATUS_STYLE = {
   'Bloqueado': 'text-rose-300 bg-rose-500/15 border-rose-500/25',
   'Concluído': 'text-emerald-300 bg-emerald-500/15 border-emerald-500/25',
 };
+const STATUS_LABEL = {
+  'Em curso': 'En curso',
+  'Em curso - atrasado': 'En curso · atrasado',
+  'Pendente': 'Pendiente',
+  'Sin iniciar': 'Sin iniciar',
+  'Bloqueado': 'Bloqueado',
+  'Concluído': 'Concluido',
+};
 const statusClass = (s) => STATUS_STYLE[s] || 'text-slate-300 bg-slate-500/15 border-slate-500/25';
+const statusLabel = (s) => STATUS_LABEL[s] || s || 'Sin estado';
 
 function fmtDate(iso) {
   if (!iso) return '—';
@@ -25,7 +35,7 @@ function fmtDate(iso) {
 function StatusBadge({ status }) {
   return (
     <span className={`text-[11px] px-2.5 py-1 rounded-full font-semibold border whitespace-nowrap ${statusClass(status)}`}>
-      {status || 'Sem status'}
+      {statusLabel(status)}
     </span>
   );
 }
@@ -63,23 +73,23 @@ function Dashboard({ tracks, meetings, onOpen }) {
   const clients = useMemo(() => {
     const map = {};
     for (const t of tracks) {
-      const c = t.props?.['Cliente'] || 'Sem cliente';
+      const c = t.props?.['Cliente'] || 'Sin cliente';
       (map[c] = map[c] || []).push(t);
     }
     return map;
   }, [tracks]);
 
   const total = tracks.length;
-  const andamento = tracks.filter((t) => (t.props?.['Status'] || '').startsWith('Em curso')).length;
+  const enCurso = tracks.filter((t) => (t.props?.['Status'] || '').startsWith('Em curso')).length;
   const atrasados = tracks.filter((t) => (t.props?.['Status'] || '').includes('atrasado')).length;
 
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <Kpi n={total} label="Tracks no total" />
-        <Kpi n={andamento} label="Em andamento" />
+        <Kpi n={total} label="Tracks en total" />
+        <Kpi n={enCurso} label="En curso" />
         <Kpi n={atrasados} label="Atrasados" />
-        <Kpi n={meetings.length} label="Reuniões registradas" />
+        <Kpi n={meetings.length} label="Reuniones registradas" />
       </div>
 
       {Object.entries(clients).map(([cliente, list]) => (
@@ -162,18 +172,18 @@ function TrackDetail({ trackId, tracksById, meetingsById, onBack }) {
   return (
     <div>
       <button onClick={onBack} className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-200 mb-4">
-        <ArrowLeft className="w-4 h-4" /> Voltar ao painel
+        <ArrowLeft className="w-4 h-4" /> Volver al panel
       </button>
 
       {loading && (
         <div className="flex items-center gap-2 text-slate-400 text-sm py-20 justify-center">
-          <Loader2 className="w-4 h-4 animate-spin" /> Carregando track…
+          <Loader2 className="w-4 h-4 animate-spin" /> Cargando track…
         </div>
       )}
 
       {error && !loading && (
         <div className="bg-[#1C2B3C] border border-rose-500/30 rounded-xl p-4 text-sm text-rose-300">
-          Erro ao carregar: {error}
+          Error al cargar: {error}
         </div>
       )}
 
@@ -193,7 +203,7 @@ function TrackDetail({ trackId, tracksById, meetingsById, onBack }) {
             </div>
             {p['Próximo passo'] && (
               <div className="bg-[#1C2B3C] border border-[#273647] border-l-[3px] border-l-[#FAA61A] rounded-xl p-3.5 md:max-w-sm">
-                <div className="text-[10.5px] uppercase tracking-wide text-slate-400 mb-1 flex items-center gap-1.5"><ListChecks className="w-3.5 h-3.5" />Próximo passo</div>
+                <div className="text-[10.5px] uppercase tracking-wide text-slate-400 mb-1 flex items-center gap-1.5"><ListChecks className="w-3.5 h-3.5" />Próximo paso</div>
                 <div className="text-[13px] text-slate-200 leading-snug">{p['Próximo passo']}</div>
               </div>
             )}
@@ -201,37 +211,37 @@ function TrackDetail({ trackId, tracksById, meetingsById, onBack }) {
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 mb-6">
             <div className="bg-[#122131] border border-[#273647] rounded-xl px-3 py-2.5">
-              <div className="text-[10.5px] uppercase tracking-wide text-slate-400">Responsável</div>
+              <div className="text-[10.5px] uppercase tracking-wide text-slate-400">Responsable</div>
               <div className="text-[13px] font-semibold text-slate-200 mt-1">{p['Responsável'] || '—'}</div>
             </div>
             <div className="bg-[#122131] border border-[#273647] rounded-xl px-3 py-2.5">
-              <div className="text-[10.5px] uppercase tracking-wide text-slate-400">Início</div>
+              <div className="text-[10.5px] uppercase tracking-wide text-slate-400">Inicio</div>
               <div className="text-[13px] font-semibold text-slate-200 mt-1">{fmtDate(p['Início'])}</div>
             </div>
             <div className="bg-[#122131] border border-[#273647] rounded-xl px-3 py-2.5">
-              <div className="text-[10.5px] uppercase tracking-wide text-slate-400">Previsão / prazo</div>
+              <div className="text-[10.5px] uppercase tracking-wide text-slate-400">Previsión / plazo</div>
               <div className="text-[13px] font-semibold text-[#FAA61A] mt-1">{fmtDate(p['Previsão fim'])}</div>
             </div>
             <div className="bg-[#122131] border border-[#273647] rounded-xl px-3 py-2.5">
               <div className="text-[10.5px] uppercase tracking-wide text-slate-400">Ruta crítica</div>
-              <div className="text-[13px] font-semibold text-slate-200 mt-1">{p['Ruta crítica'] ? 'Sim' : 'Não'}</div>
+              <div className="text-[13px] font-semibold text-slate-200 mt-1">{p['Ruta crítica'] ? 'Sí' : 'No'}</div>
             </div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
             <div className="lg:col-span-2 bg-[#1C2B3C] border border-[#273647] rounded-2xl p-5">
               {(data.blocks || []).length === 0
-                ? <p className="text-sm text-slate-400">Sem conteúdo detalhado nesta página.</p>
+                ? <p className="text-sm text-slate-400">Sin contenido detallado en esta página.</p>
                 : data.blocks.map((b, i) => <Block key={i} b={b} />)}
               <a href={data.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-[#FAA61A] mt-5">
-                <ExternalLink className="w-3.5 h-3.5" /> Editar no Notion
+                <ExternalLink className="w-3.5 h-3.5" /> Editar en Notion
               </a>
             </div>
 
             <div className="space-y-4">
               <RelList icon={<Link2 className="w-3.5 h-3.5" />} title="Depende de" ids={p['Depende de']} resolve={resolveTrack} />
               <RelList icon={<Flag className="w-3.5 h-3.5" />} title="Requerido por" ids={p['Requerido por']} resolve={resolveTrack} />
-              <RelList icon={<CalendarClock className="w-3.5 h-3.5" />} title="Reuniões relacionadas" ids={p['Reuniões']} resolve={resolveMeeting} />
+              <RelList icon={<CalendarClock className="w-3.5 h-3.5" />} title="Reuniones relacionadas" ids={p['Reuniões']} resolve={resolveMeeting} />
             </div>
           </div>
         </>
@@ -264,29 +274,29 @@ export default function TrackingView() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-lg font-bold text-slate-100">Acompanhamento de projetos</h2>
-          <p className="text-xs text-slate-400">Dados ao vivo da base Notion — tracks e reuniões por cliente.</p>
+          <h2 className="text-lg font-bold text-slate-100">Seguimiento de proyectos</h2>
+          <p className="text-xs text-slate-400">Datos en vivo de la base Notion — tracks y reuniones por cliente.</p>
         </div>
         <button onClick={load} className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-200 px-3 py-1.5 rounded-lg border border-[#273647] hover:border-[#FAA61A]/40">
-          <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} /> Atualizar
+          <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} /> Actualizar
         </button>
       </div>
 
       {loading && (
         <div className="flex items-center gap-2 text-slate-400 text-sm py-20 justify-center">
-          <Loader2 className="w-4 h-4 animate-spin" /> Carregando dados do Notion…
+          <Loader2 className="w-4 h-4 animate-spin" /> Cargando datos de Notion…
         </div>
       )}
 
       {error && !loading && (
         <div className="bg-[#1C2B3C] border border-amber-500/30 rounded-xl p-5 text-sm">
           <div className="flex items-center gap-2 text-amber-300 font-semibold mb-2">
-            <AlertTriangle className="w-4 h-4" /> Não foi possível ler a base Notion
+            <AlertTriangle className="w-4 h-4" /> No fue posible leer la base Notion
           </div>
           <p className="text-slate-300 mb-2">{error}</p>
           <ul className="text-slate-400 text-[13px] list-disc ml-5 space-y-1">
-            <li>Confirme que a variável <code className="text-slate-200">NOTION_TOKEN</code> está no Vercel e que houve um novo deploy.</li>
-            <li>Confirme que a conexão <code className="text-slate-200">Dashboard Vercel VISA</code> foi ligada à página <b>Projetos</b> no Notion.</li>
+            <li>Verificá que la variable <code className="text-slate-200">NOTION_TOKEN</code> esté en Vercel y que haya un nuevo deploy.</li>
+            <li>Verificá que la conexión <code className="text-slate-200">Dashboard Vercel VISA</code> esté vinculada a la página <b>Proyectos</b> en Notion.</li>
           </ul>
         </div>
       )}
