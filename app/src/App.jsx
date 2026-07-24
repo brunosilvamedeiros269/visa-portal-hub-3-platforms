@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from './components/Header';
 import ProjectsView from './components/ProjectsView';
 import WikiShelvesView from './components/WikiShelvesView';
@@ -11,6 +11,15 @@ import {
   initialDataTerms 
 } from './mockData';
 
+import { 
+  fetchProjectsMacroSupabase, 
+  saveProjectMacroSupabase,
+  fetchShelvesSupabase,
+  saveShelfSupabase,
+  fetchDataTermsSupabase,
+  saveDataTermSupabase
+} from './supabaseClient';
+
 export default function App() {
   const [activeTab, setActiveTab] = useState('projects');
   const [projects, setProjects] = useState(initialProjectsMacro);
@@ -19,9 +28,40 @@ export default function App() {
   const [selectedShelfId, setSelectedShelfId] = useState(null);
   const [isHostingGuideOpen, setIsHostingGuideOpen] = useState(false);
 
+  // Carregar dados do Supabase ao iniciar
+  useEffect(() => {
+    async function loadSupabaseData() {
+      const dbProjects = await fetchProjectsMacroSupabase();
+      if (dbProjects && dbProjects.length > 0) {
+        // Garantir subprojetos mock se não houver
+        const merged = dbProjects.map(p => {
+          const matchMock = initialProjectsMacro.find(m => m.id === p.id || m.openproject_id === p.openproject_id);
+          return {
+            ...p,
+            subprojetos: matchMock ? matchMock.subprojetos : []
+          };
+        });
+        setProjects(merged);
+      }
+
+      const dbShelves = await fetchShelvesSupabase();
+      if (dbShelves && dbShelves.length > 0) {
+        setShelves(dbShelves);
+      }
+
+      const dbTerms = await fetchDataTermsSupabase();
+      if (dbTerms && dbTerms.length > 0) {
+        setDataTerms(dbTerms);
+      }
+    }
+
+    loadSupabaseData();
+  }, []);
+
   // Handlers
-  const handleAddProject = (newProject) => {
+  const handleAddProject = async (newProject) => {
     setProjects(prev => [newProject, ...prev]);
+    await saveProjectMacroSupabase(newProject);
 
     // Criar automaticamente uma Estante de Projeto correspondente no BookStack
     const newShelf = {
@@ -49,14 +89,17 @@ export default function App() {
     };
 
     setShelves(prev => [newShelf, ...prev]);
+    await saveShelfSupabase(newShelf);
   };
 
-  const handleAddShelf = (newShelf) => {
+  const handleAddShelf = async (newShelf) => {
     setShelves(prev => [newShelf, ...prev]);
+    await saveShelfSupabase(newShelf);
   };
 
-  const handleAddDataTerm = (newTerm) => {
+  const handleAddDataTerm = async (newTerm) => {
     setDataTerms(prev => [newTerm, ...prev]);
+    await saveDataTermSupabase(newTerm);
   };
 
   const handleSelectShelfFromProject = (shelfId) => {
