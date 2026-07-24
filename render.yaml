@@ -6,13 +6,15 @@ services:
     name: visa-bookstack-wiki
     runtime: image
     image:
-      url: docker.io/solidnerd/bookstack:latest
+      url: lscr.io/linuxserver/bookstack:latest
     plan: free
     envVars:
       - key: PUID
         value: "1000"
       - key: PGID
         value: "1000"
+      - key: APP_URL
+        value: https://visa-bookstack-wiki.onrender.com
 
   # ==========================================
   # 2. OPENPROJECT (Free Web Service)
