@@ -76,13 +76,13 @@ export default function ProjectsView({
 
         <div className="flex items-center gap-3">
           <a
-            href={import.meta.env.VITE_OPENPROJECT_URL || "https://visa-openproject.onrender.com"}
+            href="http://localhost:8082"
             target="_blank"
             rel="noreferrer"
             className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium border border-slate-700 transition-colors"
           >
             <ExternalLink className="w-3.5 h-3.5 text-blue-400" />
-            <span>Abrir OpenProject Server (Cloud)</span>
+            <span>Abrir OpenProject Local (:8082)</span>
           </a>
 
           <button
