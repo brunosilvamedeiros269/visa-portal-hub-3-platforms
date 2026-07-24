@@ -11,8 +11,12 @@ const NOTION_VERSION = '2022-06-28';
 
 // IDs dos databases criados no teamspace VISA (não são segredos).
 const DB = {
+  clients: '06e934e012aa46478e5b9927190853c9',
+  projects: '7f84b92b376f484f892b10c042432fc7',
   tracks: '9ca96ffb73bd436088ac370dd86fb5bc',
   meetings: '42e56f815dbb4d259e7c264a393e8ef6',
+  activities: '3411b38c635746c991b8c9f32f739aaf',
+  documents: '23f321f1f9aa47e3a1988e9dd52e3cc8',
 };
 
 function txt(rich) {
@@ -114,6 +118,18 @@ module.exports = async (req, res) => {
     }
     if (resource === 'meetings') {
       return res.status(200).json({ meetings: await queryDatabase(DB.meetings) });
+    }
+    if (resource === 'projects') {
+      return res.status(200).json({ projects: await queryDatabase(DB.projects) });
+    }
+    if (resource === 'clients') {
+      return res.status(200).json({ clients: await queryDatabase(DB.clients) });
+    }
+    if (resource === 'activities') {
+      return res.status(200).json({ activities: await queryDatabase(DB.activities) });
+    }
+    if (resource === 'documents') {
+      return res.status(200).json({ documents: await queryDatabase(DB.documents) });
     }
     if (resource === 'track' && id) {
       const page = await notionFetch(`/pages/${id}`);

@@ -18,5 +18,8 @@ async function call(params) {
 
 export const fetchTracks = () => call({ resource: 'tracks' }).then((d) => d.tracks || []);
 export const fetchMeetings = () => call({ resource: 'meetings' }).then((d) => d.meetings || []);
+export const fetchProjects = () => call({ resource: 'projects' }).then((d) => d.projects || []);
+export const fetchActivities = () => call({ resource: 'activities' }).then((d) => d.activities || []);
+export const fetchDocuments = () => call({ resource: 'documents' }).then((d) => d.documents || []);
 export const fetchTrack = (id) => call({ resource: 'track', id });
 export const checkHealth = () => call({ resource: 'health' });
