@@ -1,12 +1,5 @@
 import React from 'react';
-import { LayoutDashboard, FolderKanban, BookOpen, Database } from 'lucide-react';
-
-const TABS = [
-  { id: 'tracking', label: 'Seguimiento', icon: LayoutDashboard },
-  { id: 'projects', label: 'Proyectos', icon: FolderKanban },
-  { id: 'shelves', label: 'Wiki', icon: BookOpen },
-  { id: 'data', label: 'Diccionario', icon: Database },
-];
+import { LayoutDashboard } from 'lucide-react';
 
 // Wordmark Visa (evocação da marca para uso interno do time VIS).
 function VisaWordmark() {
@@ -23,7 +16,7 @@ function VisaWordmark() {
   );
 }
 
-export default function Header({ activeTab, setActiveTab }) {
+export default function Header() {
   return (
     <header className="sticky top-0 z-40 bg-[#0A142F]/95 backdrop-blur-md border-b border-[#1e2a44]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -39,21 +32,11 @@ export default function Header({ activeTab, setActiveTab }) {
           </div>
 
           {/* Navegación */}
-          <nav className="flex items-center gap-1 bg-[#050e1f]/70 p-1 rounded-xl border border-[#1e2a44] overflow-x-auto">
-            {TABS.map(({ id, label, icon: Icon }) => (
-              <button
-                key={id}
-                onClick={() => setActiveTab(id)}
-                className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-[13px] font-medium transition-all whitespace-nowrap ${
-                  activeTab === id
-                    ? 'bg-[#1A1F71] text-white shadow-md shadow-[#1A1F71]/40'
-                    : 'text-slate-400 hover:text-slate-100 hover:bg-white/5'
-                }`}
-              >
-                <Icon className="w-4 h-4" />
-                <span>{label}</span>
-              </button>
-            ))}
+          <nav className="flex items-center gap-1 bg-[#050e1f]/70 p-1 rounded-xl border border-[#1e2a44]">
+            <span className="flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-[13px] font-medium bg-[#1A1F71] text-white shadow-md shadow-[#1A1F71]/40">
+              <LayoutDashboard className="w-4 h-4" />
+              Seguimiento
+            </span>
           </nav>
 
           {/* Estado en vivo */}
