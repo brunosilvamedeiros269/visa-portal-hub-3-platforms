@@ -14,7 +14,7 @@ export default function App() {
       <footer className="border-t border-[#1e2a44] bg-[#0A142F]/80 py-6 text-center text-xs text-slate-500">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
           <span>Base de Conocimiento Activa · Visa Implementation Services</span>
-          <span className="text-[11px] text-slate-600">Datos en vivo desde Notion</span>
+          <span className="text-[11px] text-slate-600">Datos en vivo desde Supabase</span>
         </div>
       </footer>
     </div>

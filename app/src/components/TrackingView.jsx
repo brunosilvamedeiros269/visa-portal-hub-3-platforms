@@ -1,592 +1,287 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
-  ArrowLeft, AlertTriangle, CalendarClock, Flag, Loader2, RefreshCw,
-  Link2, ChevronRight, ExternalLink, ListChecks, FolderKanban, FileText, CheckSquare, Plus
+  RefreshCw, Loader2, AlertTriangle, ChevronRight, ArrowLeft, Plus, Flag, FolderKanban, Building2, CalendarClock,
 } from 'lucide-react';
+import { fetchAll, createCliente, createProjeto, createTrack } from '../services/data';
 import {
-  fetchTracks, fetchMeetings, fetchProjects, fetchActivities, fetchDocuments, fetchTrack,
-  createActivity, updateActivityStatus, createTrack,
-} from '../services/notionApi';
+  Badge, fmtDate, stDot, inputCls, btnGold, linkGold, FRENTES, TRACK_STATUSES,
+} from './trackingUi';
+import TrackCockpit from './TrackCockpit';
 
-const ACT_CYCLE = { 'Aberto': 'Em andamento', 'Em andamento': 'Fechado', 'Fechado': 'Aberto' };
-const FRENTES = ['PCR 1913', 'Tokenização TD', 'Google Pay', 'Apple Pay', 'Garmin Pay', 'Click to Pay', 'Mandato OCT-AFT', 'Mandato ANI'];
-const TRACK_STATUSES = ['Sin iniciar', 'Pendente', 'Em curso', 'Em curso - atrasado', 'Bloqueado', 'Concluído'];
-const inputCls = 'w-full bg-[#0b1626] border border-[#273647] rounded-lg px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:border-[#FAA61A]/50 outline-none';
-
-// ---------- estilos/rótulos (chave = dado no Notion; rótulo = espanhol) ----------
-const STATUS_STYLE = {
-  'Em curso': 'text-blue-300 bg-blue-500/15 border-blue-500/25',
-  'Em curso - atrasado': 'text-orange-300 bg-orange-500/15 border-orange-500/25',
-  'Pendente': 'text-yellow-300 bg-yellow-500/15 border-yellow-500/25',
-  'Sin iniciar': 'text-slate-300 bg-slate-500/15 border-slate-500/25',
-  'Bloqueado': 'text-rose-300 bg-rose-500/15 border-rose-500/25',
-  'Concluído': 'text-emerald-300 bg-emerald-500/15 border-emerald-500/25',
-  // projeto
-  'Planejamento': 'text-slate-300 bg-slate-500/15 border-slate-500/25',
-  'Em andamento': 'text-blue-300 bg-blue-500/15 border-blue-500/25',
-  // atividade
-  'Aberto': 'text-blue-300 bg-blue-500/15 border-blue-500/25',
-  'Fechado': 'text-emerald-300 bg-emerald-500/15 border-emerald-500/25',
-};
-const STATUS_LABEL = {
-  'Em curso': 'En curso', 'Em curso - atrasado': 'En curso · atrasado',
-  'Pendente': 'Pendiente', 'Sin iniciar': 'Sin iniciar', 'Bloqueado': 'Bloqueado',
-  'Concluído': 'Concluido', 'Planejamento': 'Planificación', 'Em andamento': 'En curso',
-  'Aberto': 'Abierto', 'Fechado': 'Cerrado',
-};
-const statusClass = (s) => STATUS_STYLE[s] || 'text-slate-300 bg-slate-500/15 border-slate-500/25';
-const statusLabel = (s) => STATUS_LABEL[s] || s || 'Sin estado';
-
-function fmtDate(iso) {
-  if (!iso) return '—';
-  const [y, m, d] = iso.slice(0, 10).split('-');
-  return d && m && y ? `${d}/${m}/${y}` : iso;
-}
-const first = (v) => (Array.isArray(v) ? v[0] : v);
-
-// ---------- formulários de escrita ----------
-function NewActivityForm({ trackId, onDone }) {
+// ---------- formulários ----------
+function Collapsible({ label, children }) {
   const [open, setOpen] = useState(false);
-  const [name, setName] = useState('');
-  const [responsavel, setResponsavel] = useState('');
-  const [prazo, setPrazo] = useState('');
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState(null);
+  if (!open) return <button onClick={() => setOpen(true)} className={linkGold}><Plus className="w-3.5 h-3.5" /> {label}</button>;
+  return <div className="bg-[#0b1626] border border-[#273647] rounded-xl p-3 mb-3 max-w-lg">{children(() => setOpen(false))}</div>;
+}
 
-  const submit = async (e) => {
-    e.preventDefault();
-    if (!name.trim()) return;
-    setSaving(true); setError(null);
-    try {
-      await createActivity({ trackId, name: name.trim(), responsavel: responsavel.trim(), status: 'Aberto', prazo: prazo || undefined });
-      setName(''); setResponsavel(''); setPrazo(''); setOpen(false);
-      onDone && onDone();
-    } catch (err) { setError(err.message); } finally { setSaving(false); }
+function Actions({ saving, onCancel, label }) {
+  return (
+    <div className="flex gap-2 mt-1">
+      <button type="submit" disabled={saving} className={btnGold}>{saving ? 'Guardando…' : label}</button>
+      <button type="button" onClick={onCancel} className="text-xs text-slate-400 px-2">Cancelar</button>
+    </div>
+  );
+}
+
+function NewCliente({ onDone }) {
+  const [f, setF] = useState({ nome: '', pais: '', segmento: 'Banco', contatos: '' });
+  const [saving, setSaving] = useState(false); const [error, setError] = useState(null);
+  const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
+  return (
+    <Collapsible label="Nuevo cliente">
+      {(close) => (
+        <form className="space-y-2" onSubmit={async (e) => { e.preventDefault(); if (!f.nome.trim()) return; setSaving(true); setError(null); try { await createCliente({ ...f, nome: f.nome.trim() }); close(); onDone(); } catch (err) { setError(err.message); } finally { setSaving(false); } }}>
+          <input className={inputCls} placeholder="Nombre del cliente" value={f.nome} onChange={set('nome')} autoFocus />
+          <div className="grid grid-cols-2 gap-2">
+            <input className={inputCls} placeholder="País" value={f.pais} onChange={set('pais')} />
+            <input className={inputCls} placeholder="Segmento" value={f.segmento} onChange={set('segmento')} />
+          </div>
+          <input className={inputCls} placeholder="Contactos" value={f.contatos} onChange={set('contatos')} />
+          {error && <p className="text-xs text-rose-400">{error}</p>}
+          <Actions saving={saving} onCancel={close} label="Guardar cliente" />
+        </form>
+      )}
+    </Collapsible>
+  );
+}
+
+function NewProjeto({ clienteId, onDone }) {
+  const [f, setF] = useState({ nome: '', status: 'Em andamento', gerente: '', inicio: '', descricao: '' });
+  const [saving, setSaving] = useState(false); const [error, setError] = useState(null);
+  const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
+  return (
+    <Collapsible label="Nuevo proyecto">
+      {(close) => (
+        <form className="space-y-2" onSubmit={async (e) => { e.preventDefault(); if (!f.nome.trim()) return; setSaving(true); setError(null); try { await createProjeto({ cliente_id: clienteId, nome: f.nome.trim(), status: f.status, gerente: f.gerente || null, inicio: f.inicio || null, descricao: f.descricao || null }); close(); onDone(); } catch (err) { setError(err.message); } finally { setSaving(false); } }}>
+          <input className={inputCls} placeholder="Nombre del proyecto" value={f.nome} onChange={set('nome')} autoFocus />
+          <div className="grid grid-cols-2 gap-2">
+            <input className={inputCls} placeholder="Gerente" value={f.gerente} onChange={set('gerente')} />
+            <input type="date" className={inputCls} value={f.inicio} onChange={set('inicio')} />
+          </div>
+          <input className={inputCls} placeholder="Descripción" value={f.descricao} onChange={set('descricao')} />
+          {error && <p className="text-xs text-rose-400">{error}</p>}
+          <Actions saving={saving} onCancel={close} label="Guardar proyecto" />
+        </form>
+      )}
+    </Collapsible>
+  );
+}
+
+function NewTrack({ projetoId, onDone }) {
+  const [f, setF] = useState({ nome: '', frente: '', status: 'Sin iniciar', responsavel: '', technical_pm: '', waiver_hasta: '', proximo_paso: '', ruta_critica: false });
+  const [saving, setSaving] = useState(false); const [error, setError] = useState(null);
+  const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
+  return (
+    <Collapsible label="Nueva track">
+      {(close) => (
+        <form className="space-y-2" onSubmit={async (e) => { e.preventDefault(); if (!f.nome.trim()) return; setSaving(true); setError(null); try { await createTrack({ projeto_id: projetoId, nome: f.nome.trim(), frente: f.frente || null, status: f.status, responsavel: f.responsavel || null, technical_pm: f.technical_pm || null, waiver_hasta: f.waiver_hasta || null, proximo_paso: f.proximo_paso || null, ruta_critica: f.ruta_critica }); close(); onDone(); } catch (err) { setError(err.message); } finally { setSaving(false); } }}>
+          <input className={inputCls} placeholder="Nombre de la track" value={f.nome} onChange={set('nome')} autoFocus />
+          <div className="grid grid-cols-2 gap-2">
+            <select className={inputCls} value={f.frente} onChange={set('frente')}><option value="">Frente…</option>{FRENTES.map((x) => <option key={x} value={x}>{x}</option>)}</select>
+            <select className={inputCls} value={f.status} onChange={set('status')}>{TRACK_STATUSES.map((x) => <option key={x} value={x}>{x}</option>)}</select>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <input className={inputCls} placeholder="Responsable" value={f.responsavel} onChange={set('responsavel')} />
+            <input className={inputCls} placeholder="Technical PM" value={f.technical_pm} onChange={set('technical_pm')} />
+          </div>
+          <div className="grid grid-cols-2 gap-2 items-center">
+            <label className="text-xs text-slate-400 flex items-center gap-2">Waiver hasta <input type="date" className={inputCls} value={f.waiver_hasta} onChange={set('waiver_hasta')} /></label>
+            <label className="flex items-center gap-2 text-xs text-slate-300"><input type="checkbox" checked={f.ruta_critica} onChange={(e) => setF({ ...f, ruta_critica: e.target.checked })} /> Ruta crítica</label>
+          </div>
+          {error && <p className="text-xs text-rose-400">{error}</p>}
+          <Actions saving={saving} onCancel={close} label="Guardar track" />
+        </form>
+      )}
+    </Collapsible>
+  );
+}
+
+// ---------- helpers de resumo ----------
+function trackStats(list) {
+  return {
+    total: list.length,
+    abiertas: 0,
+    enCurso: list.filter((t) => (t.status || '').startsWith('Em curso')).length,
+    bloqueados: list.filter((t) => t.status === 'Bloqueado').length,
   };
-
-  if (!open) return (
-    <button onClick={() => setOpen(true)} className="flex items-center gap-1.5 text-xs text-[#FAA61A] hover:text-[#ffca6a] mt-2">
-      <Plus className="w-3.5 h-3.5" /> Nueva actividad
-    </button>
-  );
-  return (
-    <form onSubmit={submit} className="bg-[#0b1626] border border-[#273647] rounded-xl p-3 mt-2 space-y-2">
-      <input className={inputCls} placeholder="Actividad…" value={name} onChange={(e) => setName(e.target.value)} autoFocus />
-      <div className="grid grid-cols-2 gap-2">
-        <input className={inputCls} placeholder="Responsable" value={responsavel} onChange={(e) => setResponsavel(e.target.value)} />
-        <input type="date" className={inputCls} value={prazo} onChange={(e) => setPrazo(e.target.value)} />
-      </div>
-      {error && <p className="text-xs text-rose-400">{error}</p>}
-      <div className="flex gap-2">
-        <button type="submit" disabled={saving} className="text-xs font-semibold bg-[#FAA61A] text-[#0A142F] px-3 py-1.5 rounded-lg disabled:opacity-60">{saving ? 'Guardando…' : 'Guardar'}</button>
-        <button type="button" onClick={() => setOpen(false)} className="text-xs text-slate-400 px-2">Cancelar</button>
-      </div>
-    </form>
-  );
 }
 
-function NewTrackForm({ projetoId, cliente, onDone }) {
-  const [open, setOpen] = useState(false);
-  const [name, setName] = useState('');
-  const [frente, setFrente] = useState('');
-  const [status, setStatus] = useState('Sin iniciar');
-  const [responsavel, setResponsavel] = useState('');
-  const [rutaCritica, setRutaCritica] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState(null);
-
-  const submit = async (e) => {
-    e.preventDefault();
-    if (!name.trim()) return;
-    setSaving(true); setError(null);
-    try {
-      await createTrack({ projetoId, cliente, name: name.trim(), frente: frente || undefined, status, responsavel: responsavel.trim(), rutaCritica });
-      setName(''); setFrente(''); setResponsavel(''); setRutaCritica(false); setStatus('Sin iniciar'); setOpen(false);
-      onDone && onDone();
-    } catch (err) { setError(err.message); } finally { setSaving(false); }
-  };
-
-  if (!open) return (
-    <button onClick={() => setOpen(true)} className="flex items-center gap-1.5 text-xs font-semibold text-[#FAA61A] hover:text-[#ffca6a]">
-      <Plus className="w-3.5 h-3.5" /> Nueva track
-    </button>
-  );
-  return (
-    <form onSubmit={submit} className="bg-[#0b1626] border border-[#273647] rounded-xl p-3 mb-3 space-y-2 max-w-lg">
-      <input className={inputCls} placeholder="Nombre de la track…" value={name} onChange={(e) => setName(e.target.value)} autoFocus />
-      <div className="grid grid-cols-2 gap-2">
-        <select className={inputCls} value={frente} onChange={(e) => setFrente(e.target.value)}>
-          <option value="">Frente…</option>
-          {FRENTES.map((f) => <option key={f} value={f}>{f}</option>)}
-        </select>
-        <select className={inputCls} value={status} onChange={(e) => setStatus(e.target.value)}>
-          {TRACK_STATUSES.map((s) => <option key={s} value={s}>{statusLabel(s)}</option>)}
-        </select>
-      </div>
-      <input className={inputCls} placeholder="Responsable" value={responsavel} onChange={(e) => setResponsavel(e.target.value)} />
-      <label className="flex items-center gap-2 text-xs text-slate-300"><input type="checkbox" checked={rutaCritica} onChange={(e) => setRutaCritica(e.target.checked)} /> Ruta crítica</label>
-      {error && <p className="text-xs text-rose-400">{error}</p>}
-      <div className="flex gap-2">
-        <button type="submit" disabled={saving} className="text-xs font-semibold bg-[#FAA61A] text-[#0A142F] px-3 py-1.5 rounded-lg disabled:opacity-60">{saving ? 'Guardando…' : 'Guardar track'}</button>
-        <button type="button" onClick={() => setOpen(false)} className="text-xs text-slate-400 px-2">Cancelar</button>
-      </div>
-    </form>
-  );
-}
-
-function Badge({ status, className = '' }) {
-  return (
-    <span className={`text-[11px] px-2.5 py-1 rounded-full font-semibold border whitespace-nowrap ${statusClass(status)} ${className}`}>
-      {statusLabel(status)}
-    </span>
-  );
-}
-
-function Kpi({ n, label }) {
+function Kpi({ n, label, danger }) {
   return (
     <div className="bg-[#1C2B3C] border border-[#273647] rounded-xl px-4 py-3.5">
-      <div className="text-2xl font-extrabold text-slate-100 leading-none">{n}</div>
+      <div className={`text-2xl font-extrabold leading-none ${danger && n ? 'text-rose-300' : 'text-slate-100'}`}>{n}</div>
       <div className="text-[11px] uppercase tracking-wide text-slate-400 mt-1.5">{label}</div>
     </div>
   );
 }
 
 function TrackRow({ track, onOpen }) {
-  const p = track.props || {};
   return (
-    <button onClick={() => onOpen(track.id)}
-      className="w-full flex items-center justify-between gap-3 text-left px-3 py-2.5 rounded-lg hover:bg-[#122131] transition-colors group">
+    <button onClick={() => onOpen(track.id)} className="w-full flex items-center justify-between gap-3 text-left px-3 py-2.5 rounded-lg hover:bg-[#122131] transition-colors group">
       <span className="flex items-center gap-2.5 min-w-0">
-        {p['Ruta crítica'] && <Flag className="w-3.5 h-3.5 text-[#FAA61A] flex-none" title="Ruta crítica" />}
-        <span className="text-sm text-slate-200 truncate">{p['Track']}</span>
+        {track.ruta_critica && <Flag className="w-3.5 h-3.5 text-[#FAA61A] flex-none" />}
+        <span className="text-sm text-slate-200 truncate">{track.nome}</span>
+        {track.frente && <span className="text-[10px] text-slate-500 hidden md:inline">{track.frente}</span>}
       </span>
       <span className="flex items-center gap-2 flex-none">
-        <Badge status={p['Status']} />
+        {track.waiver_hasta && <span className="text-[10px] text-rose-300 hidden sm:inline">⏳ {fmtDate(track.waiver_hasta)}</span>}
+        <Badge v={track.status} />
         <ChevronRight className="w-4 h-4 text-slate-600 group-hover:text-slate-300" />
       </span>
     </button>
   );
 }
 
-// resumo de status dos tracks de um conjunto
-function trackStats(list) {
-  const enCurso = list.filter((t) => (t.props?.['Status'] || '').startsWith('Em curso')).length;
-  const atrasados = list.filter((t) => (t.props?.['Status'] || '').includes('atrasado')).length;
-  return { total: list.length, enCurso, atrasados };
-}
-function clienteOf(list) {
-  return list.map((t) => t.props?.['Cliente']).find(Boolean) || '—';
-}
-
-// ---------- Dashboard: por projeto ----------
-function Dashboard({ projects, tracksByProject, onOpenProject, onOpenTrack }) {
-  const allTracks = Object.values(tracksByProject).flat();
-  const s = trackStats(allTracks);
-
-  return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <Kpi n={projects.length} label="Proyectos" />
-        <Kpi n={s.total} label="Tracks en total" />
-        <Kpi n={s.enCurso} label="En curso" />
-        <Kpi n={s.atrasados} label="Atrasados" />
-      </div>
-
-      {projects.map((proj) => {
-        const list = tracksByProject[proj.id] || [];
-        const st = trackStats(list);
-        const cliente = clienteOf(list);
-        return (
-          <div key={proj.id} className="bg-[#122131]/60 border border-[#273647] rounded-2xl p-4">
-            <div className="flex items-start justify-between gap-3 mb-3">
-              <div className="min-w-0">
-                <div className="flex items-center gap-2">
-                  <FolderKanban className="w-4 h-4 text-[#FAA61A] flex-none" />
-                  <h3 className="text-sm font-bold text-slate-100 truncate">{proj.props?.['Projeto']}</h3>
-                  <Badge status={proj.props?.['Status']} />
-                </div>
-                <p className="text-[11px] text-slate-400 mt-1 ml-6">
-                  {cliente} · {st.total} tracks · {st.enCurso} en curso{st.atrasados ? ` · ${st.atrasados} atrasados` : ''}
-                </p>
-              </div>
-              <button onClick={() => onOpenProject(proj.id)}
-                className="text-[12px] text-slate-300 hover:text-[#FAA61A] flex items-center gap-1 flex-none">
-                Ver proyecto <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
-            <div className="divide-y divide-[#273647]/60">
-              {list.slice(0, 5).map((t) => <TrackRow key={t.id} track={t} onOpen={onOpenTrack} />)}
-            </div>
-            {list.length > 5 && (
-              <button onClick={() => onOpenProject(proj.id)} className="text-[12px] text-slate-400 hover:text-slate-200 mt-2 ml-3">
-                + {list.length - 5} tracks más
-              </button>
-            )}
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-// ---------- Detalhe do projeto ----------
-function ProjectDetail({ project, tracks, documents, onBack, onOpenTrack, onChange }) {
-  const p = project.props || {};
-  const st = trackStats(tracks);
-  const cliente = clienteOf(tracks);
-  return (
-    <div>
-      <button onClick={onBack} className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-200 mb-4">
-        <ArrowLeft className="w-4 h-4" /> Volver al panel
-      </button>
-
-      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3 mb-4">
-        <div>
-          <h1 className="text-xl font-bold text-slate-100 flex items-center gap-2">
-            <FolderKanban className="w-5 h-5 text-[#FAA61A]" /> {p['Projeto']}
-          </h1>
-          <div className="flex flex-wrap gap-2 mt-2">
-            <span className="text-[11px] px-2.5 py-1 rounded-full font-semibold border text-blue-300 bg-blue-500/15 border-blue-500/25">{cliente}</span>
-            <Badge status={p['Status']} />
-            {p['Gerente'] && <span className="text-[11px] px-2.5 py-1 rounded-full border border-[#273647] text-slate-300">Gerente: {p['Gerente']}</span>}
-            {p['Início'] && <span className="text-[11px] px-2.5 py-1 rounded-full border border-[#273647] text-slate-300">Inicio: {fmtDate(p['Início'])}</span>}
-          </div>
-        </div>
-        <a href={project.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-[#FAA61A] flex-none">
-          <ExternalLink className="w-3.5 h-3.5" /> Editar en Notion
-        </a>
-      </div>
-
-      {p['Descrição'] && <p className="text-sm text-slate-300 leading-relaxed mb-5 max-w-3xl">{p['Descrição']}</p>}
-
-      <div className="grid grid-cols-3 gap-3 mb-6 max-w-md">
-        <Kpi n={st.total} label="Tracks" />
-        <Kpi n={st.enCurso} label="En curso" />
-        <Kpi n={st.atrasados} label="Atrasados" />
-      </div>
-
-      <div className="flex items-center justify-between mb-2 gap-3 flex-wrap">
-        <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-400">Tracks del proyecto</h3>
-        <div><NewTrackForm projetoId={project.id} cliente={cliente} onDone={onChange} /></div>
-      </div>
-      <div className="bg-[#122131]/60 border border-[#273647] rounded-2xl p-2 mb-6 divide-y divide-[#273647]/60">
-        {tracks.length ? tracks.map((t) => <TrackRow key={t.id} track={t} onOpen={onOpenTrack} />)
-          : <p className="text-sm text-slate-400 p-3">Sin tracks todavía.</p>}
-      </div>
-
-      {documents.length > 0 && (
-        <>
-          <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-2">Documentos</h3>
-          <div className="space-y-2">
-            {documents.map((d) => <DocRow key={d.id} doc={d} />)}
-          </div>
-        </>
-      )}
-    </div>
-  );
-}
-
-function DocRow({ doc }) {
-  const p = doc.props || {};
-  const inner = (
-    <div className="flex items-start gap-2.5">
-      <FileText className="w-4 h-4 text-slate-400 mt-0.5 flex-none" />
-      <div className="min-w-0">
-        <div className="text-[13px] text-slate-200 font-medium">{p['Documento']}</div>
-        <div className="text-[11px] text-slate-400">{[p['Tipo'], fmtDate(p['Data']) !== '—' ? fmtDate(p['Data']) : null].filter(Boolean).join(' · ')}</div>
-        {p['Notas'] && <div className="text-[11px] text-slate-500 mt-0.5">{p['Notas']}</div>}
-      </div>
-    </div>
-  );
-  return p['Link']
-    ? <a href={p['Link']} target="_blank" rel="noreferrer" className="block bg-[#1C2B3C] border border-[#273647] rounded-xl px-3 py-2.5 hover:border-[#FAA61A]/40">{inner}</a>
-    : <div className="bg-[#1C2B3C] border border-[#273647] rounded-xl px-3 py-2.5">{inner}</div>;
-}
-
-function ActivityRow({ act, onCycle }) {
-  const p = act.props || {};
-  return (
-    <div className="bg-[#122131] border border-[#273647] rounded-xl px-3 py-2.5">
-      <div className="flex items-start justify-between gap-2">
-        <div className="flex items-start gap-2 min-w-0">
-          <CheckSquare className="w-3.5 h-3.5 text-slate-400 mt-0.5 flex-none" />
-          <span className="text-[13px] text-slate-200">{p['Atividade']}</span>
-        </div>
-        <button
-          type="button"
-          onClick={() => onCycle && onCycle(act.id, ACT_CYCLE[p['Status']] || 'Aberto')}
-          title="Cambiar estado"
-          className="flex-none hover:opacity-80 cursor-pointer"
-        >
-          <Badge status={p['Status']} />
-        </button>
-      </div>
-      <div className="text-[11px] text-slate-400 mt-1.5 ml-5 flex flex-wrap gap-x-3 gap-y-0.5">
-        {p['Responsável'] && <span>👤 {p['Responsável']}</span>}
-        {p['Data de abertura'] && <span>Apertura: {fmtDate(p['Data de abertura'])}</span>}
-        {p['Precisa fechar até'] && <span className="text-[#FAA61A]">Cierre: {fmtDate(p['Precisa fechar até'])}</span>}
-      </div>
-      {p['Comentário'] && <div className="text-[11px] text-slate-500 mt-1 ml-5">{p['Comentário']}</div>}
-    </div>
-  );
-}
-
-// ---------- blocos do corpo ----------
-function Block({ b }) {
-  if (b.type === 'heading') return <h4 className="text-xs font-semibold uppercase tracking-wide text-slate-400 mt-5 mb-2">{b.text}</h4>;
-  if (b.type === 'paragraph') return b.text ? <p className="text-sm text-slate-300 leading-relaxed mb-2">{b.text}</p> : null;
-  if (b.type === 'bullet') return <li className="text-sm text-slate-300 leading-relaxed ml-4 list-disc marker:text-[#FAA61A]">{b.text}</li>;
-  if (b.type === 'todo') return (
-    <div className="flex items-start gap-2 text-sm text-slate-300 leading-relaxed mb-1.5">
-      <span className={`mt-0.5 w-3.5 h-3.5 rounded border flex-none ${b.checked ? 'bg-emerald-500/30 border-emerald-400' : 'border-slate-500'}`} />
-      <span>{b.text}</span>
-    </div>
-  );
-  if (b.type === 'quote' || b.type === 'callout') return (
-    <div className="text-sm text-slate-200 bg-[#122131] border-l-2 border-[#FAA61A] rounded-r-lg px-3 py-2 my-2">{b.text}</div>
-  );
-  if (b.type === 'divider') return <hr className="border-[#273647] my-3" />;
-  return null;
-}
-
-function RelList({ icon, title, ids, resolve }) {
-  const items = (ids || []).map(resolve).filter(Boolean);
-  if (!items.length) return null;
-  return (
-    <div className="bg-[#1C2B3C] border border-[#273647] rounded-xl p-4">
-      <h4 className="text-[11px] uppercase tracking-wide text-slate-400 mb-2 flex items-center gap-1.5">{icon}{title}</h4>
-      <div className="space-y-1.5">
-        {items.map((it) => (
-          <div key={it.id} className="text-[13px] text-slate-200 flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#FAA61A] flex-none" />
-            <span className="truncate">{it.label}</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// ---------- Detalhe do track ----------
-function TrackDetail({ trackId, tracksById, meetingsById, activitiesByTrack, documentsByTrack, onBack, onChange }) {
+// ---------- container ----------
+export default function TrackingView() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [writeError, setWriteError] = useState(null);
-
-  const cycleActivity = async (pageId, status) => {
-    setWriteError(null);
-    try { await updateActivityStatus(pageId, status); onChange && onChange(); }
-    catch (e) { setWriteError(e.message); }
-  };
-
-  useEffect(() => {
-    let active = true;
-    setLoading(true); setError(null);
-    fetchTrack(trackId)
-      .then((d) => { if (active) setData(d); })
-      .catch((e) => { if (active) setError(e.message); })
-      .finally(() => { if (active) setLoading(false); });
-    return () => { active = false; };
-  }, [trackId]);
-
-  const resolveTrack = (id) => { const t = tracksById[id]; return t ? { id, label: t.props?.['Track'] } : null; };
-  const resolveMeeting = (id) => { const m = meetingsById[id]; return m ? { id, label: `${m.props?.['Reunião']} · ${fmtDate(m.props?.['Data'])}` } : null; };
-
-  const p = data?.props || {};
-  const activities = activitiesByTrack[trackId] || [];
-  const documents = documentsByTrack[trackId] || [];
-
-  return (
-    <div>
-      <button onClick={onBack} className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-200 mb-4">
-        <ArrowLeft className="w-4 h-4" /> Volver
-      </button>
-
-      {loading && (
-        <div className="flex items-center gap-2 text-slate-400 text-sm py-20 justify-center">
-          <Loader2 className="w-4 h-4 animate-spin" /> Cargando track…
-        </div>
-      )}
-      {error && !loading && (
-        <div className="bg-[#1C2B3C] border border-rose-500/30 rounded-xl p-4 text-sm text-rose-300">Error al cargar: {error}</div>
-      )}
-
-      {data && !loading && (
-        <>
-          <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-5">
-            <div>
-              <h1 className="text-xl font-bold text-slate-100 flex items-center gap-2 mb-2">
-                {p['Ruta crítica'] && <Flag className="w-4 h-4 text-[#FAA61A]" />}{p['Track']}
-              </h1>
-              <div className="flex flex-wrap gap-2">
-                <span className="text-[11px] px-2.5 py-1 rounded-full font-semibold border text-blue-300 bg-blue-500/15 border-blue-500/25">{p['Cliente']}</span>
-                {p['Frente'] && <span className="text-[11px] px-2.5 py-1 rounded-full font-semibold border text-[#FAA61A] bg-[#FAA61A]/12 border-[#FAA61A]/25">{p['Frente']}</span>}
-                <Badge status={p['Status']} />
-              </div>
-            </div>
-            {p['Próximo passo'] && (
-              <div className="bg-[#1C2B3C] border border-[#273647] border-l-[3px] border-l-[#FAA61A] rounded-xl p-3.5 md:max-w-sm">
-                <div className="text-[10.5px] uppercase tracking-wide text-slate-400 mb-1 flex items-center gap-1.5"><ListChecks className="w-3.5 h-3.5" />Próximo paso</div>
-                <div className="text-[13px] text-slate-200 leading-snug">{p['Próximo passo']}</div>
-              </div>
-            )}
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 mb-6">
-            <div className="bg-[#122131] border border-[#273647] rounded-xl px-3 py-2.5"><div className="text-[10.5px] uppercase tracking-wide text-slate-400">Responsable</div><div className="text-[13px] font-semibold text-slate-200 mt-1">{p['Responsável'] || '—'}</div></div>
-            <div className="bg-[#122131] border border-[#273647] rounded-xl px-3 py-2.5"><div className="text-[10.5px] uppercase tracking-wide text-slate-400">Inicio</div><div className="text-[13px] font-semibold text-slate-200 mt-1">{fmtDate(p['Início'])}</div></div>
-            <div className="bg-[#122131] border border-[#273647] rounded-xl px-3 py-2.5"><div className="text-[10.5px] uppercase tracking-wide text-slate-400">Previsión / plazo</div><div className="text-[13px] font-semibold text-[#FAA61A] mt-1">{fmtDate(p['Previsão fim'])}</div></div>
-            <div className="bg-[#122131] border border-[#273647] rounded-xl px-3 py-2.5"><div className="text-[10.5px] uppercase tracking-wide text-slate-400">Ruta crítica</div><div className="text-[13px] font-semibold text-slate-200 mt-1">{p['Ruta crítica'] ? 'Sí' : 'No'}</div></div>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-            <div className="lg:col-span-2 space-y-5">
-              <div className="bg-[#1C2B3C] border border-[#273647] rounded-2xl p-5">
-                {(data.blocks || []).length === 0
-                  ? <p className="text-sm text-slate-400">Sin contenido detallado.</p>
-                  : data.blocks.map((b, i) => <Block key={i} b={b} />)}
-                <a href={data.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-[#FAA61A] mt-5"><ExternalLink className="w-3.5 h-3.5" /> Editar en Notion</a>
-              </div>
-
-              <div>
-                <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-2">Actividades ({activities.length})</h3>
-                {writeError && (
-                  <div className="text-xs text-amber-300 bg-amber-500/10 border border-amber-500/25 rounded-lg px-3 py-2 mb-2">
-                    No se pudo escribir: {writeError}. ¿La conexión de Notion tiene permiso de <b>Insertar/Actualizar contenido</b>?
-                  </div>
-                )}
-                <div className="space-y-2">
-                  {activities.length ? activities.map((a) => <ActivityRow key={a.id} act={a} onCycle={cycleActivity} />)
-                    : <p className="text-sm text-slate-400">Sin actividades registradas.</p>}
-                </div>
-                <NewActivityForm trackId={trackId} onDone={onChange} />
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <RelList icon={<Link2 className="w-3.5 h-3.5" />} title="Depende de" ids={p['Depende de']} resolve={resolveTrack} />
-              <RelList icon={<Flag className="w-3.5 h-3.5" />} title="Requerido por" ids={p['Requerido por']} resolve={resolveTrack} />
-              <RelList icon={<CalendarClock className="w-3.5 h-3.5" />} title="Reuniones relacionadas" ids={p['Reuniões']} resolve={resolveMeeting} />
-              {documents.length > 0 && (
-                <div>
-                  <h4 className="text-[11px] uppercase tracking-wide text-slate-400 mb-2 flex items-center gap-1.5"><FileText className="w-3.5 h-3.5" />Documentos</h4>
-                  <div className="space-y-2">{documents.map((d) => <DocRow key={d.id} doc={d} />)}</div>
-                </div>
-              )}
-            </div>
-          </div>
-        </>
-      )}
-    </div>
-  );
-}
-
-// ---------- container ----------
-export default function TrackingView() {
-  const [projects, setProjects] = useState([]);
-  const [tracks, setTracks] = useState([]);
-  const [meetings, setMeetings] = useState([]);
-  const [activities, setActivities] = useState([]);
-  const [documents, setDocuments] = useState([]);
-  const [selProject, setSelProject] = useState(null);
+  const [selProjeto, setSelProjeto] = useState(null);
   const [selTrack, setSelTrack] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
   const load = () => {
     setLoading(true); setError(null);
-    Promise.all([fetchProjects(), fetchTracks(), fetchMeetings(), fetchActivities(), fetchDocuments()])
-      .then(([pr, tr, me, ac, doc]) => { setProjects(pr); setTracks(tr); setMeetings(me); setActivities(ac); setDocuments(doc); })
-      .catch((e) => setError(e.message))
-      .finally(() => setLoading(false));
+    fetchAll().then(setData).catch((e) => setError(e.message)).finally(() => setLoading(false));
   };
   useEffect(load, []);
 
-  const tracksById = useMemo(() => Object.fromEntries(tracks.map((t) => [t.id, t])), [tracks]);
-  const meetingsById = useMemo(() => Object.fromEntries(meetings.map((m) => [m.id, m])), [meetings]);
-  const projectsById = useMemo(() => Object.fromEntries(projects.map((p) => [p.id, p])), [projects]);
+  const m = useMemo(() => {
+    if (!data) return null;
+    const by = (arr, k) => arr.reduce((o, r) => { (o[r[k]] = o[r[k]] || []).push(r); return o; }, {});
+    const idMap = (arr) => Object.fromEntries(arr.map((r) => [r.id, r]));
+    const tracksById = idMap(data.tracks);
+    const reunioesById = idMap(data.reunioes);
+    const reunioesByTrack = {};
+    for (const rt of data.reunion_tracks) { (reunioesByTrack[rt.track_id] = reunioesByTrack[rt.track_id] || []).push(reunioesById[rt.reuniao_id]); }
+    const depsByTrack = {};
+    for (const d of data.track_dependencias) { (depsByTrack[d.track_id] = depsByTrack[d.track_id] || []).push(tracksById[d.depende_de_id]); }
+    return {
+      clientes: data.clientes,
+      clientesById: idMap(data.clientes),
+      projetosById: idMap(data.projetos),
+      tracksById,
+      projetosByCliente: by(data.projetos, 'cliente_id'),
+      tracksByProjeto: by(data.tracks, 'projeto_id'),
+      tareasByTrack: by(data.tareas, 'track_id'),
+      prereqsByTrack: by(data.prerequisitos, 'track_id'),
+      personasByCliente: by(data.personas, 'cliente_id'),
+      reunioesByTrack,
+      depsByTrack,
+    };
+  }, [data]);
 
-  const tracksByProject = useMemo(() => {
-    const map = {};
-    for (const t of tracks) {
-      const pid = first(t.props?.['Projeto']) || 'sin-proyecto';
-      (map[pid] = map[pid] || []).push(t);
-    }
-    return map;
-  }, [tracks]);
+  const header = (
+    <div className="flex items-center justify-between mb-6">
+      <div>
+        <h2 className="text-lg font-bold text-slate-100">Seguimiento de proyectos</h2>
+        <p className="text-xs text-slate-400">Cliente → Proyecto → Track · datos en vivo (Supabase).</p>
+      </div>
+      <button onClick={load} className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-200 px-3 py-1.5 rounded-lg border border-[#273647] hover:border-[#FAA61A]/40">
+        <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} /> Actualizar
+      </button>
+    </div>
+  );
 
-  const activitiesByTrack = useMemo(() => {
-    const map = {};
-    for (const a of activities) {
-      const tid = first(a.props?.['Track']);
-      if (tid) (map[tid] = map[tid] || []).push(a);
-    }
-    return map;
-  }, [activities]);
+  if (loading) return <div>{header}<div className="flex items-center gap-2 text-slate-400 text-sm py-20 justify-center"><Loader2 className="w-4 h-4 animate-spin" /> Cargando…</div></div>;
+  if (error) return <div>{header}<div className="bg-[#1C2B3C] border border-amber-500/30 rounded-xl p-5 text-sm"><div className="flex items-center gap-2 text-amber-300 font-semibold mb-1"><AlertTriangle className="w-4 h-4" /> Error al leer Supabase</div><p className="text-slate-300">{error}</p></div></div>;
 
-  const documentsByTrack = useMemo(() => {
-    const map = {};
-    for (const d of documents) {
-      const tid = first(d.props?.['Track']);
-      if (tid) (map[tid] = map[tid] || []).push(d);
-    }
-    return map;
-  }, [documents]);
+  // --- Cockpit ---
+  if (selTrack && m.tracksById[selTrack]) {
+    const tr = m.tracksById[selTrack];
+    const proj = m.projetosById[tr.projeto_id];
+    const cli = proj ? m.clientesById[proj.cliente_id] : null;
+    return <div>{header}
+      <TrackCockpit
+        track={tr} cliente={cli}
+        personas={cli ? (m.personasByCliente[cli.id] || []) : []}
+        prereqs={m.prereqsByTrack[tr.id] || []}
+        reunioes={(m.reunioesByTrack[tr.id] || []).filter(Boolean)}
+        deps={(m.depsByTrack[tr.id] || []).filter(Boolean)}
+        tareas={m.tareasByTrack[tr.id] || []}
+        onBack={() => setSelTrack(null)} onChange={load}
+      />
+    </div>;
+  }
 
-  const documentsByProject = useMemo(() => {
-    const map = {};
-    for (const d of documents) {
-      const pid = first(d.props?.['Projeto']);
-      if (pid) (map[pid] = map[pid] || []).push(d);
-    }
-    return map;
-  }, [documents]);
-
-  const backToPanel = () => { setSelTrack(null); setSelProject(null); };
-
-  return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h2 className="text-lg font-bold text-slate-100">Seguimiento de proyectos</h2>
-          <p className="text-xs text-slate-400">Datos en vivo de la base Notion — proyectos, tracks, reuniones y actividades.</p>
+  // --- Detalhe do projeto ---
+  if (selProjeto && m.projetosById[selProjeto]) {
+    const proj = m.projetosById[selProjeto];
+    const cli = m.clientesById[proj.cliente_id];
+    const tracks = m.tracksByProjeto[proj.id] || [];
+    const st = trackStats(tracks);
+    return (
+      <div>{header}
+        <button onClick={() => setSelProjeto(null)} className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-200 mb-4"><ArrowLeft className="w-4 h-4" /> Volver al portafolio</button>
+        <h1 className="text-xl font-bold text-slate-100 flex items-center gap-2"><FolderKanban className="w-5 h-5 text-[#FAA61A]" /> {proj.nome}</h1>
+        <div className="flex flex-wrap gap-2 mt-2 mb-5">
+          <span className="text-[11px] px-2.5 py-1 rounded-full font-semibold border text-blue-300 bg-blue-500/15 border-blue-500/25">{cli?.nome}</span>
+          <Badge v={proj.status} />
+          {proj.gerente && <span className="text-[11px] px-2.5 py-1 rounded-full border border-[#273647] text-slate-300">Gerente: {proj.gerente}</span>}
+          {proj.inicio && <span className="text-[11px] px-2.5 py-1 rounded-full border border-[#273647] text-slate-300">Inicio: {fmtDate(proj.inicio)}</span>}
         </div>
-        <button onClick={load} className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-200 px-3 py-1.5 rounded-lg border border-[#273647] hover:border-[#FAA61A]/40">
-          <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} /> Actualizar
-        </button>
+        {proj.descricao && <p className="text-sm text-slate-300 mb-5 max-w-3xl">{proj.descricao}</p>}
+        <div className="grid grid-cols-3 gap-3 max-w-md mb-6">
+          <Kpi n={st.total} label="Tracks" /><Kpi n={st.enCurso} label="En curso" /><Kpi n={st.bloqueados} label="Bloqueados" danger />
+        </div>
+        <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
+          <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-400">Tracks</h3>
+          <NewTrack projetoId={proj.id} onDone={load} />
+        </div>
+        <div className="bg-[#122131]/60 border border-[#273647] rounded-2xl p-2 divide-y divide-[#273647]/60">
+          {tracks.length ? tracks.map((t) => <TrackRow key={t.id} track={t} onOpen={setSelTrack} />) : <p className="text-sm text-slate-400 p-3">Sin tracks todavía.</p>}
+        </div>
+      </div>
+    );
+  }
+
+  // --- Portfólio ---
+  const allTracks = data.tracks;
+  const abiertas = data.tareas.filter((t) => t.status !== 'fechado').length;
+  const bloqueadas = data.tareas.filter((t) => t.status === 'bloqueada').length;
+  return (
+    <div>{header}
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
+        <Kpi n={m.clientes.length} label="Clientes" />
+        <Kpi n={data.projetos.length} label="Proyectos" />
+        <Kpi n={allTracks.length} label="Tracks" />
+        <Kpi n={abiertas} label="Tareas abiertas" />
+        <Kpi n={bloqueadas} label="Bloqueadas" danger />
       </div>
 
-      {loading && (
-        <div className="flex items-center gap-2 text-slate-400 text-sm py-20 justify-center">
-          <Loader2 className="w-4 h-4 animate-spin" /> Cargando datos de Notion…
-        </div>
-      )}
+      <div className="flex justify-end mb-3"><NewCliente onDone={load} /></div>
 
-      {error && !loading && (
-        <div className="bg-[#1C2B3C] border border-amber-500/30 rounded-xl p-5 text-sm">
-          <div className="flex items-center gap-2 text-amber-300 font-semibold mb-2"><AlertTriangle className="w-4 h-4" /> No fue posible leer la base Notion</div>
-          <p className="text-slate-300 mb-2">{error}</p>
-          <ul className="text-slate-400 text-[13px] list-disc ml-5 space-y-1">
-            <li>Verificá que <code className="text-slate-200">NOTION_TOKEN</code> esté en Vercel y que haya un nuevo deploy.</li>
-            <li>Verificá que la conexión <code className="text-slate-200">Dashboard Vercel VISA</code> esté vinculada a la página <b>Proyectos</b> en Notion.</li>
-          </ul>
-        </div>
-      )}
-
-      {!loading && !error && (() => {
-        if (selTrack) {
-          return <TrackDetail trackId={selTrack} tracksById={tracksById} meetingsById={meetingsById}
-            activitiesByTrack={activitiesByTrack} documentsByTrack={documentsByTrack}
-            onBack={() => setSelTrack(null)} onChange={load} />;
-        }
-        if (selProject && projectsById[selProject]) {
-          return <ProjectDetail project={projectsById[selProject]} tracks={tracksByProject[selProject] || []}
-            documents={documentsByProject[selProject] || []} onBack={backToPanel} onOpenTrack={setSelTrack} onChange={load} />;
-        }
-        return <Dashboard projects={projects} tracksByProject={tracksByProject}
-          onOpenProject={setSelProject} onOpenTrack={setSelTrack} />;
-      })()}
+      {m.clientes.map((cli) => {
+        const projetos = m.projetosByCliente[cli.id] || [];
+        return (
+          <div key={cli.id} className="mb-6">
+            <div className="flex items-center justify-between mb-2 px-1">
+              <h3 className="text-sm font-bold text-slate-100 flex items-center gap-2"><Building2 className="w-4 h-4 text-[#FAA61A]" /> {cli.nome} {cli.pais && <span className="text-[11px] text-slate-400 font-normal">· {cli.pais}</span>}</h3>
+              <NewProjeto clienteId={cli.id} onDone={load} />
+            </div>
+            {projetos.length ? projetos.map((proj) => {
+              const tracks = m.tracksByProjeto[proj.id] || [];
+              const st = trackStats(tracks);
+              return (
+                <div key={proj.id} className="bg-[#122131]/60 border border-[#273647] rounded-2xl p-4 mb-3">
+                  <div className="flex items-start justify-between gap-3 mb-2">
+                    <div>
+                      <div className="flex items-center gap-2"><FolderKanban className="w-4 h-4 text-[#FAA61A]" /><span className="text-sm font-bold text-slate-100">{proj.nome}</span><Badge v={proj.status} /></div>
+                      <p className="text-[11px] text-slate-400 mt-1 ml-6">{st.total} tracks · {st.enCurso} en curso{st.bloqueados ? ` · ${st.bloqueados} bloqueados` : ''}</p>
+                    </div>
+                    <button onClick={() => setSelProjeto(proj.id)} className="text-[12px] text-slate-300 hover:text-[#FAA61A] flex items-center gap-1 flex-none">Ver proyecto <ChevronRight className="w-4 h-4" /></button>
+                  </div>
+                  <div className="divide-y divide-[#273647]/60">
+                    {tracks.slice(0, 6).map((t) => <TrackRow key={t.id} track={t} onOpen={setSelTrack} />)}
+                  </div>
+                  {tracks.length > 6 && <button onClick={() => setSelProjeto(proj.id)} className="text-[12px] text-slate-400 hover:text-slate-200 mt-2 ml-3">+ {tracks.length - 6} tracks más</button>}
+                </div>
+              );
+            }) : <p className="text-sm text-slate-500 px-1">Sin proyectos. Usá “Nuevo proyecto”.</p>}
+          </div>
+        );
+      })}
     </div>
   );
 }
