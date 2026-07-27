@@ -38,3 +38,27 @@ export function fmtDate(iso) {
 export const inputCls = 'w-full bg-[#0b1626] border border-[#273647] rounded-lg px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:border-[#FAA61A]/50 outline-none';
 export const btnGold = 'text-xs font-semibold bg-[#FAA61A] text-[#0A142F] px-3 py-1.5 rounded-lg disabled:opacity-60';
 export const linkGold = 'flex items-center gap-1.5 text-xs font-semibold text-[#FAA61A] hover:text-[#ffca6a]';
+
+export const RAG_COLOR = { verde: '#34d399', amarelo: '#fbbf24', rojo: '#fb7185' };
+
+export function RagDot({ rag, size = 12 }) {
+  return <span style={{ width: size, height: size, background: RAG_COLOR[rag] || '#94a3b8' }} className="inline-block rounded-full flex-none" />;
+}
+
+export function ProgressBar({ pct }) {
+  return (
+    <div className="h-1.5 rounded-full bg-[#1e2a44] overflow-hidden">
+      <div className="h-full" style={{ width: `${Math.max(0, Math.min(100, pct))}%`, background: 'linear-gradient(90deg,#FAA61A,#f6c15a)' }} />
+    </div>
+  );
+}
+
+export const ORIGENES = ['manual', 'reunion', 'prerequisito', 'riesgo'];
+export const ORIGEN_LABEL = { manual: 'Manual', reunion: 'Reunión', prerequisito: 'Prerequisito', riesgo: 'Riesgo' };
+export const SEVERIDADES = ['alta', 'media', 'baja'];
+export const SEVERIDAD_LABEL = { alta: 'Alta', media: 'Media', baja: 'Baja' };
+export const SEVERIDAD_COLOR = { alta: '#fb7185', media: '#fbbf24', baja: '#94a3b8' };
+export const RISK_TIPOS = ['riesgo', 'issue'];
+export const RISK_TIPO_LABEL = { riesgo: 'Riesgo', issue: 'Issue' };
+export const RISK_STATUSES = ['abierto', 'en_mitigacion', 'cerrado'];
+export const RISK_STATUS_LABEL = { abierto: 'Abierto', en_mitigacion: 'En mitigación', cerrado: 'Cerrado' };
