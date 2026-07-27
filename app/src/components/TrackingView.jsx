@@ -254,6 +254,9 @@ export default function TrackingView() {
         reunioes={(m.reunioesByTrack[tr.id] || []).filter(Boolean)}
         deps={(m.depsByTrack[tr.id] || []).filter(Boolean)}
         tareas={m.tareasByTrack[tr.id] || []}
+        marcos={m.marcosByTrack[tr.id] || []}
+        riscos={m.riscosByTrack[tr.id] || []}
+        documentos={m.documentosByTrack[tr.id] || []}
         onBack={() => setSelTrack(null)} onChange={load}
       />
     </div>;
