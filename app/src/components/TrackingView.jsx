@@ -4,8 +4,9 @@ import {
 } from 'lucide-react';
 import { fetchAll, createCliente, createProjeto, createTrack } from '../services/data';
 import {
-  Badge, fmtDate, stDot, inputCls, btnGold, linkGold, FRENTES, TRACK_STATUSES,
+  Badge, fmtDate, stDot, inputCls, btnGold, linkGold, FRENTES, TRACK_STATUSES, RagDot, ProgressBar,
 } from './trackingUi';
+import { todayISO, ragProjeto, avanceProjeto, nextMarco, daysTo, countVencidas, countBloqueadas, RAG_RANK } from '../lib/pmoLogic';
 import TrackCockpit from './TrackCockpit';
 
 // ---------- formulários ----------
@@ -107,6 +108,20 @@ function trackStats(list) {
   };
 }
 
+function projetoResumo(m, proj, today) {
+  const tracks = m.tracksByProjeto[proj.id] || [];
+  const rag = ragProjeto(proj, tracks, m.tareasByTrack, m.marcosByTrack, today);
+  const pct = avanceProjeto(tracks, m.tareasByTrack);
+  // próximo marco entre todos os tracks do projeto
+  const allMarcos = tracks.flatMap((t) => m.marcosByTrack[t.id] || []);
+  const marco = nextMarco(allMarcos, today);
+  const tareas = tracks.flatMap((t) => m.tareasByTrack[t.id] || []);
+  const vencidas = countVencidas(tareas, today);
+  const bloqueadas = countBloqueadas(tareas);
+  const riesgos = (m.riscosByProjeto[proj.id] || []).length + tracks.reduce((a, t) => a + (m.riscosByTrack[t.id] || []).length, 0);
+  return { tracks, rag, pct, marco, vencidas, bloqueadas, riesgos };
+}
+
 function Kpi({ n, label, danger }) {
   return (
     <div className="bg-[#1C2B3C] border border-[#273647] rounded-xl px-4 py-3.5">
@@ -129,6 +144,28 @@ function TrackRow({ track, onOpen }) {
         <Badge v={track.status} />
         <ChevronRight className="w-4 h-4 text-slate-600 group-hover:text-slate-300" />
       </span>
+    </button>
+  );
+}
+
+function ProjetoRow({ m, proj, cli, today, onOpen }) {
+  const r = projetoResumo(m, proj, today);
+  const d = r.marco ? daysTo(r.marco.fecha, today) : null;
+  return (
+    <button onClick={() => onOpen(proj.id)} className="w-full text-left grid grid-cols-1 md:grid-cols-[16px_1.7fr_1fr_1.1fr_0.9fr] gap-3 items-center px-3 py-3 rounded-xl hover:bg-[#122131] border border-transparent hover:border-[#273647] transition-colors">
+      <RagDot rag={r.rag} />
+      <div className="min-w-0">
+        <div className="text-sm font-bold text-slate-100 truncate flex items-center gap-2"><FolderKanban className="w-4 h-4 text-[#FAA61A] flex-none" />{proj.nome}<Badge v={proj.status} /></div>
+        <div className="text-[11px] text-slate-400 mt-0.5">CSM: {proj.csm || proj.gerente || '—'} · {r.tracks.length} tracks{r.bloqueadas ? ` · ${r.bloqueadas} bloqueadas` : ''}</div>
+      </div>
+      <div><ProgressBar pct={r.pct} /><div className="text-[11px] text-slate-400 mt-1">{r.pct}% avance</div></div>
+      <div className="text-[11px]">
+        {r.marco ? (<><div className="text-slate-200 truncate">{r.marco.nome}</div><div className={d < 0 ? 'text-rose-300' : 'text-slate-400'}>{d < 0 ? `venció hace ${-d} d` : `en ${d} d`} · {fmtDate(r.marco.fecha)}</div></>) : <span className="text-slate-500">sin hitos</span>}
+      </div>
+      <div className="flex gap-1.5 flex-wrap md:justify-end">
+        {r.riesgos > 0 && <span className="text-[10px] px-2 py-0.5 rounded-full border border-rose-500/40 text-rose-300 bg-rose-500/10">{r.riesgos} riesgo{r.riesgos > 1 ? 's' : ''}</span>}
+        {r.vencidas > 0 && <span className="text-[10px] px-2 py-0.5 rounded-full border border-[#273647] text-slate-300">{r.vencidas} vencidas</span>}
+      </div>
     </button>
   );
 }
@@ -157,6 +194,10 @@ export default function TrackingView() {
     for (const rt of data.reunion_tracks) { (reunioesByTrack[rt.track_id] = reunioesByTrack[rt.track_id] || []).push(reunioesById[rt.reuniao_id]); }
     const depsByTrack = {};
     for (const d of data.track_dependencias) { (depsByTrack[d.track_id] = depsByTrack[d.track_id] || []).push(tracksById[d.depende_de_id]); }
+    const marcosByTrack = by(data.marcos, 'track_id');
+    const riscosByTrack = by(data.riscos.filter((r) => r.track_id), 'track_id');
+    const riscosByProjeto = by(data.riscos.filter((r) => r.projeto_id), 'projeto_id');
+    const documentosByTrack = by(data.documentos, 'track_id');
     return {
       clientes: data.clientes,
       clientesById: idMap(data.clientes),
@@ -169,6 +210,10 @@ export default function TrackingView() {
       personasByCliente: by(data.personas, 'cliente_id'),
       reunioesByTrack,
       depsByTrack,
+      marcosByTrack,
+      riscosByTrack,
+      riscosByProjeto,
+      documentosByTrack,
     };
   }, [data]);
 
@@ -237,17 +282,18 @@ export default function TrackingView() {
   }
 
   // --- Portfólio ---
-  const allTracks = data.tracks;
-  const abiertas = data.tareas.filter((t) => t.status !== 'fechado').length;
-  const bloqueadas = data.tareas.filter((t) => t.status === 'bloqueada').length;
+  const today = todayISO();
+  const allTareas = data.tareas;
+  const enRiesgo = data.projetos.filter((p) => RAG_RANK[projetoResumo(m, p, today).rag] >= 1).length;
   return (
     <div>{header}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-6 gap-3 mb-6">
         <Kpi n={m.clientes.length} label="Clientes" />
         <Kpi n={data.projetos.length} label="Proyectos" />
-        <Kpi n={allTracks.length} label="Tracks" />
-        <Kpi n={abiertas} label="Tareas abiertas" />
-        <Kpi n={bloqueadas} label="Bloqueadas" danger />
+        <Kpi n={data.tracks.length} label="Tracks" />
+        <Kpi n={enRiesgo} label="En riesgo" danger />
+        <Kpi n={countBloqueadas(allTareas)} label="Bloqueadas" danger />
+        <Kpi n={countVencidas(allTareas, today)} label="Vencidas" danger />
       </div>
 
       <div className="flex justify-end mb-3"><NewCliente onDone={load} /></div>
@@ -260,25 +306,11 @@ export default function TrackingView() {
               <h3 className="text-sm font-bold text-slate-100 flex items-center gap-2"><Building2 className="w-4 h-4 text-[#FAA61A]" /> {cli.nome} {cli.pais && <span className="text-[11px] text-slate-400 font-normal">· {cli.pais}</span>}</h3>
               <NewProjeto clienteId={cli.id} onDone={load} />
             </div>
-            {projetos.length ? projetos.map((proj) => {
-              const tracks = m.tracksByProjeto[proj.id] || [];
-              const st = trackStats(tracks);
-              return (
-                <div key={proj.id} className="bg-[#122131]/60 border border-[#273647] rounded-2xl p-4 mb-3">
-                  <div className="flex items-start justify-between gap-3 mb-2">
-                    <div>
-                      <div className="flex items-center gap-2"><FolderKanban className="w-4 h-4 text-[#FAA61A]" /><span className="text-sm font-bold text-slate-100">{proj.nome}</span><Badge v={proj.status} /></div>
-                      <p className="text-[11px] text-slate-400 mt-1 ml-6">{st.total} tracks · {st.enCurso} en curso{st.bloqueados ? ` · ${st.bloqueados} bloqueados` : ''}</p>
-                    </div>
-                    <button onClick={() => setSelProjeto(proj.id)} className="text-[12px] text-slate-300 hover:text-[#FAA61A] flex items-center gap-1 flex-none">Ver proyecto <ChevronRight className="w-4 h-4" /></button>
-                  </div>
-                  <div className="divide-y divide-[#273647]/60">
-                    {tracks.slice(0, 6).map((t) => <TrackRow key={t.id} track={t} onOpen={setSelTrack} />)}
-                  </div>
-                  {tracks.length > 6 && <button onClick={() => setSelProjeto(proj.id)} className="text-[12px] text-slate-400 hover:text-slate-200 mt-2 ml-3">+ {tracks.length - 6} tracks más</button>}
-                </div>
-              );
-            }) : <p className="text-sm text-slate-500 px-1">Sin proyectos. Usá “Nuevo proyecto”.</p>}
+            <div className="bg-[#122131]/40 border border-[#273647] rounded-2xl p-2 divide-y divide-[#273647]/50">
+              {projetos.length ? projetos.map((proj) => (
+                <ProjetoRow key={proj.id} m={m} proj={proj} cli={cli} today={today} onOpen={setSelProjeto} />
+              )) : <p className="text-sm text-slate-500 px-3 py-2">Sin proyectos. Usá “Nuevo proyecto”.</p>}
+            </div>
           </div>
         );
       })}
