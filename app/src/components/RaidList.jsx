@@ -7,10 +7,12 @@ export default function RaidList({ trackId, riscos, onChange }) {
   const [open, setOpen] = useState(false);
   const [f, setF] = useState({ descricao: '', tipo: 'riesgo', severidade: 'media', dueno: '', status: 'abierto' });
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState(null);
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
   const add = async (e) => {
-    e.preventDefault(); if (!f.descricao.trim()) return; setSaving(true);
+    e.preventDefault(); if (!f.descricao.trim()) return; setSaving(true); setError(null);
     try { await createRisco({ track_id: trackId, ...f, descricao: f.descricao.trim() }); setF({ descricao: '', tipo: 'riesgo', severidade: 'media', dueno: '', status: 'abierto' }); setOpen(false); onChange(); }
+    catch (e) { setError(e.message); }
     finally { setSaving(false); }
   };
   return (
@@ -39,12 +41,13 @@ export default function RaidList({ trackId, riscos, onChange }) {
           <div className="flex-1">
             <div className="text-slate-200">{x.descricao}</div>
             <div className="text-[10px] text-slate-500">{RISK_TIPO_LABEL[x.tipo]} · {SEVERIDAD_LABEL[x.severidade]} · {x.dueno || '—'} ·
-              <button onClick={async () => { const order = RISK_STATUSES; const next = order[(order.indexOf(x.status) + 1) % order.length]; await updateRisco(x.id, { status: next }); onChange(); }} className="ml-1 underline decoration-dotted hover:text-slate-300">{RISK_STATUS_LABEL[x.status]}</button>
+              <button onClick={async () => { setError(null); try { const order = RISK_STATUSES; const next = order[(order.indexOf(x.status) + 1) % order.length]; await updateRisco(x.id, { status: next }); onChange(); } catch (e) { setError(e.message); } }} className="ml-1 underline decoration-dotted hover:text-slate-300">{RISK_STATUS_LABEL[x.status]}</button>
             </div>
           </div>
-          <button onClick={async () => { await deleteRisco(x.id); onChange(); }} className="text-slate-600 hover:text-rose-400 text-xs flex-none">✕</button>
+          <button onClick={async () => { setError(null); try { await deleteRisco(x.id); onChange(); } catch (e) { setError(e.message); } }} className="text-slate-600 hover:text-rose-400 text-xs flex-none">✕</button>
         </div>
       )) : <p className="text-xs text-slate-400">Sin riesgos.</p>}
+      {error && <p className="text-[11px] text-rose-400 mt-1">{error}</p>}
     </div>
   );
 }

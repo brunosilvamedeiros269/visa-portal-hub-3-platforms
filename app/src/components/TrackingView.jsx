@@ -103,7 +103,7 @@ function NewTrack({ projetoId, onDone }) {
 function projetoResumo(m, proj, today) {
   const tracks = m.tracksByProjeto[proj.id] || [];
   const rag = ragProjeto(proj, tracks, m.tareasByTrack, m.marcosByTrack, today);
-  const pct = avanceProjeto(tracks, m.tareasByTrack);
+  const av = avanceProjeto(tracks, m.tareasByTrack);
   // próximo marco entre todos os tracks do projeto
   const allMarcos = tracks.flatMap((t) => m.marcosByTrack[t.id] || []);
   const marco = nextMarco(allMarcos, today);
@@ -111,7 +111,7 @@ function projetoResumo(m, proj, today) {
   const vencidas = countVencidas(tareas, today);
   const bloqueadas = countBloqueadas(tareas);
   const riesgos = (m.riscosByProjeto[proj.id] || []).length + tracks.reduce((a, t) => a + (m.riscosByTrack[t.id] || []).length, 0);
-  return { tracks, rag, pct, marco, vencidas, bloqueadas, riesgos };
+  return { tracks, rag, pct: av.pct, pctHasData: av.hasData, marco, vencidas, bloqueadas, riesgos };
 }
 
 function Kpi({ n, label, danger }) {
@@ -167,7 +167,7 @@ function ProjetoRow({ m, proj, cli, today, onOpen }) {
         <div className="text-sm font-bold text-slate-100 truncate flex items-center gap-2"><FolderKanban className="w-4 h-4 text-[#FAA61A] flex-none" />{proj.nome}<Badge v={proj.status} /></div>
         <div className="text-[11px] text-slate-400 mt-0.5">CSM: {proj.csm || proj.gerente || '—'} · {r.tracks.length} tracks{r.bloqueadas ? ` · ${r.bloqueadas} bloqueadas` : ''}</div>
       </div>
-      <div><ProgressBar pct={r.pct} /><div className="text-[11px] text-slate-400 mt-1">{r.pct}% avance</div></div>
+      <div>{r.pctHasData ? (<><ProgressBar pct={r.pct} /><div className="text-[11px] text-slate-400 mt-1">{r.pct}% avance</div></>) : <span className="text-[11px] text-slate-500">sin datos</span>}</div>
       <div className="text-[11px]">
         {r.marco ? (<><div className="text-slate-200 truncate">{r.marco.nome}</div><div className={d < 0 ? 'text-rose-300' : 'text-slate-400'}>{d < 0 ? `venció hace ${-d} d` : `en ${d} d`} · {fmtDate(r.marco.fecha)}</div></>) : <span className="text-slate-500">sin hitos</span>}
       </div>
@@ -282,7 +282,7 @@ export default function TrackingView() {
           <CsmEditable proj={proj} onSaved={load} />
           {proj.inicio && <span className="text-[11px] px-2.5 py-1 rounded-full border border-[#273647] text-slate-300">Inicio: {fmtDate(proj.inicio)}</span>}
         </div>
-        <div className="max-w-md mb-5"><ProgressBar pct={r.pct} /><div className="text-[11px] text-slate-400 mt-1">{r.pct}% avance del proyecto</div></div>
+        <div className="max-w-md mb-5">{r.pctHasData ? (<><ProgressBar pct={r.pct} /><div className="text-[11px] text-slate-400 mt-1">{r.pct}% avance del proyecto</div></>) : <span className="text-[11px] text-slate-500">sin datos</span>}</div>
         {proj.descricao && <p className="text-sm text-slate-300 mb-5 max-w-3xl">{proj.descricao}</p>}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-xl mb-6">
           <Kpi n={r.tracks.length} label="Tracks" />

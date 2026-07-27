@@ -137,7 +137,7 @@ export default function TrackCockpit({ track, cliente, personas, prereqs, reunio
         <div className="flex gap-2 flex-wrap items-start">
           <div className="bg-[#122131] border border-[#273647] rounded-xl px-3 py-2 min-w-[120px]">
             <div className="text-[10px] uppercase tracking-wide text-slate-400 flex justify-between">Avance
-              <button onClick={() => { const v = prompt('Avance manual % (vacío = auto)', track.avance ?? ''); if (v !== null) setAvance(v === '' ? null : Number(v)); }} className="text-slate-500 hover:text-[#FAA61A]">✎</button>
+              <button onClick={() => { const v = prompt('Avance manual % (vacío = auto)', track.avance ?? ''); if (v !== null) { if (v === '') { setAvance(null); } else { const n = Number(v); setAvance(Number.isNaN(n) ? NaN : Math.max(0, Math.min(100, n))); } } }} className="text-slate-500 hover:text-[#FAA61A]">✎</button>
             </div>
             <div className="text-[15px] font-bold text-[#FAA61A] mt-0.5">{av.hasData ? `${av.pct}%` : 'sin datos'}</div>
             {av.hasData && <div className="mt-1"><ProgressBar pct={av.pct} /></div>}

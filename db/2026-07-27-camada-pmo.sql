@@ -2,6 +2,8 @@
 -- Decisão CSM: gerente-é-csm? NÃO. 'projetos.gerente' guarda uma LISTA de gerentes
 -- (ex.: "Bruno / Jenny / Lina"); o CSM é papel distinto → criar coluna 'csm'.
 -- Rodar no SQL Editor do projeto iuwvwhofxuvmwnpbsnth. Idempotente (if not exists).
+-- Storage: o bucket 'track-docs' (privado) e suas policies são criados pelo próprio
+-- script (seção 8) — a etapa manual de criar o bucket pelo Dashboard vira opcional.
 
 -- 1. marcos
 create table if not exists marcos (
@@ -27,10 +29,14 @@ create table if not exists riscos (
   status text not null default 'abierto',      -- abierto | en_mitigacion | cerrado
   mitigacion text,
   created_at timestamptz not null default now(),
-  check (projeto_id is not null or track_id is not null)
+  check ((projeto_id is null) <> (track_id is null))
 );
 create index if not exists riscos_projeto_idx on riscos(projeto_id);
 create index if not exists riscos_track_idx on riscos(track_id);
+do $$ begin
+  alter table riscos drop constraint if exists riscos_projeto_id_check1;
+exception when others then null; end $$;
+-- nota: se a tabela já existia com o check antigo, ajustar manualmente é opcional (a UI só cria riscos por track).
 
 -- 3. tareas: cierre + origen
 alter table tareas add column if not exists data_fechamento date;
@@ -54,6 +60,10 @@ alter table documentos add column if not exists path text;
 alter table documentos add column if not exists subido_por text;
 create index if not exists documentos_track_idx on documentos(track_id);
 
+-- 6b. reunioes: garantir colunas usadas pelo formulário de registro manual
+alter table reunioes add column if not exists participantes text;
+alter table reunioes add column if not exists ata text;
+
 -- 7. RLS aberto ao anon (coerente com o resto; Auth fica para depois)
 alter table marcos enable row level security;
 alter table riscos enable row level security;
@@ -66,4 +76,18 @@ do $$ begin
 exception when duplicate_object then null; end $$;
 do $$ begin
   create policy anon_all_documentos on documentos for all using (true) with check (true);
+exception when duplicate_object then null; end $$;
+
+-- 8. Storage: bucket privado track-docs + policies anon (coerente com RLS aberto)
+insert into storage.buckets (id, name, public)
+values ('track-docs', 'track-docs', false)
+on conflict (id) do nothing;
+do $$ begin
+  create policy anon_read_track_docs on storage.objects for select using (bucket_id = 'track-docs');
+exception when duplicate_object then null; end $$;
+do $$ begin
+  create policy anon_insert_track_docs on storage.objects for insert with check (bucket_id = 'track-docs');
+exception when duplicate_object then null; end $$;
+do $$ begin
+  create policy anon_delete_track_docs on storage.objects for delete using (bucket_id = 'track-docs');
 exception when duplicate_object then null; end $$;

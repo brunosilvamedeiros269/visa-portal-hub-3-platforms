@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Plus } from 'lucide-react';
 import { createTarea, updateTareaStatus } from '../services/data';
-import { fmtDate, stLabel, stDot, inputCls, btnGold, linkGold, TAREA_ORDER, TAREA_CYCLE, ORIGENES, ORIGEN_LABEL } from './trackingUi';
+import { fmtDate, stLabel, inputCls, btnGold, linkGold, TAREA_ORDER, TAREA_CYCLE, ORIGENES, ORIGEN_LABEL } from './trackingUi';
 import { isOverdue, todayISO } from '../lib/pmoLogic';
 
 const EST_CLS = {

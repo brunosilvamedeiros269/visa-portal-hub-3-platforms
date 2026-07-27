@@ -40,15 +40,19 @@ describe('avanceProjeto', () => {
   it('média dos tracks', () => {
     const tracks = [{ id: 'a', avance: null }, { id: 'b', avance: null }];
     const byTrack = { a: [{ status: 'fechado' }, { status: 'aberto' }], b: [{ status: 'fechado' }] };
-    expect(avanceProjeto(tracks, byTrack)).toBe(75); // (50 + 100)/2
+    expect(avanceProjeto(tracks, byTrack)).toEqual({ pct: 75, hasData: true }); // (50+100)/2
   });
   it('ignora tracks sin datos en el promedio', () => {
     const tracks = [{ id: 'a', avance: null }, { id: 'b', avance: null }];
     const byTrack = { a: [{ status: 'fechado' }, { status: 'aberto' }], b: [] }; // b sin tareas => sin datos
-    expect(avanceProjeto(tracks, byTrack)).toBe(50); // solo cuenta 'a'
+    expect(avanceProjeto(tracks, byTrack)).toEqual({ pct: 50, hasData: true }); // solo cuenta 'a'
   });
   it('0 cuando ningún track tiene datos', () => {
-    expect(avanceProjeto([{ id: 'a', avance: null }], { a: [] })).toBe(0);
+    expect(avanceProjeto([{ id: 'a', avance: null }], { a: [] })).toEqual({ pct: 0, hasData: false });
+  });
+  it('hasData false cuando ningún track tiene datos', () => {
+    const r = avanceProjeto([{ id: 'a', avance: null }, { id: 'b', avance: null }], { a: [], b: [] });
+    expect(r).toEqual({ pct: 0, hasData: false });
   });
 });
 

@@ -35,8 +35,8 @@ export function avanceProjeto(tracks, tareasByTrack) {
   const withData = tracks
     .map((tr) => avanceTrack(tr, tareasByTrack[tr.id] || []))
     .filter((a) => a.hasData);
-  if (!withData.length) return 0;
-  return Math.round(withData.reduce((acc, a) => acc + a.pct, 0) / withData.length);
+  if (!withData.length) return { pct: 0, hasData: false };
+  return { pct: Math.round(withData.reduce((acc, a) => acc + a.pct, 0) / withData.length), hasData: true };
 }
 
 export function ragTrack(track, tareas, marcos, todayIso, amberDays = 7) {
