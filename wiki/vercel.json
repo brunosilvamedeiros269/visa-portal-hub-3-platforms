@@ -1,0 +1,5 @@
+{
+  "buildCommand": "npx quartz build -d ../vault-visa -o public",
+  "outputDirectory": "public",
+  "installCommand": "npm install"
+}
