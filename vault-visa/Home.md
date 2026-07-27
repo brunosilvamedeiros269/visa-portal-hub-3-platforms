@@ -35,6 +35,7 @@ Mi base personal. Está **separada en dos**: conocimiento **general** (reutiliza
 - [[Tokenização — arquitetura VTS e provisioning (aprofundamento)]]
 - [[Carteiras — provisioning in-app (fluxo técnico end-to-end)]]
 - [[Click to Pay — SRC, enrolamento e ciclo de vida (aprofundamento)]]
+- [[Visa Direct e mandatos (OCT-AFT, ANI) — aprofundamento]]
 - [[Click to Pay — comunicação e marketing (fase 3)]]
 - [[PMO de Carteiras — rol e responsabilidades]]
 ### Troubleshooting
