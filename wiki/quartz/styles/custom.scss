@@ -101,20 +101,59 @@
       font-style: normal;
     }
   }
-  .vt-app {
+  .vt-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    background: rgba(5, 14, 31, 0.7);
+    border: 1px solid #1e2a44;
+    border-radius: 12px;
+    padding: 4px;
+  }
+  .vt-pill {
     display: inline-flex;
     align-items: center;
-    gap: 0.35rem;
+    gap: 0.45rem;
     text-decoration: none;
+    padding: 0.42rem 0.85rem;
+    border-radius: 8px;
+    font: 600 13px/1 "Inter", system-ui, sans-serif;
+    color: #94a3b8;
+    transition: color 0.12s ease, background 0.12s ease;
+    svg {
+      width: 15px;
+      height: 15px;
+    }
+    &:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.05);
+    }
+  }
+  .vt-active {
     background: #1a1f71;
     color: #fff;
-    font: 700 13px/1 "Inter", system-ui, sans-serif;
-    padding: 0.55rem 0.95rem;
-    border-radius: 10px;
-    transition: background 0.12s ease;
+    box-shadow: 0 2px 8px rgba(26, 31, 113, 0.4);
     &:hover {
-      background: #232a8f;
+      background: #1a1f71;
+      color: #fff;
     }
+  }
+  .vt-live {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(5, 14, 31, 0.7);
+    border: 1px solid #1e2a44;
+    border-radius: 10px;
+    padding: 0.45rem 0.8rem;
+    font: 500 12px/1 "Inter", system-ui, sans-serif;
+    color: #8a97a8;
+  }
+  .vt-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #34d399;
   }
 }
 /* empurra o conteúdo do Quartz pra baixo da barra fixa */
@@ -125,9 +164,10 @@ body {
 .page-title {
   display: none !important;
 }
-@media (max-width: 700px) {
+@media (max-width: 760px) {
   #visa-topbar .vt-sub,
-  #visa-topbar .vt-div {
+  #visa-topbar .vt-div,
+  #visa-topbar .vt-live {
     display: none;
   }
 }
