@@ -23,3 +23,5 @@ bookstack_app_data
 Thumbs.db
 .vscode
 .idea
+
+.superpowers/
