@@ -40,6 +40,7 @@ export const btnGold = 'text-xs font-semibold bg-[#FAA61A] text-[#0A142F] px-3 p
 export const linkGold = 'flex items-center gap-1.5 text-xs font-semibold text-[#FAA61A] hover:text-[#ffca6a]';
 
 export const RAG_COLOR = { verde: '#34d399', amarelo: '#fbbf24', rojo: '#fb7185' };
+export const RAG_LABEL = { verde: 'Saludable', amarelo: 'En riesgo', rojo: 'Crítico' };
 
 export function RagDot({ rag, size = 12 }) {
   return <span style={{ width: size, height: size, background: RAG_COLOR[rag] || '#94a3b8' }} className="inline-block rounded-full flex-none" />;

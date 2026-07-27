@@ -4,7 +4,7 @@ import {
 } from 'lucide-react';
 import {
   Badge, fmtDate, stDot, stLabel, inputCls, btnGold, linkGold,
-  TAREA_ORDER, TAREA_CYCLE, RagDot, ProgressBar, RAG_COLOR,
+  TAREA_ORDER, TAREA_CYCLE, RagDot, ProgressBar, RAG_COLOR, RAG_LABEL,
 } from './trackingUi';
 import { updateTrack, updateTareaStatus, createReuniaoParaTrack, updatePrereq } from '../services/data';
 import { ragTrack, avanceTrack, todayISO, countVencidas, countBloqueadas, isOverdue } from '../lib/pmoLogic';
@@ -90,7 +90,7 @@ function ReunionesCard({ trackId, reuniones, onChange, onError }) {
   );
 }
 
-export default function TrackCockpit({ track, cliente, personas, prereqs, reunioes, deps, tareas, marcos, riscos, documentos, onBack, onChange }) {
+export default function TrackCockpit({ track, cliente, csm, personas, prereqs, reunioes, deps, tareas, marcos, riscos, documentos, onBack, onChange }) {
   const [err, setErr] = useState(null);
   const [view, setView] = useState('tablero'); // 'tablero' | 'lista'
 
@@ -117,14 +117,17 @@ export default function TrackCockpit({ track, cliente, personas, prereqs, reunio
       {/* Cabecera */}
       <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 mb-4">
         <div>
-          <h1 className="text-xl font-bold text-slate-100 flex items-center gap-2">
+          <h1 className="text-xl font-bold text-slate-100 flex items-center gap-2 flex-wrap">
             <RagDot rag={rag} size={14} />{track.ruta_critica && <Flag className="w-4 h-4 text-[#FAA61A]" />}{track.nome}
+            <span className="text-[11px] px-2.5 py-1 rounded-full font-semibold border" style={{ color: RAG_COLOR[rag], borderColor: `${RAG_COLOR[rag]}55`, background: `${RAG_COLOR[rag]}1f` }}>{RAG_LABEL[rag]}</span>
           </h1>
           <div className="flex flex-wrap gap-2 mt-2 items-center">
             <span className="text-[11px] px-2.5 py-1 rounded-full font-semibold border text-blue-300 bg-blue-500/15 border-blue-500/25">{cliente?.nome?.split('—')[0]?.trim() || cliente?.nome}</span>
             {track.frente && <span className="text-[11px] px-2.5 py-1 rounded-full font-semibold border text-[#FAA61A] bg-[#FAA61A]/12 border-[#FAA61A]/25">{track.frente}</span>}
+            {track.ruta_critica && <span className="text-[11px] px-2.5 py-1 rounded-full font-semibold border text-[#FAA61A] bg-[#FAA61A]/12 border-[#FAA61A]/25">Ruta crítica</span>}
             <Badge v={track.status} />
             {track.waiver_hasta && <span className="text-[11px] px-2.5 py-1 rounded-full font-semibold border text-rose-300 bg-rose-500/15 border-rose-500/25">Waiver: {fmtDate(track.waiver_hasta)}</span>}
+            {csm && <span className="text-[11px] px-2.5 py-1 rounded-full border border-[#273647] text-slate-300">CSM: {csm}</span>}
             <span className="text-[11px] px-2.5 py-1 rounded-full border border-[#273647] text-slate-300">TPM: {track.technical_pm || '—'}</span>
             {track.responsavel && <span className="text-[11px] px-2.5 py-1 rounded-full border border-[#273647] text-slate-300">Responsable: {track.responsavel}</span>}
             {/* Override RAG */}
@@ -140,7 +143,6 @@ export default function TrackCockpit({ track, cliente, personas, prereqs, reunio
               <button onClick={() => { const v = prompt('Avance manual % (vacío = auto)', track.avance ?? ''); if (v !== null) { if (v === '') { setAvance(null); } else { const n = Number(v); setAvance(Number.isNaN(n) ? NaN : Math.max(0, Math.min(100, n))); } } }} className="text-slate-500 hover:text-[#FAA61A]">✎</button>
             </div>
             <div className="text-[15px] font-bold text-[#FAA61A] mt-0.5">{av.hasData ? `${av.pct}%` : 'sin datos'}</div>
-            {av.hasData && <div className="mt-1"><ProgressBar pct={av.pct} /></div>}
           </div>
           {[['Abiertas', tareas.filter((t) => t.status !== 'fechado').length], ['Bloqueadas', countBloqueadas(tareas)], ['Vencidas', vencidas]].map(([k, v]) => (
             <div key={k} className="bg-[#122131] border border-[#273647] rounded-xl px-3 py-2 min-w-[86px]">
@@ -150,6 +152,8 @@ export default function TrackCockpit({ track, cliente, personas, prereqs, reunio
           ))}
         </div>
       </div>
+
+      {av.hasData && <div className="mb-5"><ProgressBar pct={av.pct} /></div>}
 
       {track.proximo_paso && (
         <div className="bg-[#1C2B3C] border border-[#273647] border-l-[3px] border-l-[#FAA61A] rounded-xl p-3 mb-5">

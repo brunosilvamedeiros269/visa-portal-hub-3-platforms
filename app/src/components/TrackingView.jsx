@@ -248,7 +248,7 @@ export default function TrackingView() {
     const cli = proj ? m.clientesById[proj.cliente_id] : null;
     return <div>{header}
       <TrackCockpit
-        track={tr} cliente={cli}
+        track={tr} cliente={cli} csm={proj?.csm || proj?.gerente || null}
         personas={cli ? (m.personasByCliente[cli.id] || []) : []}
         prereqs={m.prereqsByTrack[tr.id] || []}
         reunioes={(m.reunioesByTrack[tr.id] || []).filter(Boolean)}
