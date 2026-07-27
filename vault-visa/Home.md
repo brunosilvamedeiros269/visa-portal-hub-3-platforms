@@ -33,6 +33,7 @@ Mi base personal. Está **separada en dos**: conocimiento **general** (reutiliza
 - [[Google Pay — Onboarding e UPP]]
 - [[Apple Pay — Issuer Functional Requirements v3.5]]
 - [[Tokenização — arquitetura VTS e provisioning (aprofundamento)]]
+- [[Carteiras — provisioning in-app (fluxo técnico end-to-end)]]
 - [[Click to Pay — comunicação e marketing (fase 3)]]
 - [[PMO de Carteiras — rol e responsabilidades]]
 ### Troubleshooting
