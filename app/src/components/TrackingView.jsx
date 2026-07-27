@@ -2,9 +2,10 @@ import React, { useEffect, useMemo, useState } from 'react';
 import {
   RefreshCw, Loader2, AlertTriangle, ChevronRight, ArrowLeft, Plus, Flag, FolderKanban, Building2, CalendarClock,
 } from 'lucide-react';
-import { fetchAll, createCliente, createProjeto, createTrack } from '../services/data';
+import { fetchAll, createCliente, createProjeto, createTrack, updateProjeto } from '../services/data';
 import {
   Badge, fmtDate, stDot, inputCls, btnGold, linkGold, FRENTES, TRACK_STATUSES, RagDot, ProgressBar,
+  SEVERIDAD_COLOR, SEVERIDAD_LABEL, RISK_TIPO_LABEL, RISK_STATUS_LABEL,
 } from './trackingUi';
 import { todayISO, ragProjeto, avanceProjeto, nextMarco, daysTo, countVencidas, countBloqueadas, RAG_RANK } from '../lib/pmoLogic';
 import TrackCockpit from './TrackCockpit';
@@ -128,6 +129,21 @@ function Kpi({ n, label, danger }) {
       <div className={`text-2xl font-extrabold leading-none ${danger && n ? 'text-rose-300' : 'text-slate-100'}`}>{n}</div>
       <div className="text-[11px] uppercase tracking-wide text-slate-400 mt-1.5">{label}</div>
     </div>
+  );
+}
+
+function CsmEditable({ proj, onSaved }) {
+  const [editing, setEditing] = useState(false);
+  const [val, setVal] = useState(proj.csm || proj.gerente || '');
+  const [saving, setSaving] = useState(false);
+  if (!editing) {
+    return <button onClick={() => setEditing(true)} className="text-[11px] px-2.5 py-1 rounded-full border border-[#273647] text-slate-300 hover:border-[#FAA61A]/40">CSM: {proj.csm || proj.gerente || '—'} ✎</button>;
+  }
+  return (
+    <span className="inline-flex items-center gap-1">
+      <input className={inputCls + ' !w-40 !py-1'} value={val} onChange={(e) => setVal(e.target.value)} autoFocus />
+      <button disabled={saving} onClick={async () => { setSaving(true); try { await updateProjeto(proj.id, { csm: val || null }); setEditing(false); onSaved(); } finally { setSaving(false); } }} className={btnGold}>OK</button>
+    </span>
   );
 }
 
@@ -255,21 +271,44 @@ export default function TrackingView() {
     const proj = m.projetosById[selProjeto];
     const cli = m.clientesById[proj.cliente_id];
     const tracks = m.tracksByProjeto[proj.id] || [];
-    const st = trackStats(tracks);
+    const today = todayISO();
+    const r = projetoResumo(m, proj, today);
     return (
       <div>{header}
         <button onClick={() => setSelProjeto(null)} className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-200 mb-4"><ArrowLeft className="w-4 h-4" /> Volver al portafolio</button>
-        <h1 className="text-xl font-bold text-slate-100 flex items-center gap-2"><FolderKanban className="w-5 h-5 text-[#FAA61A]" /> {proj.nome}</h1>
-        <div className="flex flex-wrap gap-2 mt-2 mb-5">
-          <span className="text-[11px] px-2.5 py-1 rounded-full font-semibold border text-blue-300 bg-blue-500/15 border-blue-500/25">{cli?.nome}</span>
+        <div className="flex items-center gap-3">
+          <RagDot rag={r.rag} size={14} />
+          <h1 className="text-xl font-bold text-slate-100 flex items-center gap-2"><FolderKanban className="w-5 h-5 text-[#FAA61A]" /> {proj.nome}</h1>
           <Badge v={proj.status} />
-          {proj.gerente && <span className="text-[11px] px-2.5 py-1 rounded-full border border-[#273647] text-slate-300">Gerente: {proj.gerente}</span>}
+        </div>
+        <div className="flex flex-wrap items-center gap-2 mt-2 mb-3">
+          <span className="text-[11px] px-2.5 py-1 rounded-full font-semibold border text-blue-300 bg-blue-500/15 border-blue-500/25">{cli?.nome}</span>
+          <CsmEditable proj={proj} onSaved={load} />
           {proj.inicio && <span className="text-[11px] px-2.5 py-1 rounded-full border border-[#273647] text-slate-300">Inicio: {fmtDate(proj.inicio)}</span>}
         </div>
+        <div className="max-w-md mb-5"><ProgressBar pct={r.pct} /><div className="text-[11px] text-slate-400 mt-1">{r.pct}% avance del proyecto</div></div>
         {proj.descricao && <p className="text-sm text-slate-300 mb-5 max-w-3xl">{proj.descricao}</p>}
-        <div className="grid grid-cols-3 gap-3 max-w-md mb-6">
-          <Kpi n={st.total} label="Tracks" /><Kpi n={st.enCurso} label="En curso" /><Kpi n={st.bloqueados} label="Bloqueados" danger />
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-xl mb-6">
+          <Kpi n={r.tracks.length} label="Tracks" />
+          <Kpi n={r.tracks.filter((t) => (t.status || '').startsWith('Em curso')).length} label="En curso" />
+          <Kpi n={r.bloqueadas} label="Bloqueadas" danger />
+          <Kpi n={r.vencidas} label="Vencidas" danger />
         </div>
+        {(() => {
+          const riesgos = [...(m.riscosByProjeto[proj.id] || []), ...r.tracks.flatMap((t) => (m.riscosByTrack[t.id] || []).map((x) => ({ ...x, _track: t.nome })))];
+          if (!riesgos.length) return null;
+          return (
+            <div className="bg-[#122131]/60 border border-[#273647] rounded-2xl p-4 mb-5">
+              <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-2">Riesgos &amp; Issues del proyecto</h3>
+              {riesgos.map((x) => (
+                <div key={x.id} className="flex gap-2 py-1.5 border-t border-[#273647]/60 first:border-0 text-[12.5px]">
+                  <span className="w-1 rounded self-stretch flex-none" style={{ background: SEVERIDAD_COLOR[x.severidade] || '#94a3b8' }} />
+                  <div><div className="text-slate-200">{x.descricao}</div><div className="text-[10px] text-slate-500">{RISK_TIPO_LABEL[x.tipo]} · {SEVERIDAD_LABEL[x.severidade]} · {x.dueno || '—'} · {RISK_STATUS_LABEL[x.status]}{x._track ? ` · ${x._track}` : ''}</div></div>
+                </div>
+              ))}
+            </div>
+          );
+        })()}
         <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
           <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-400">Tracks</h3>
           <NewTrack projetoId={proj.id} onDone={load} />
