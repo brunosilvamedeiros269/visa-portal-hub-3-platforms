@@ -27,6 +27,11 @@ Mi base personal. Está **separada en dos**: conocimiento **general** (reutiliza
 ### Estudo
 - [[Plano de estudos]]
 - [[Banco de perguntas]]
+### Guías técnicas (implementación)
+- [[Google Pay — Push Provisioning (proceso)]]
+- [[Google Pay — Chaves VDP e criptografia]]
+- [[Google Pay — Onboarding e UPP]]
+- [[Apple Pay — Issuer Functional Requirements v3.5]]
 
 ## 🗂️ Proyectos (contexto por cliente)
 - [[BROU — dossiê]] *(BROU)*
