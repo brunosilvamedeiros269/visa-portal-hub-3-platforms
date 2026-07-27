@@ -1,5 +1,6 @@
 ---
 tags: ["home"]
+aliases: ["Home"]
 ---
 
 # 🧠 Base de Conocimiento — Visa
