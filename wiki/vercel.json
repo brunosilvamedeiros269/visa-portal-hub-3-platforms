@@ -1,5 +1,7 @@
 {
-  "buildCommand": "npx quartz build -d ../vault-visa -o public",
+  "buildCommand": "npx quartz build -d ../vault-visa -o public && cp static-404.html public/404.html",
   "outputDirectory": "public",
-  "installCommand": "npm install"
+  "installCommand": "npm install",
+  "cleanUrls": true,
+  "trailingSlash": false
 }
