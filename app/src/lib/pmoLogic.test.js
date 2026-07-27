@@ -2,9 +2,16 @@ import { describe, it, expect } from 'vitest';
 import {
   daysTo, isOverdue, avanceTrack, avanceProjeto,
   ragTrack, ragProjeto, nextMarco, countVencidas, countBloqueadas,
+  todayISO,
 } from './pmoLogic';
 
 const TODAY = '2026-07-27';
+
+describe('todayISO', () => {
+  it('formatea YYYY-MM-DD con ceros', () => {
+    expect(todayISO(new Date(2026, 0, 5))).toBe('2026-01-05');
+  });
+});
 
 describe('daysTo / isOverdue', () => {
   it('conta dias positivos no futuro', () => expect(daysTo('2026-07-30', TODAY)).toBe(3));
@@ -34,6 +41,14 @@ describe('avanceProjeto', () => {
     const tracks = [{ id: 'a', avance: null }, { id: 'b', avance: null }];
     const byTrack = { a: [{ status: 'fechado' }, { status: 'aberto' }], b: [{ status: 'fechado' }] };
     expect(avanceProjeto(tracks, byTrack)).toBe(75); // (50 + 100)/2
+  });
+  it('ignora tracks sin datos en el promedio', () => {
+    const tracks = [{ id: 'a', avance: null }, { id: 'b', avance: null }];
+    const byTrack = { a: [{ status: 'fechado' }, { status: 'aberto' }], b: [] }; // b sin tareas => sin datos
+    expect(avanceProjeto(tracks, byTrack)).toBe(50); // solo cuenta 'a'
+  });
+  it('0 cuando ningún track tiene datos', () => {
+    expect(avanceProjeto([{ id: 'a', avance: null }], { a: [] })).toBe(0);
   });
 });
 

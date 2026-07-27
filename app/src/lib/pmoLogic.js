@@ -32,9 +32,11 @@ export function avanceTrack(track, tareas) {
 }
 
 export function avanceProjeto(tracks, tareasByTrack) {
-  if (!tracks.length) return 0;
-  const sum = tracks.reduce((acc, tr) => acc + avanceTrack(tr, tareasByTrack[tr.id] || []).pct, 0);
-  return Math.round(sum / tracks.length);
+  const withData = tracks
+    .map((tr) => avanceTrack(tr, tareasByTrack[tr.id] || []))
+    .filter((a) => a.hasData);
+  if (!withData.length) return 0;
+  return Math.round(withData.reduce((acc, a) => acc + a.pct, 0) / withData.length);
 }
 
 export function ragTrack(track, tareas, marcos, todayIso, amberDays = 7) {
