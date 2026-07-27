@@ -34,6 +34,7 @@ Mi base personal. Está **separada en dos**: conocimiento **general** (reutiliza
 - [[Apple Pay — Issuer Functional Requirements v3.5]]
 - [[Tokenização — arquitetura VTS e provisioning (aprofundamento)]]
 - [[Carteiras — provisioning in-app (fluxo técnico end-to-end)]]
+- [[Click to Pay — SRC, enrolamento e ciclo de vida (aprofundamento)]]
 - [[Click to Pay — comunicação e marketing (fase 3)]]
 - [[PMO de Carteiras — rol e responsabilidades]]
 ### Troubleshooting
