@@ -4,9 +4,12 @@ tags: ["home"]
 
 # 🧠 Base de Conocimiento — Visa
 
-Mi base personal: cómo funcionan los pagos Visa, nuestro rol (PM), tokenización, carteras, Click to Pay, mandatos y el glosario. Abrir esta carpeta como *vault* en Obsidian.
+Mi base personal. Está **separada en dos**: conocimiento **general** (reutilizable) y contexto **específico de proyecto**. El seguimiento vivo (tracks/tareas) está en el app; acá vive el conocimiento.
 
-## Conceptos (leer en orden)
+> [!tip] Abrir esta carpeta como *vault* en Obsidian y usar el **Graph View** para ver la red de enlaces.
+
+## 📚 Conocimiento general
+### Conceptos (leer en orden)
 1. [[1. Visão geral — nosso papel e o fluxo]]
 2. [[2. Fundamentos de pagamentos]]
 3. [[3. Tokenização]]
@@ -14,18 +17,21 @@ Mi base personal: cómo funcionan los pagos Visa, nuestro rol (PM), tokenizació
 5. [[5. Click to Pay]]
 6. [[6. Processo PMO de Carteiras]]
 7. [[7. Mandatos e Waivers]]
-
-## Glosario por categoría
+### Glosario por categoría
 - [[MOC — Carteiras]]
 - [[MOC — Click to Pay]]
 - [[MOC — Fundamentos]]
 - [[MOC — Mandatos]]
 - [[MOC — Processo-PMO]]
 - [[MOC — Tokenização]]
+### Estudo
+- [[Plano de estudos]]
+- [[Banco de perguntas]]
+
+## 🗂️ Proyectos (contexto por cliente)
+- [[BROU — dossiê]] *(BROU)*
+- [[Banco de Corrientes — dossiê]] *(Banco de Corrientes)*
 
 ## Cómo está organizado
-- **Conceptos/** — las notas temáticas ricas (con diagramas mermaid).
-- **Glosario/** — una nota por término, con `aliases` (siglas) para autolink.
-- **MOCs/** — mapas de contenido por categoría.
-
-Abrí la vista de **grafo** (Graph View) para ver todas las conexiones.
+- **Conocimiento/** — general y reutilizable: `Conceptos/` (temas + mermaid), `Glosario/` (1 nota por término, con siglas como `aliases`), `MOCs/` (mapas por categoría) y `Estudo/`.
+- **Proyectos/** — específico por cliente: dossier, historia, decisiones e incidentes; **enlaza** al conocimiento general pero el general no depende de él.
