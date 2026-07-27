@@ -39,3 +39,96 @@
   }
 }
 
+/* --- Barra de topo Visa (mesmo modelo do app de projetos) --- */
+:root {
+  --vt-h: 56px;
+}
+#visa-topbar {
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: var(--vt-h);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.3rem;
+  background: #0a142f;
+  border-bottom: 1px solid #1e2a44;
+  box-sizing: border-box;
+
+  .vt-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+  }
+  .vt-mark {
+    position: relative;
+    color: #fff;
+    font: 900 italic 22px/1 "Helvetica Neue", Arial, sans-serif;
+    letter-spacing: 0.3px;
+    margin-right: 6px;
+  }
+  .vt-mark::after {
+    content: "";
+    position: absolute;
+    top: 1px;
+    right: -8px;
+    width: 7px;
+    height: 7px;
+    background: #faa61a;
+    border-radius: 2px;
+    transform: rotate(45deg);
+  }
+  .vt-div {
+    width: 1px;
+    height: 26px;
+    background: #26365a;
+    margin: 0 0.4rem;
+  }
+  .vt-sub {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.15;
+    strong {
+      color: #e7eef6;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    em {
+      color: #8a97a8;
+      font-size: 11px;
+      font-style: normal;
+    }
+  }
+  .vt-app {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    text-decoration: none;
+    background: #1a1f71;
+    color: #fff;
+    font: 700 13px/1 "Inter", system-ui, sans-serif;
+    padding: 0.55rem 0.95rem;
+    border-radius: 10px;
+    transition: background 0.12s ease;
+    &:hover {
+      background: #232a8f;
+    }
+  }
+}
+/* empurra o conteúdo do Quartz pra baixo da barra fixa */
+body {
+  padding-top: var(--vt-h) !important;
+}
+/* a barra já carrega a marca -> esconde o título grande da sidebar */
+.page-title {
+  display: none !important;
+}
+@media (max-width: 700px) {
+  #visa-topbar .vt-sub,
+  #visa-topbar .vt-div {
+    display: none;
+  }
+}
+

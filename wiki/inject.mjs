@@ -1,15 +1,18 @@
-// Injeta um link fixo "Seguimiento ↗" (volta ao app de projetos) em todas as páginas.
-// É inserido em todo HTML para persistir na navegação SPA do Quartz.
+// Injeta uma barra de topo Visa (igual ao app) em todas as páginas do wiki.
+// Vai em todo HTML para persistir na navegação SPA do Quartz.
 import { readdirSync, statSync, readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
 
 const APP_URL = 'https://visa-portal-hub-3-platforms.vercel.app/';
-const SNIPPET =
-  `<a href="${APP_URL}" target="_blank" rel="noreferrer" id="seguimiento-link" aria-label="Ir a Seguimiento de proyectos"` +
-  ` style="position:fixed;top:1.05rem;right:1.4rem;z-index:900;display:inline-flex;align-items:center;gap:.4rem;` +
-  `background:#1A1F71;color:#fff;font:600 13px/1 Inter,system-ui,-apple-system,'Segoe UI',sans-serif;text-decoration:none;` +
-  `padding:.55rem .95rem;border-radius:10px;box-shadow:0 4px 14px rgba(0,0,0,.32);">` +
-  `Seguimiento <span style="opacity:.7">&#8599;</span></a>`;
+const BAR =
+  '<header id="visa-topbar">' +
+  '<a href="/" class="vt-brand" aria-label="Inicio">' +
+  '<span class="vt-mark">VISA</span>' +
+  '<span class="vt-div"></span>' +
+  '<span class="vt-sub"><strong>Base de Conocimiento</strong><em>Visa Implementation Services</em></span>' +
+  '</a>' +
+  `<a href="${APP_URL}" target="_blank" rel="noreferrer" class="vt-app">Seguimiento <span aria-hidden="true">&#8599;</span></a>` +
+  '</header>';
 
 let count = 0;
 function walk(dir) {
@@ -19,10 +22,14 @@ function walk(dir) {
     if (s.isDirectory()) { walk(p); continue; }
     if (!p.endsWith('.html') || p.endsWith('404.html')) continue;
     let html = readFileSync(p, 'utf8');
-    if (html.includes('id="seguimiento-link"') || !html.includes('</body>')) continue;
-    writeFileSync(p, html.replace('</body>', SNIPPET + '</body>'));
+    if (html.includes('id="visa-topbar"')) continue;
+    const at = html.indexOf('<body');
+    if (at === -1) continue;
+    const close = html.indexOf('>', at);
+    html = html.slice(0, close + 1) + BAR + html.slice(close + 1);
+    writeFileSync(p, html);
     count++;
   }
 }
 walk('public');
-console.log(`Seguimiento link injected into ${count} pages.`);
+console.log(`Visa topbar injected into ${count} pages.`);
