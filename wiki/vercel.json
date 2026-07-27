@@ -1,5 +1,5 @@
 {
-  "buildCommand": "npx quartz build -d ../vault-visa -o public && cp static-404.html public/404.html",
+  "buildCommand": "npx quartz build -d ../vault-visa -o public && cp static-404.html public/404.html && node inject.mjs",
   "outputDirectory": "public",
   "installCommand": "npm install",
   "cleanUrls": true,

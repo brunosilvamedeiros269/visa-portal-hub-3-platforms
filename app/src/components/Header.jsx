@@ -1,8 +1,8 @@
 import React from 'react';
 import { LayoutDashboard, BookOpen, ArrowUpRight } from 'lucide-react';
 
-// URL do wiki (Quartz). Definir VITE_WIKI_URL no Vercel do app; se vazio, o link não aparece.
-const WIKI_URL = import.meta.env.VITE_WIKI_URL || '';
+// URL do wiki (Quartz). Fallback fixo; pode sobrescrever com VITE_WIKI_URL no Vercel.
+const WIKI_URL = import.meta.env.VITE_WIKI_URL || 'https://visa-wiki.vercel.app';
 
 // Wordmark Visa (evocação da marca para uso interno do time VIS).
 function VisaWordmark() {
