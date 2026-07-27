@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {
-  ArrowLeft, Flag, Plus, CalendarClock, Link2, FileText, AlertTriangle, Users,
+  ArrowLeft, Flag, Plus, CalendarClock, Link2, AlertTriangle, Users,
 } from 'lucide-react';
 import {
   Badge, fmtDate, stDot, stLabel, inputCls, btnGold, linkGold,
@@ -20,8 +20,8 @@ const PREREQ_STYLE = {
   'N/A': 'border-slate-500 text-slate-400',
 };
 
-function TableroKanban({ tareas, onChange, today }) {
-  const cycleTask = async (t) => { await updateTareaStatus(t.id, TAREA_CYCLE[t.status] || 'aberto'); onChange(); };
+function TableroKanban({ tareas, onChange, today, onError }) {
+  const cycleTask = async (t) => { try { await updateTareaStatus(t.id, TAREA_CYCLE[t.status] || 'aberto'); onChange(); } catch (e) { onError && onError(e.message); } };
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
       {TAREA_ORDER.map((col) => {
@@ -51,7 +51,7 @@ function TableroKanban({ tareas, onChange, today }) {
   );
 }
 
-function ReunionesCard({ trackId, reuniones, onChange }) {
+function ReunionesCard({ trackId, reuniones, onChange, onError }) {
   const [open, setOpen] = useState(false);
   const [f, setF] = useState({ titulo: '', tipo: 'semanal', data: '', participantes: '', ata: '' });
   const [saving, setSaving] = useState(false);
@@ -59,6 +59,7 @@ function ReunionesCard({ trackId, reuniones, onChange }) {
   const submit = async (e) => {
     e.preventDefault(); if (!f.titulo.trim()) return; setSaving(true);
     try { await createReuniaoParaTrack(trackId, { titulo: f.titulo.trim(), tipo: f.tipo, data: f.data || null, participantes: f.participantes || null, ata: f.ata || null }); setF({ titulo: '', tipo: 'semanal', data: '', participantes: '', ata: '' }); setOpen(false); onChange(); }
+    catch (x) { onError && onError(x.message); }
     finally { setSaving(false); }
   };
   return (
@@ -98,8 +99,8 @@ export default function TrackCockpit({ track, cliente, personas, prereqs, reunio
   const av = avanceTrack(track, tareas);
   const vencidas = countVencidas(tareas, today);
 
-  const setRag = async (val) => { await updateTrack(track.id, { rag_override: val }); onChange(); };
-  const setAvance = async (val) => { await updateTrack(track.id, { avance: val }); onChange(); };
+  const setRag = async (val) => { setErr(null); try { await updateTrack(track.id, { rag_override: val }); onChange(); } catch (e) { setErr(e.message); } };
+  const setAvance = async (val) => { if (val !== null && Number.isNaN(val)) { setErr('Avance inválido'); return; } setErr(null); try { await updateTrack(track.id, { avance: val }); onChange(); } catch (e) { setErr(e.message); } };
 
   const togglePrereq = async (p) => {
     setErr(null);
@@ -139,7 +140,7 @@ export default function TrackCockpit({ track, cliente, personas, prereqs, reunio
               <button onClick={() => { const v = prompt('Avance manual % (vacío = auto)', track.avance ?? ''); if (v !== null) setAvance(v === '' ? null : Number(v)); }} className="text-slate-500 hover:text-[#FAA61A]">✎</button>
             </div>
             <div className="text-[15px] font-bold text-[#FAA61A] mt-0.5">{av.hasData ? `${av.pct}%` : 'sin datos'}</div>
-            <div className="mt-1"><ProgressBar pct={av.pct} /></div>
+            {av.hasData && <div className="mt-1"><ProgressBar pct={av.pct} /></div>}
           </div>
           {[['Abiertas', tareas.filter((t) => t.status !== 'fechado').length], ['Bloqueadas', countBloqueadas(tareas)], ['Vencidas', vencidas]].map(([k, v]) => (
             <div key={k} className="bg-[#122131] border border-[#273647] rounded-xl px-3 py-2 min-w-[86px]">
@@ -171,7 +172,7 @@ export default function TrackCockpit({ track, cliente, personas, prereqs, reunio
             </div>
             {view === 'lista'
               ? <TareasTable trackId={track.id} tareas={tareas} onChange={onChange} />
-              : <TableroKanban tareas={tareas} onChange={onChange} today={today} />}
+              : <TableroKanban tareas={tareas} onChange={onChange} today={today} onError={setErr} />}
           </div>
           <MarcosList trackId={track.id} marcos={marcos} onChange={onChange} />
           <RaidList trackId={track.id} riscos={riscos} onChange={onChange} />
@@ -200,7 +201,7 @@ export default function TrackCockpit({ track, cliente, personas, prereqs, reunio
             )) : <p className="text-xs text-slate-400">Sin prerequisitos.</p>}
           </div>
 
-          <ReunionesCard trackId={track.id} reuniones={reunioes} onChange={onChange} />
+          <ReunionesCard trackId={track.id} reuniones={reunioes} onChange={onChange} onError={setErr} />
 
           {deps.length > 0 && (
             <div className="bg-[#1C2B3C] border border-[#273647] rounded-xl p-4">
