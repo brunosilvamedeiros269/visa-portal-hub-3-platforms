@@ -1,5 +1,8 @@
 import React from 'react';
-import { LayoutDashboard } from 'lucide-react';
+import { LayoutDashboard, BookOpen, ArrowUpRight } from 'lucide-react';
+
+// URL do wiki (Quartz). Definir VITE_WIKI_URL no Vercel do app; se vazio, o link não aparece.
+const WIKI_URL = import.meta.env.VITE_WIKI_URL || '';
 
 // Wordmark Visa (evocação da marca para uso interno do time VIS).
 function VisaWordmark() {
@@ -37,6 +40,19 @@ export default function Header() {
               <LayoutDashboard className="w-4 h-4" />
               Seguimiento
             </span>
+            {WIKI_URL && (
+              <a
+                href={WIKI_URL}
+                target="_blank"
+                rel="noreferrer"
+                title="Base de Conocimiento (wiki)"
+                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-[13px] font-medium text-slate-300 hover:text-white hover:bg-white/5 transition-colors"
+              >
+                <BookOpen className="w-4 h-4" />
+                Wiki
+                <ArrowUpRight className="w-3.5 h-3.5 opacity-70" />
+              </a>
+            )}
           </nav>
 
           {/* Estado en vivo */}
