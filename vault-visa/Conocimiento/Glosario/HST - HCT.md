@@ -2,6 +2,8 @@
 aliases: ["HST", "HCT"]
 tags: ["glosario/processo-pmo"]
 categoria: Processo/PMO
+fuente: Dicionário (Notion)
+estado: verificado
 ---
 
 # HST - HCT

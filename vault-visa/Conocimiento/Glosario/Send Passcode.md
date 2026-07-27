@@ -2,6 +2,8 @@
 aliases: []
 tags: ["glosario/tokenizacao"]
 categoria: Tokenização
+fuente: Dicionário (Notion)
+estado: verificado
 ---
 
 # Send Passcode

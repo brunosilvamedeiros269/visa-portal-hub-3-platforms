@@ -1,5 +1,7 @@
 ---
 tags: ["proyecto", "cliente/BROU"]
+fuente: Reports e atas — BROU
+estado: verificado
 ---
 
 # 🇺🇾 BROU — Banco de la República (Uruguai)

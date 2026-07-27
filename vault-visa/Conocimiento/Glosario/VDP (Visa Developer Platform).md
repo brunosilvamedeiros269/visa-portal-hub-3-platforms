@@ -2,6 +2,8 @@
 aliases: ["VDP", "Visa Developer Platform"]
 tags: ["glosario/tokenizacao"]
 categoria: Tokenização
+fuente: Dicionário (Notion)
+estado: verificado
 ---
 
 # VDP (Visa Developer Platform)

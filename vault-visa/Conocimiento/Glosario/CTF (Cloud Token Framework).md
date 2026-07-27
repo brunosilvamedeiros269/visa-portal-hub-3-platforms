@@ -2,6 +2,8 @@
 aliases: ["CTF", "Cloud Token Framework"]
 tags: ["glosario/tokenizacao"]
 categoria: Tokenização
+fuente: Dicionário (Notion)
+estado: verificado
 ---
 
 # CTF (Cloud Token Framework)

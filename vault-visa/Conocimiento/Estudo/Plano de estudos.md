@@ -1,5 +1,7 @@
 ---
 tags: ["estudo"]
+fuente: Notas de estudo (Notion)
+estado: verificado
 ---
 
 # Plano de estudos — 6 semanas

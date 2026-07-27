@@ -1,5 +1,7 @@
 ---
 tags: ["tecnico"]
+fuente: Guias da pasta + fontes públicas
+estado: verificado
 ---
 
 # Carteiras — provisioning in-app (fluxo técnico end-to-end)

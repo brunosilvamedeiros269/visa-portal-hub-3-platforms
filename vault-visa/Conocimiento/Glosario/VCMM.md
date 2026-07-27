@@ -2,6 +2,8 @@
 aliases: []
 tags: ["glosario/processo-pmo"]
 categoria: Processo/PMO
+fuente: Dicionário (Notion)
+estado: verificado
 ---
 
 # VCMM

@@ -1,5 +1,7 @@
 ---
 tags: ["tecnico"]
+fuente: Guias da pasta + fontes públicas
+estado: verificado
 ---
 
 # Apple Pay — Issuer Functional Requirements v3.5

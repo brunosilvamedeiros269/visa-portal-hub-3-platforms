@@ -1,5 +1,7 @@
 ---
 tags: ["tecnico"]
+fuente: Guias da pasta + fontes públicas
+estado: verificado
 ---
 
 # [[Click to Pay]] — [[SRC - EMVCo|SRC]], enrolamento e ciclo de vida (aprofundamento)

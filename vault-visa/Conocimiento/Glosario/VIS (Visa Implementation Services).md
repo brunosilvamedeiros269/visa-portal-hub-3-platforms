@@ -2,6 +2,8 @@
 aliases: ["VIS", "Visa Implementation Services"]
 tags: ["glosario/processo-pmo"]
 categoria: Processo/PMO
+fuente: Dicionário (Notion)
+estado: verificado
 ---
 
 # VIS (Visa Implementation Services)

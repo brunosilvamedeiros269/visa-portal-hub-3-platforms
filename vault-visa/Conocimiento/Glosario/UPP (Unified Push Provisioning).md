@@ -2,6 +2,8 @@
 aliases: ["UPP", "Unified Push Provisioning"]
 tags: ["glosario/carteiras"]
 categoria: Carteiras
+fuente: Dicionário (Notion)
+estado: verificado
 ---
 
 # UPP (Unified Push Provisioning)

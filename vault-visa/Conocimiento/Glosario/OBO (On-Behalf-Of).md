@@ -2,6 +2,8 @@
 aliases: ["OBO", "On-Behalf-Of"]
 tags: ["glosario/carteiras"]
 categoria: Carteiras
+fuente: Dicionário (Notion)
+estado: verificado
 ---
 
 # OBO (On-Behalf-Of)

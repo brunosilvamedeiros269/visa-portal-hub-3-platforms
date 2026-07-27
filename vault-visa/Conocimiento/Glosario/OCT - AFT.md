@@ -2,6 +2,8 @@
 aliases: ["OCT", "AFT"]
 tags: ["glosario/mandatos"]
 categoria: Mandatos
+fuente: Dicionário (Notion)
+estado: verificado
 ---
 
 # OCT - AFT

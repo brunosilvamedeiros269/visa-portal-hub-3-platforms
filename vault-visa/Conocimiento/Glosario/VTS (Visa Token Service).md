@@ -2,6 +2,8 @@
 aliases: ["VTS", "Visa Token Service"]
 tags: ["glosario/tokenizacao"]
 categoria: Tokenização
+fuente: Dicionário (Notion)
+estado: verificado
 ---
 
 # VTS (Visa Token Service)

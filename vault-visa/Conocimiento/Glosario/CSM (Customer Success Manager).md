@@ -2,6 +2,8 @@
 aliases: ["CSM", "Customer Success Manager"]
 tags: ["glosario/processo-pmo"]
 categoria: Processo/PMO
+fuente: Dicionário (Notion)
+estado: verificado
 ---
 
 # CSM (Customer Success Manager)

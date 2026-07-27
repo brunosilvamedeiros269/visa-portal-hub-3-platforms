@@ -2,6 +2,8 @@
 aliases: ["Fluxo amarelo"]
 tags: ["glosario/tokenizacao"]
 categoria: Tokenização
+fuente: Dicionário (Notion)
+estado: verificado
 ---
 
 # Fluxo amarelo (85)

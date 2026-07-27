@@ -2,6 +2,8 @@
 aliases: []
 tags: ["glosario/click to pay"]
 categoria: Click to Pay
+fuente: Dicionário (Notion)
+estado: verificado
 ---
 
 # Destination Site

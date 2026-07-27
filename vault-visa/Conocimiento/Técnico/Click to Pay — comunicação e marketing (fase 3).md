@@ -1,5 +1,7 @@
 ---
 tags: ["tecnico"]
+fuente: Guias da pasta + fontes públicas
+estado: verificado
 ---
 
 # [[Click to Pay]] — comunicação e marketing (fase 3)

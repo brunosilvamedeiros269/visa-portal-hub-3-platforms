@@ -2,6 +2,8 @@
 aliases: ["SRC", "EMVCo"]
 tags: ["glosario/click to pay"]
 categoria: Click to Pay
+fuente: Dicionário (Notion)
+estado: verificado
 ---
 
 # SRC - EMVCo

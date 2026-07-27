@@ -2,6 +2,8 @@
 aliases: []
 tags: ["glosario/fundamentos"]
 categoria: Fundamentos
+fuente: Dicionário (Notion)
+estado: verificado
 ---
 
 # Emissor

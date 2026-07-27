@@ -2,6 +2,8 @@
 aliases: ["Produto", "Visa"]
 tags: ["glosario/processo-pmo"]
 categoria: Processo/PMO
+fuente: Dicionário (Notion)
+estado: verificado
 ---
 
 # Produto (Visa)

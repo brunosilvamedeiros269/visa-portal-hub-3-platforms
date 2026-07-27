@@ -1,5 +1,7 @@
 ---
 tags: ["tecnico"]
+fuente: Guias da pasta + fontes públicas
+estado: verificado
 ---
 
 # [[Tokenização]] — arquitetura [[VTS (Visa Token Service)|VTS]] e provisioning (aprofundamento)

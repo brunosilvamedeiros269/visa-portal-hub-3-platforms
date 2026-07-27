@@ -1,5 +1,7 @@
 ---
 tags: ["troubleshooting"]
+fuente: Reports/atas de projeto
+estado: verificado
 ---
 
 # Troubleshooting — Google push provisioning que não chega

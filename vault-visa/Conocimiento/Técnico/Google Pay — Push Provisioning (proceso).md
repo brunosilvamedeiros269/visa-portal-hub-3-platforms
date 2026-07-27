@@ -1,5 +1,7 @@
 ---
 tags: ["tecnico"]
+fuente: Guias da pasta + fontes públicas
+estado: verificado
 ---
 
 # Google Pay — [[Push - In-App Provisioning (fluxo verde)|Push]] Provisioning (proceso)

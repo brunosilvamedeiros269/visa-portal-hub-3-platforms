@@ -2,6 +2,8 @@
 aliases: []
 tags: ["glosario/carteiras"]
 categoria: Carteiras
+fuente: Dicionário (Notion)
+estado: verificado
 ---
 
 # Wallet Extensions

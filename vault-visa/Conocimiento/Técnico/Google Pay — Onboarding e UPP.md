@@ -1,5 +1,7 @@
 ---
 tags: ["tecnico"]
+fuente: Guias da pasta + fontes públicas
+estado: verificado
 ---
 
 # Google Pay — Onboarding ([[Issuer Console]]) e [[UPP (Unified Push Provisioning)|UPP]]

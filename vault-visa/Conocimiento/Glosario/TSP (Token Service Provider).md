@@ -2,6 +2,8 @@
 aliases: ["TSP", "Token Service Provider"]
 tags: ["glosario/tokenizacao"]
 categoria: Tokenização
+fuente: Dicionário (Notion)
+estado: verificado
 ---
 
 # TSP (Token Service Provider)

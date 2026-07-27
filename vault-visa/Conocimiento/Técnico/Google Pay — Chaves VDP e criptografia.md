@@ -1,5 +1,7 @@
 ---
 tags: ["tecnico"]
+fuente: Guias da pasta + fontes públicas
+estado: verificado
 ---
 
 # Google Pay — Chaves [[VDP (Visa Developer Platform)|VDP]] e criptografia

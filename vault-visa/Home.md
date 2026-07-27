@@ -41,6 +41,8 @@ Mi base personal. Está **separada en dos**: conocimiento **general** (reutiliza
 ### Troubleshooting
 - [[Troubleshooting — crash do fluxo verde (push provisioning)]]
 - [[Troubleshooting — Google push provisioning que não chega]]
+### Índices
+- [[Índice — fuentes]] — de dónde viene cada nota y su estado
 
 ## 🗂️ Proyectos (contexto por cliente)
 - [[BROU — dossiê]] *(BROU)*

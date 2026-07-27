@@ -1,5 +1,7 @@
 ---
 tags: ["tecnico"]
+fuente: Guias da pasta + fontes públicas
+estado: verificado
 ---
 
 # [[Visa Direct]] e mandatos ([[OCT - AFT|OCT]]-AFT, [[ANI]]) — aprofundamento

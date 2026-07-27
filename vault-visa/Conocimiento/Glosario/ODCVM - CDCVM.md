@@ -2,6 +2,8 @@
 aliases: ["ODCVM", "CDCVM"]
 tags: ["glosario/carteiras"]
 categoria: Carteiras
+fuente: Dicionário (Notion)
+estado: verificado
 ---
 
 # ODCVM - CDCVM

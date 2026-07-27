@@ -1,5 +1,7 @@
 ---
 tags: ["proyecto", "cliente/Banco-de-Corrientes"]
+fuente: Reports e atas — Banco de Corrientes
+estado: verificado
 ---
 
 # 🇦🇷 Banco de Corrientes (Argentina)

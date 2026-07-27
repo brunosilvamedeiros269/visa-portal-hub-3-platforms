@@ -2,6 +2,8 @@
 aliases: ["PRM", "Visa Access"]
 tags: ["glosario/processo-pmo"]
 categoria: Processo/PMO
+fuente: Dicionário (Notion)
+estado: verificado
 ---
 
 # PRM (Visa Access)

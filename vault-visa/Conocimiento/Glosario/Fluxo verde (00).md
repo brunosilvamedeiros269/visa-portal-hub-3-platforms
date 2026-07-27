@@ -2,6 +2,8 @@
 aliases: ["Fluxo verde"]
 tags: ["glosario/tokenizacao"]
 categoria: Tokenização
+fuente: Dicionário (Notion)
+estado: verificado
 ---
 
 # Fluxo verde (00)

@@ -2,6 +2,8 @@
 aliases: ["AID", "Apple"]
 tags: ["glosario/carteiras"]
 categoria: Carteiras
+fuente: Dicionário (Notion)
+estado: verificado
 ---
 
 # AID (Apple)

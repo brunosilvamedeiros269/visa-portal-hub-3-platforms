@@ -2,6 +2,8 @@
 aliases: []
 tags: ["glosario/mandatos"]
 categoria: Mandatos
+fuente: Dicionário (Notion)
+estado: verificado
 ---
 
 # Mandato

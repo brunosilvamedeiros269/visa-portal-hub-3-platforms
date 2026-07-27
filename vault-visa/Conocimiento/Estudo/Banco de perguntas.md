@@ -1,5 +1,7 @@
 ---
 tags: ["estudo"]
+fuente: Notas de estudo (Notion)
+estado: verificado
 ---
 
 # Banco de perguntas (com respostas)

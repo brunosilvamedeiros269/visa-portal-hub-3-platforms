@@ -2,6 +2,8 @@
 aliases: ["Passkey", "App-to-App"]
 tags: ["glosario/click to pay"]
 categoria: Click to Pay
+fuente: Dicionário (Notion)
+estado: verificado
 ---
 
 # Passkey - App-to-App

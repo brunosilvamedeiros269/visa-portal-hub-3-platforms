@@ -2,6 +2,8 @@
 aliases: ["CTA", "Click-to-Accept"]
 tags: ["glosario/carteiras"]
 categoria: Carteiras
+fuente: Dicionário (Notion)
+estado: verificado
 ---
 
 # CTA (Click-to-Accept)
