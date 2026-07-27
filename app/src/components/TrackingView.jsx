@@ -100,15 +100,6 @@ function NewTrack({ projetoId, onDone }) {
 }
 
 // ---------- helpers de resumo ----------
-function trackStats(list) {
-  return {
-    total: list.length,
-    abiertas: 0,
-    enCurso: list.filter((t) => (t.status || '').startsWith('Em curso')).length,
-    bloqueados: list.filter((t) => t.status === 'Bloqueado').length,
-  };
-}
-
 function projetoResumo(m, proj, today) {
   const tracks = m.tracksByProjeto[proj.id] || [];
   const rag = ragProjeto(proj, tracks, m.tareasByTrack, m.marcosByTrack, today);
@@ -136,13 +127,15 @@ function CsmEditable({ proj, onSaved }) {
   const [editing, setEditing] = useState(false);
   const [val, setVal] = useState(proj.csm || proj.gerente || '');
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState(null);
   if (!editing) {
     return <button onClick={() => setEditing(true)} className="text-[11px] px-2.5 py-1 rounded-full border border-[#273647] text-slate-300 hover:border-[#FAA61A]/40">CSM: {proj.csm || proj.gerente || '—'} ✎</button>;
   }
   return (
     <span className="inline-flex items-center gap-1">
       <input className={inputCls + ' !w-40 !py-1'} value={val} onChange={(e) => setVal(e.target.value)} autoFocus />
-      <button disabled={saving} onClick={async () => { setSaving(true); try { await updateProjeto(proj.id, { csm: val || null }); setEditing(false); onSaved(); } finally { setSaving(false); } }} className={btnGold}>OK</button>
+      <button disabled={saving} onClick={async () => { setSaving(true); setError(null); try { await updateProjeto(proj.id, { csm: val || null }); setEditing(false); onSaved(); } catch (e) { setError(e.message); } finally { setSaving(false); } }} className={btnGold}>OK</button>
+      {error && <span className="text-[10px] text-rose-400">{error}</span>}
     </span>
   );
 }
