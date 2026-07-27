@@ -1,3 +1,41 @@
 @use "./variables.scss" as *;
 
-// put your custom CSS here!
+/* --- Botão de busca flutuante fixo: abre a mesma caixa de busca sem precisar do Ctrl+K --- */
+.search {
+  position: fixed !important;
+  right: 1.4rem;
+  bottom: 1.4rem;
+  z-index: 900;
+  margin: 0;
+  flex: none;
+
+  & > .search-button {
+    background: #faa61a;
+    border: none;
+    border-radius: 999px;
+    padding: 0.72rem 1.2rem;
+    width: auto;
+    max-width: none;
+    gap: 0.5rem;
+    font-weight: 700;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.4);
+    transition: transform 0.12s ease, background 0.12s ease;
+
+    & p {
+      display: inline-block !important;
+      margin: 0;
+      color: #0a142f;
+      font-weight: 700;
+    }
+    & svg,
+    & svg .search-path {
+      stroke: #0a142f;
+    }
+
+    &:hover {
+      transform: translateY(-2px);
+      background: #ffb733;
+    }
+  }
+}
+
