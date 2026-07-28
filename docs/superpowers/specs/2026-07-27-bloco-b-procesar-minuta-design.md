@@ -20,10 +20,14 @@ O "ativo" da base são as reuniões (SteerCo mensal / semanal / ad-hoc). Hoje o 
 ## 3. Fluxo (colar → processar → revisar → salvar)
 
 1. No card **Reuniones** do track → **Registrar** ganha a seção **"Procesar con IA"**.
-2. Usuário preenche metadados (tipo, data, participantes), **cola a transcrição** e **escolhe o motor**.
-3. **Procesar** → chama `/api/procesar-minuta` → IA devolve JSON estruturado.
-4. Abre **painel de revisão editável**: resumen, decisiones, action items (título/responsable/prazo + incluir), riscos (descrição/tipo/severidade/dueño + incluir).
-5. **Guardar** → grava a reunión e, dos itens marcados, cria tareas e riscos. Nada é gravado sem confirmação.
+2. Usuário indica **tipo** (mensal/semanal/ad-hoc) e data, e fornece a transcrição por **uma de três vias**: **subir .docx**, **subir PDF de texto**, ou **colar texto**. Escolhe o **motor**.
+3. **Procesar** → (se arquivo) extrai o texto **no navegador** → chama `/api/procesar-minuta` → IA devolve JSON estruturado (inclui **participantes**).
+4. Abre **painel de revisão editável**: resumen, decisiones, action items (título/responsable/prazo + incluir), riscos (descrição/tipo/severidade/dueño + incluir), e **participantes** (nome + email, com email pré-preenchido do diretório `contactos` quando o nome bate; nomes novos marcáveis para entrar no diretório).
+5. **Guardar** → grava a reunión e, dos itens marcados, cria tareas e riscos; faz **upsert** dos participantes novos/atualizados em `contactos`. Nada é gravado sem confirmação.
+
+### Entrada de arquivo (extração no cliente)
+- **.docx** → `mammoth` (docx→texto). **PDF de texto** → `pdfjs-dist` (extrai text content das páginas). **Colar** → direto.
+- Ressalvas: **PDF escaneado/imagem** (sem texto) não é suportado (precisaria OCR) — avisar o usuário; **.doc legado** não suportado (pedir .docx/PDF). Cap de tamanho aplicado ao texto extraído.
 
 ## 4. Endpoint serverless (Vercel)
 
@@ -38,7 +42,8 @@ O `vercel.json` já exclui `/api/` do rewrite SPA (`/((?!api/).*)`). Funções e
     "resumen": "…",
     "decisiones": ["…"],
     "action_items": [{ "titulo": "…", "responsable": "…", "prazo": "YYYY-MM-DD|null" }],
-    "riesgos": [{ "descricao": "…", "tipo": "riesgo|issue", "severidade": "alta|media|baja", "dueno": "…|null" }]
+    "riesgos": [{ "descricao": "…", "tipo": "riesgo|issue", "severidade": "alta|media|baja", "dueno": "…|null" }],
+    "participantes": [{ "nombre": "…", "email": "…|null", "organizacion": "…|null" }]
   }
   ```
 - Chama o provedor conforme `engine`:
@@ -46,7 +51,7 @@ O `vercel.json` já exclui `/api/` do rewrite SPA (`/((?!api/).*)`). Funções e
   - **xAI:** `POST api.x.ai/v1/chat/completions` (OpenAI-compat), `Authorization: Bearer XAI_API_KEY`.
   - **Claude:** `POST api.anthropic.com/v1/messages`, headers `x-api-key: ANTHROPIC_API_KEY`, `anthropic-version`.
 - **Parser tolerante:** extrai o bloco JSON da resposta; se falhar, retorna erro `{ error, raw }` (a UI mostra e permite reprocessar).
-- Responde `{ engine, model, resumen, decisiones, action_items, riesgos }`.
+- Responde `{ engine, model, resumen, decisiones, action_items, riesgos, participantes }`.
 
 ### `GET /api/engines`
 - Retorna `[{ id, label, model, available }]` — `available` = a env var da chave existe. A UI só oferece os `available`.
@@ -59,22 +64,42 @@ O `vercel.json` já exclui `/api/` do rewrite SPA (`/((?!api/).*)`). Funções e
 
 ## 6. Frontend
 
+- **`app/src/lib/extractText.js`** (novo, puro) — `extractText(file) -> Promise<string>`: `.docx`→`mammoth`, `application/pdf`→`pdfjs-dist`, senão erro claro. Deps novas: `mammoth`, `pdfjs-dist`.
 - **`app/src/services/ai.js`** — `enginesDisponibles()` (GET /api/engines) e `procesarMinuta(engine, texto, ctx)` (POST).
-- **`app/src/components/ReunionProcesar.jsx`** (novo) — a seção "Procesar con IA": textarea, seletor de motor (só disponíveis), botão Procesar (loading/erro), e o **painel de revisão editável** dos 4 blocos com checkboxes de inclusão.
+- **`app/src/components/ReunionProcesar.jsx`** (novo) — a seção "Procesar con IA": entrada por **subir arquivo (.docx/PDF) ou colar texto**, seletor de motor (só disponíveis), botão Procesar (loading/erro), e o **painel de revisão editável** dos 5 blocos (resumen, decisiones, action items, riscos, **participantes**) com checkboxes de inclusão. Participantes casam com `contactos` por nome (email pré-preenchido); novos são marcáveis.
 - **`ReunionesCard`** (em `TrackCockpit.jsx`) — passa a usar `ReunionProcesar` no fluxo de registro; ao **Guardar**, orquestra a gravação (§7).
 - Idioma **espanhol**; design Visa; loading/erro visíveis; nada bloqueante.
 
 ## 7. Gravação (após revisão)
 
+- **Contactos (diretório):** para cada participante revisado, `upsertContacto({ nombre, email, organizacion })` — casa por `nombre` (case-insensitive); se existe e havia email vazio, atualiza; se novo, insere. Guarda o `id` para referência.
 - **Reunión:** `createReuniaoParaTrack(trackId, { titulo, tipo, data, participantes, ata, resumo_ia, decisoes })`
-  - `ata` = transcrição colada; `resumo_ia` = resumen; `decisoes` = decisiones (texto/JSON); `participantes` = **array** (corrigir: hoje o form manda texto; passar a `array` separando por vírgula).
+  - `ata` = texto da transcrição (colado ou extraído do arquivo); `resumo_ia` = resumen; `decisoes` = decisiones (texto/JSON); `participantes` = **array jsonb** de `{ nombre, email }` (corrigir: hoje o form manda texto — passar a array).
 - **Action items marcados → `createTarea`** por item: `{ track_id, titulo, responsavel, previsao_entrega: prazo, status:'aberto', origen:'reunion' }`.
 - **Riscos marcados → `createRisco`** por item: `{ track_id, descricao, tipo, severidade, dueno }`.
-- Tudo ligado ao track; a reunión some no card Reuniones e as tarefas/riscos aparecem nos respectivos blocos.
+- Tudo ligado ao track; a reunión aparece no card Reuniones e as tarefas/riscos nos respectivos blocos.
 
 ## 8. Modelo de dados
 
-**Nenhuma tabela nova.** `reunioes` já tem `ata, resumo_ia, decisoes, riscos, participantes(array)`. `tareas`/`riscos` prontos (Bloco A). Sem migração — apenas o ajuste de tipo de `participantes` no cliente.
+**Uma tabela nova: `contactos`** (diretório global de pessoas). Migração `db/2026-07-27-bloco-b.sql`:
+
+```sql
+create table if not exists contactos (
+  id uuid primary key default gen_random_uuid(),
+  nombre text not null,
+  email text,
+  organizacion text,
+  created_at timestamptz not null default now()
+);
+-- match por nome case-insensitive (evita duplicar "Bruno" vs "bruno")
+create unique index if not exists contactos_nombre_uidx on contactos (lower(nombre));
+alter table contactos enable row level security;
+do $$ begin
+  create policy anon_all_contactos on contactos for all using (true) with check (true);
+exception when duplicate_object then null; end $$;
+```
+
+`reunioes` já tem `ata, resumo_ia, decisoes, riscos, participantes(array)`. `tareas`/`riscos` prontos (Bloco A). O único ajuste extra é o tipo de `participantes` gravado pelo cliente (array de `{nombre,email}`).
 
 ## 9. Fora de escopo
 
@@ -86,7 +111,8 @@ O `vercel.json` já exclui `/api/` do rewrite SPA (`/((?!api/).*)`). Funções e
 
 - `cd app && npm run build` passa.
 - `GET /api/engines` retorna Gemini `available:true` (com `GEMINI_API_KEY` setada) e xai/claude `available:false` sem chave.
-- Lógica pura testável (Vitest): o **parser de JSON tolerante** (extrair JSON de resposta com/sem cerca de código, com texto ao redor) e o **builder do prompt**.
-- Fumaça: colar uma ata real → Procesar (Gemini) → revisar → Guardar → conferir reunión com resumen/decisiones + tareas (origen=reunión) + riscos no track.
-- Erros tratados: sem chave, texto vazio, texto grande demais, JSON inválido do modelo, timeout do provedor.
+- Lógica pura testável (Vitest): o **parser de JSON tolerante** (extrair JSON de resposta com/sem cerca de código, com texto ao redor), o **builder do prompt**, e o **match de contactos por nome** (case-insensitive, preenche email, detecta novos).
+- Migração `contactos` aplicada (índice único `lower(nombre)`, RLS aberto).
+- Fumaça: **subir um .docx e um PDF de texto** (e colar) → Procesar (Gemini) → revisar (incl. participantes casados com o diretório) → Guardar → conferir reunión (resumen/decisiones/participantes) + tareas (origen=reunión) + riscos no track + novos `contactos` inseridos.
+- Erros tratados: sem chave, texto vazio, texto grande demais, JSON inválido do modelo, timeout do provedor, **PDF sem texto (escaneado) / formato não suportado**.
 - Não fabricar: itens só viram tarefa/risco se marcados na revisão.
