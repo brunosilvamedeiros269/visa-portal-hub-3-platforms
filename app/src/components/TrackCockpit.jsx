@@ -3,15 +3,16 @@ import {
   ArrowLeft, Flag, Plus, CalendarClock, Link2, AlertTriangle, Users,
 } from 'lucide-react';
 import {
-  Badge, fmtDate, stDot, stLabel, inputCls, btnGold, linkGold,
+  Badge, fmtDate, stDot, stLabel, linkGold,
   TAREA_ORDER, TAREA_CYCLE, RagDot, ProgressBar, RAG_COLOR, RAG_LABEL,
 } from './trackingUi';
-import { updateTrack, updateTareaStatus, createReuniaoParaTrack, updatePrereq } from '../services/data';
+import { updateTrack, updateTareaStatus, updatePrereq } from '../services/data';
 import { ragTrack, avanceTrack, todayISO, countVencidas, countBloqueadas, isOverdue } from '../lib/pmoLogic';
 import MarcosList from './MarcosList';
 import RaidList from './RaidList';
 import DocsUploader from './DocsUploader';
 import TareasTable from './TareasTable';
+import ReunionProcesar from './ReunionProcesar';
 
 const PREREQ_CYCLE = { OK: 'Pendiente', Pendiente: 'N/A', 'N/A': 'OK' };
 const PREREQ_STYLE = {
@@ -51,17 +52,8 @@ function TableroKanban({ tareas, onChange, today, onError }) {
   );
 }
 
-function ReunionesCard({ trackId, reuniones, onChange, onError }) {
+function ReunionesCard({ trackId, cliente, track, reuniones, onChange }) {
   const [open, setOpen] = useState(false);
-  const [f, setF] = useState({ titulo: '', tipo: 'semanal', data: '', participantes: '', ata: '' });
-  const [saving, setSaving] = useState(false);
-  const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
-  const submit = async (e) => {
-    e.preventDefault(); if (!f.titulo.trim()) return; setSaving(true);
-    try { await createReuniaoParaTrack(trackId, { titulo: f.titulo.trim(), tipo: f.tipo, data: f.data || null, participantes: f.participantes || null, ata: f.ata || null }); setF({ titulo: '', tipo: 'semanal', data: '', participantes: '', ata: '' }); setOpen(false); onChange(); }
-    catch (x) { onError && onError(x.message); }
-    finally { setSaving(false); }
-  };
   return (
     <div className="bg-[#1C2B3C] border border-[#273647] rounded-xl p-4">
       <div className="flex items-center justify-between mb-2">
@@ -69,16 +61,11 @@ function ReunionesCard({ trackId, reuniones, onChange, onError }) {
         {!open && <button onClick={() => setOpen(true)} className={linkGold}><Plus className="w-3.5 h-3.5" /> Registrar</button>}
       </div>
       {open && (
-        <form onSubmit={submit} className="space-y-2 mb-3">
-          <input className={inputCls} placeholder="Título" value={f.titulo} onChange={set('titulo')} autoFocus />
-          <div className="grid grid-cols-2 gap-2">
-            <select className={inputCls} value={f.tipo} onChange={set('tipo')}><option value="steerco">SteerCo (mensual)</option><option value="semanal">Semanal</option><option value="adhoc">Ad-hoc</option></select>
-            <input type="date" className={inputCls} value={f.data} onChange={set('data')} />
-          </div>
-          <input className={inputCls} placeholder="Participantes" value={f.participantes} onChange={set('participantes')} />
-          <textarea className={inputCls} rows={3} placeholder="Acta (decisiones, acuerdos…)" value={f.ata} onChange={set('ata')} />
-          <div className="flex gap-2"><button disabled={saving} className={btnGold}>Guardar</button><button type="button" onClick={() => setOpen(false)} className="text-xs text-slate-400 px-2">Cancelar</button></div>
-        </form>
+        <div className="mb-3">
+          <ReunionProcesar trackId={trackId} cliente={cliente} track={track}
+            onDone={() => { setOpen(false); onChange && onChange(); }} />
+          <button onClick={() => setOpen(false)} className="text-[11px] text-slate-400 mt-1">Cerrar</button>
+        </div>
       )}
       {reuniones.length ? reuniones.map((r) => (
         <div key={r.id} className="flex gap-2 py-1.5 border-b border-[#273647] last:border-0">
@@ -205,7 +192,7 @@ export default function TrackCockpit({ track, cliente, csm, personas, prereqs, r
             )) : <p className="text-xs text-slate-400">Sin prerequisitos.</p>}
           </div>
 
-          <ReunionesCard trackId={track.id} reuniones={reunioes} onChange={onChange} onError={setErr} />
+          <ReunionesCard trackId={track.id} cliente={cliente?.nome} track={track.nome} reuniones={reunioes} onChange={onChange} />
 
           {deps.length > 0 && (
             <div className="bg-[#1C2B3C] border border-[#273647] rounded-xl p-4">
