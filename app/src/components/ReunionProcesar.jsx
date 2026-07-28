@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Upload, Loader2, Check, X, AlertTriangle } from 'lucide-react';
+import { Upload, Loader2, AlertTriangle } from 'lucide-react';
 import { extractText } from '../lib/extractText';
 import { enginesDisponibles, procesarMinuta } from '../services/ai';
 import { createReuniaoParaTrack, createTarea, createRisco, fetchContactos, upsertContacto } from '../services/data';
-import { inputCls, btnGold, linkGold, SEVERIDADES, SEVERIDAD_LABEL, RISK_TIPOS, RISK_TIPO_LABEL } from './trackingUi';
+import { inputCls, btnGold, SEVERIDADES, SEVERIDAD_LABEL, RISK_TIPOS, RISK_TIPO_LABEL } from './trackingUi';
 
 const norm = (s) => (s || '').trim().toLowerCase();
 
@@ -70,7 +70,7 @@ export default function ReunionProcesar({ trackId, cliente, track, onDone }) {
         titulo: meta.titulo.trim() || `Reunión ${meta.tipo}`,
         tipo: meta.tipo,
         data: meta.data || null,
-        participantes: parts.map((p) => ({ nombre: p.nombre.trim(), email: p.email || null })),
+        participantes: parts.filter((p) => p.incluir).map((p) => ({ nombre: p.nombre.trim(), email: p.email || null })),
         ata: texto,
         resumo_ia: result.resumen || null,
         decisoes: decisoesTxt || null,
