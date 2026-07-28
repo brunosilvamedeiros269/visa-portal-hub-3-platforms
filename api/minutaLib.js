@@ -2,7 +2,7 @@
 export const MAX_CHARS = 60000;
 
 export const ENGINES = [
-  { id: 'gemini', label: 'Gemini', envKey: 'GEMINI_API_KEY', modelEnv: 'GEMINI_MODEL', defaultModel: 'gemini-2.5-flash' },
+  { id: 'gemini', label: 'Gemini', envKey: 'GEMINI_API_KEY', modelEnv: 'GEMINI_MODEL', defaultModel: 'gemini-flash-latest' },
   { id: 'xai', label: 'xAI (Grok)', envKey: 'XAI_API_KEY', modelEnv: 'XAI_MODEL', defaultModel: 'grok-4' },
   { id: 'claude', label: 'Claude', envKey: 'ANTHROPIC_API_KEY', modelEnv: 'CLAUDE_MODEL', defaultModel: 'claude-sonnet-5' },
 ];
