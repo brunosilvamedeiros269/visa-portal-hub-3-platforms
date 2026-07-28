@@ -2,10 +2,12 @@ import React, { useEffect, useMemo, useState } from 'react';
 import {
   RefreshCw, Loader2, AlertTriangle, ChevronRight, ArrowLeft, Plus, Flag, FolderKanban, Building2, CalendarClock,
 } from 'lucide-react';
-import { fetchAll, createCliente, createProjeto, createTrack } from '../services/data';
+import { fetchAll, createCliente, createProjeto, createTrack, updateProjeto } from '../services/data';
 import {
-  Badge, fmtDate, stDot, inputCls, btnGold, linkGold, FRENTES, TRACK_STATUSES,
+  Badge, fmtDate, stDot, inputCls, btnGold, linkGold, FRENTES, TRACK_STATUSES, RagDot, ProgressBar,
+  SEVERIDAD_COLOR, SEVERIDAD_LABEL, RISK_TIPO_LABEL, RISK_STATUS_LABEL,
 } from './trackingUi';
+import { todayISO, ragProjeto, avanceProjeto, ragTrack, avanceTrack, nextMarco, daysTo, countVencidas, countBloqueadas, RAG_RANK } from '../lib/pmoLogic';
 import TrackCockpit from './TrackCockpit';
 
 // ---------- formulários ----------
@@ -98,13 +100,18 @@ function NewTrack({ projetoId, onDone }) {
 }
 
 // ---------- helpers de resumo ----------
-function trackStats(list) {
-  return {
-    total: list.length,
-    abiertas: 0,
-    enCurso: list.filter((t) => (t.status || '').startsWith('Em curso')).length,
-    bloqueados: list.filter((t) => t.status === 'Bloqueado').length,
-  };
+function projetoResumo(m, proj, today) {
+  const tracks = m.tracksByProjeto[proj.id] || [];
+  const rag = ragProjeto(proj, tracks, m.tareasByTrack, m.marcosByTrack, today);
+  const av = avanceProjeto(tracks, m.tareasByTrack);
+  // próximo marco entre todos os tracks do projeto
+  const allMarcos = tracks.flatMap((t) => m.marcosByTrack[t.id] || []);
+  const marco = nextMarco(allMarcos, today);
+  const tareas = tracks.flatMap((t) => m.tareasByTrack[t.id] || []);
+  const vencidas = countVencidas(tareas, today);
+  const bloqueadas = countBloqueadas(tareas);
+  const riesgos = (m.riscosByProjeto[proj.id] || []).length + tracks.reduce((a, t) => a + (m.riscosByTrack[t.id] || []).length, 0);
+  return { tracks, rag, pct: av.pct, pctHasData: av.hasData, marco, vencidas, bloqueadas, riesgos };
 }
 
 function Kpi({ n, label, danger }) {
@@ -113,6 +120,23 @@ function Kpi({ n, label, danger }) {
       <div className={`text-2xl font-extrabold leading-none ${danger && n ? 'text-rose-300' : 'text-slate-100'}`}>{n}</div>
       <div className="text-[11px] uppercase tracking-wide text-slate-400 mt-1.5">{label}</div>
     </div>
+  );
+}
+
+function CsmEditable({ proj, onSaved }) {
+  const [editing, setEditing] = useState(false);
+  const [val, setVal] = useState(proj.csm || proj.gerente || '');
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState(null);
+  if (!editing) {
+    return <button onClick={() => setEditing(true)} className="text-[11px] px-2.5 py-1 rounded-full border border-[#273647] text-slate-300 hover:border-[#FAA61A]/40">CSM: {proj.csm || proj.gerente || '—'} ✎</button>;
+  }
+  return (
+    <span className="inline-flex items-center gap-1">
+      <input className={inputCls + ' !w-40 !py-1'} value={val} onChange={(e) => setVal(e.target.value)} autoFocus />
+      <button disabled={saving} onClick={async () => { setSaving(true); setError(null); try { await updateProjeto(proj.id, { csm: val || null }); setEditing(false); onSaved(); } catch (e) { setError(e.message); } finally { setSaving(false); } }} className={btnGold}>OK</button>
+      {error && <span className="text-[10px] text-rose-400">{error}</span>}
+    </span>
   );
 }
 
@@ -129,6 +153,50 @@ function TrackRow({ track, onOpen }) {
         <Badge v={track.status} />
         <ChevronRight className="w-4 h-4 text-slate-600 group-hover:text-slate-300" />
       </span>
+    </button>
+  );
+}
+
+function TrackMiniRow({ m, track, today, onOpen }) {
+  const tareas = m.tareasByTrack[track.id] || [];
+  const rag = ragTrack(track, tareas, m.marcosByTrack[track.id] || [], today);
+  const av = avanceTrack(track, tareas);
+  return (
+    <button onClick={() => onOpen(track.id)} className="w-full flex items-center justify-between gap-3 text-left pl-6 pr-3 py-2 rounded-lg hover:bg-[#0b1626] transition-colors group">
+      <span className="flex items-center gap-2 min-w-0">
+        <RagDot rag={rag} size={9} />
+        {track.ruta_critica && <Flag className="w-3 h-3 text-[#FAA61A] flex-none" />}
+        <span className="text-[13px] text-slate-200 truncate">{track.nome}</span>
+        {track.frente && <span className="text-[10px] text-slate-500 hidden md:inline">{track.frente}</span>}
+      </span>
+      <span className="flex items-center gap-2 flex-none">
+        {av.hasData && <span className="text-[10px] text-slate-400 hidden sm:inline">{av.pct}%</span>}
+        {track.waiver_hasta && <span className="text-[10px] text-rose-300 hidden sm:inline">⏳ {fmtDate(track.waiver_hasta)}</span>}
+        <Badge v={track.status} />
+        <ChevronRight className="w-4 h-4 text-slate-600 group-hover:text-slate-300" />
+      </span>
+    </button>
+  );
+}
+
+function ProjetoRow({ m, proj, cli, today, onOpen }) {
+  const r = projetoResumo(m, proj, today);
+  const d = r.marco ? daysTo(r.marco.fecha, today) : null;
+  return (
+    <button onClick={() => onOpen(proj.id)} className="w-full text-left grid grid-cols-1 md:grid-cols-[16px_1.7fr_1fr_1.1fr_0.9fr] gap-3 items-center px-3 py-3 rounded-xl hover:bg-[#122131] border border-transparent hover:border-[#273647] transition-colors">
+      <RagDot rag={r.rag} />
+      <div className="min-w-0">
+        <div className="text-sm font-bold text-slate-100 truncate flex items-center gap-2"><FolderKanban className="w-4 h-4 text-[#FAA61A] flex-none" />{proj.nome}<Badge v={proj.status} /></div>
+        <div className="text-[11px] text-slate-400 mt-0.5">CSM: {proj.csm || proj.gerente || '—'} · {r.tracks.length} tracks{r.bloqueadas ? ` · ${r.bloqueadas} bloqueadas` : ''}</div>
+      </div>
+      <div>{r.pctHasData ? (<><ProgressBar pct={r.pct} /><div className="text-[11px] text-slate-400 mt-1">{r.pct}% avance</div></>) : <span className="text-[11px] text-slate-500">sin datos</span>}</div>
+      <div className="text-[11px]">
+        {r.marco ? (<><div className="text-slate-200 truncate">{r.marco.nome}</div><div className={d < 0 ? 'text-rose-300' : 'text-slate-400'}>{d < 0 ? `venció hace ${-d} d` : `en ${d} d`} · {fmtDate(r.marco.fecha)}</div></>) : <span className="text-slate-500">sin hitos</span>}
+      </div>
+      <div className="flex gap-1.5 flex-wrap md:justify-end">
+        {r.riesgos > 0 && <span className="text-[10px] px-2 py-0.5 rounded-full border border-rose-500/40 text-rose-300 bg-rose-500/10">{r.riesgos} riesgo{r.riesgos > 1 ? 's' : ''}</span>}
+        {r.vencidas > 0 && <span className="text-[10px] px-2 py-0.5 rounded-full border border-[#273647] text-slate-300">{r.vencidas} vencidas</span>}
+      </div>
     </button>
   );
 }
@@ -157,6 +225,10 @@ export default function TrackingView() {
     for (const rt of data.reunion_tracks) { (reunioesByTrack[rt.track_id] = reunioesByTrack[rt.track_id] || []).push(reunioesById[rt.reuniao_id]); }
     const depsByTrack = {};
     for (const d of data.track_dependencias) { (depsByTrack[d.track_id] = depsByTrack[d.track_id] || []).push(tracksById[d.depende_de_id]); }
+    const marcosByTrack = by(data.marcos, 'track_id');
+    const riscosByTrack = by(data.riscos.filter((r) => r.track_id), 'track_id');
+    const riscosByProjeto = by(data.riscos.filter((r) => r.projeto_id), 'projeto_id');
+    const documentosByTrack = by(data.documentos, 'track_id');
     return {
       clientes: data.clientes,
       clientesById: idMap(data.clientes),
@@ -169,6 +241,10 @@ export default function TrackingView() {
       personasByCliente: by(data.personas, 'cliente_id'),
       reunioesByTrack,
       depsByTrack,
+      marcosByTrack,
+      riscosByTrack,
+      riscosByProjeto,
+      documentosByTrack,
     };
   }, [data]);
 
@@ -194,12 +270,15 @@ export default function TrackingView() {
     const cli = proj ? m.clientesById[proj.cliente_id] : null;
     return <div>{header}
       <TrackCockpit
-        track={tr} cliente={cli}
+        track={tr} cliente={cli} csm={proj?.csm || proj?.gerente || null}
         personas={cli ? (m.personasByCliente[cli.id] || []) : []}
         prereqs={m.prereqsByTrack[tr.id] || []}
         reunioes={(m.reunioesByTrack[tr.id] || []).filter(Boolean)}
         deps={(m.depsByTrack[tr.id] || []).filter(Boolean)}
         tareas={m.tareasByTrack[tr.id] || []}
+        marcos={m.marcosByTrack[tr.id] || []}
+        riscos={m.riscosByTrack[tr.id] || []}
+        documentos={m.documentosByTrack[tr.id] || []}
         onBack={() => setSelTrack(null)} onChange={load}
       />
     </div>;
@@ -210,21 +289,44 @@ export default function TrackingView() {
     const proj = m.projetosById[selProjeto];
     const cli = m.clientesById[proj.cliente_id];
     const tracks = m.tracksByProjeto[proj.id] || [];
-    const st = trackStats(tracks);
+    const today = todayISO();
+    const r = projetoResumo(m, proj, today);
     return (
       <div>{header}
         <button onClick={() => setSelProjeto(null)} className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-200 mb-4"><ArrowLeft className="w-4 h-4" /> Volver al portafolio</button>
-        <h1 className="text-xl font-bold text-slate-100 flex items-center gap-2"><FolderKanban className="w-5 h-5 text-[#FAA61A]" /> {proj.nome}</h1>
-        <div className="flex flex-wrap gap-2 mt-2 mb-5">
-          <span className="text-[11px] px-2.5 py-1 rounded-full font-semibold border text-blue-300 bg-blue-500/15 border-blue-500/25">{cli?.nome}</span>
+        <div className="flex items-center gap-3">
+          <RagDot rag={r.rag} size={14} />
+          <h1 className="text-xl font-bold text-slate-100 flex items-center gap-2"><FolderKanban className="w-5 h-5 text-[#FAA61A]" /> {proj.nome}</h1>
           <Badge v={proj.status} />
-          {proj.gerente && <span className="text-[11px] px-2.5 py-1 rounded-full border border-[#273647] text-slate-300">Gerente: {proj.gerente}</span>}
+        </div>
+        <div className="flex flex-wrap items-center gap-2 mt-2 mb-3">
+          <span className="text-[11px] px-2.5 py-1 rounded-full font-semibold border text-blue-300 bg-blue-500/15 border-blue-500/25">{cli?.nome}</span>
+          <CsmEditable proj={proj} onSaved={load} />
           {proj.inicio && <span className="text-[11px] px-2.5 py-1 rounded-full border border-[#273647] text-slate-300">Inicio: {fmtDate(proj.inicio)}</span>}
         </div>
+        <div className="max-w-md mb-5">{r.pctHasData ? (<><ProgressBar pct={r.pct} /><div className="text-[11px] text-slate-400 mt-1">{r.pct}% avance del proyecto</div></>) : <span className="text-[11px] text-slate-500">sin datos</span>}</div>
         {proj.descricao && <p className="text-sm text-slate-300 mb-5 max-w-3xl">{proj.descricao}</p>}
-        <div className="grid grid-cols-3 gap-3 max-w-md mb-6">
-          <Kpi n={st.total} label="Tracks" /><Kpi n={st.enCurso} label="En curso" /><Kpi n={st.bloqueados} label="Bloqueados" danger />
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-xl mb-6">
+          <Kpi n={r.tracks.length} label="Tracks" />
+          <Kpi n={r.tracks.filter((t) => (t.status || '').startsWith('Em curso')).length} label="En curso" />
+          <Kpi n={r.bloqueadas} label="Bloqueadas" danger />
+          <Kpi n={r.vencidas} label="Vencidas" danger />
         </div>
+        {(() => {
+          const riesgos = [...(m.riscosByProjeto[proj.id] || []), ...r.tracks.flatMap((t) => (m.riscosByTrack[t.id] || []).map((x) => ({ ...x, _track: t.nome })))];
+          if (!riesgos.length) return null;
+          return (
+            <div className="bg-[#122131]/60 border border-[#273647] rounded-2xl p-4 mb-5">
+              <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-2">Riesgos &amp; Issues del proyecto</h3>
+              {riesgos.map((x) => (
+                <div key={x.id} className="flex gap-2 py-1.5 border-t border-[#273647]/60 first:border-0 text-[12.5px]">
+                  <span className="w-1 rounded self-stretch flex-none" style={{ background: SEVERIDAD_COLOR[x.severidade] || '#94a3b8' }} />
+                  <div><div className="text-slate-200">{x.descricao}</div><div className="text-[10px] text-slate-500">{RISK_TIPO_LABEL[x.tipo]} · {SEVERIDAD_LABEL[x.severidade]} · {x.dueno || '—'} · {RISK_STATUS_LABEL[x.status]}{x._track ? ` · ${x._track}` : ''}</div></div>
+                </div>
+              ))}
+            </div>
+          );
+        })()}
         <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
           <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-400">Tracks</h3>
           <NewTrack projetoId={proj.id} onDone={load} />
@@ -237,17 +339,18 @@ export default function TrackingView() {
   }
 
   // --- Portfólio ---
-  const allTracks = data.tracks;
-  const abiertas = data.tareas.filter((t) => t.status !== 'fechado').length;
-  const bloqueadas = data.tareas.filter((t) => t.status === 'bloqueada').length;
+  const today = todayISO();
+  const allTareas = data.tareas;
+  const enRiesgo = data.projetos.filter((p) => RAG_RANK[projetoResumo(m, p, today).rag] >= 1).length;
   return (
     <div>{header}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-6 gap-3 mb-6">
         <Kpi n={m.clientes.length} label="Clientes" />
         <Kpi n={data.projetos.length} label="Proyectos" />
-        <Kpi n={allTracks.length} label="Tracks" />
-        <Kpi n={abiertas} label="Tareas abiertas" />
-        <Kpi n={bloqueadas} label="Bloqueadas" danger />
+        <Kpi n={data.tracks.length} label="Tracks" />
+        <Kpi n={enRiesgo} label="En riesgo" danger />
+        <Kpi n={countBloqueadas(allTareas)} label="Bloqueadas" danger />
+        <Kpi n={countVencidas(allTareas, today)} label="Vencidas" danger />
       </div>
 
       <div className="flex justify-end mb-3"><NewCliente onDone={load} /></div>
@@ -260,25 +363,21 @@ export default function TrackingView() {
               <h3 className="text-sm font-bold text-slate-100 flex items-center gap-2"><Building2 className="w-4 h-4 text-[#FAA61A]" /> {cli.nome} {cli.pais && <span className="text-[11px] text-slate-400 font-normal">· {cli.pais}</span>}</h3>
               <NewProjeto clienteId={cli.id} onDone={load} />
             </div>
-            {projetos.length ? projetos.map((proj) => {
-              const tracks = m.tracksByProjeto[proj.id] || [];
-              const st = trackStats(tracks);
-              return (
-                <div key={proj.id} className="bg-[#122131]/60 border border-[#273647] rounded-2xl p-4 mb-3">
-                  <div className="flex items-start justify-between gap-3 mb-2">
-                    <div>
-                      <div className="flex items-center gap-2"><FolderKanban className="w-4 h-4 text-[#FAA61A]" /><span className="text-sm font-bold text-slate-100">{proj.nome}</span><Badge v={proj.status} /></div>
-                      <p className="text-[11px] text-slate-400 mt-1 ml-6">{st.total} tracks · {st.enCurso} en curso{st.bloqueados ? ` · ${st.bloqueados} bloqueados` : ''}</p>
-                    </div>
-                    <button onClick={() => setSelProjeto(proj.id)} className="text-[12px] text-slate-300 hover:text-[#FAA61A] flex items-center gap-1 flex-none">Ver proyecto <ChevronRight className="w-4 h-4" /></button>
+            <div className="bg-[#122131]/40 border border-[#273647] rounded-2xl p-2 divide-y divide-[#273647]/50">
+              {projetos.length ? projetos.map((proj) => {
+                const tracks = m.tracksByProjeto[proj.id] || [];
+                return (
+                  <div key={proj.id} className="py-1">
+                    <ProjetoRow m={m} proj={proj} cli={cli} today={today} onOpen={setSelProjeto} />
+                    {tracks.length > 0 && (
+                      <div className="ml-4 mt-0.5 mb-1 border-l border-[#273647]/50">
+                        {tracks.map((t) => <TrackMiniRow key={t.id} m={m} track={t} today={today} onOpen={setSelTrack} />)}
+                      </div>
+                    )}
                   </div>
-                  <div className="divide-y divide-[#273647]/60">
-                    {tracks.slice(0, 6).map((t) => <TrackRow key={t.id} track={t} onOpen={setSelTrack} />)}
-                  </div>
-                  {tracks.length > 6 && <button onClick={() => setSelProjeto(proj.id)} className="text-[12px] text-slate-400 hover:text-slate-200 mt-2 ml-3">+ {tracks.length - 6} tracks más</button>}
-                </div>
-              );
-            }) : <p className="text-sm text-slate-500 px-1">Sin proyectos. Usá “Nuevo proyecto”.</p>}
+                );
+              }) : <p className="text-sm text-slate-500 px-3 py-2">Sin proyectos. Usá “Nuevo proyecto”.</p>}
+            </div>
           </div>
         );
       })}
