@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Upload, Loader2, AlertTriangle } from 'lucide-react';
 import { extractText } from '../lib/extractText';
 import { enginesDisponibles, procesarMinuta } from '../services/ai';
-import { createReuniaoParaTrack, createTarea, createRisco, fetchContactos, upsertContacto } from '../services/data';
+import { createReuniaoParaTrack, createTarea, createRisco, fetchContactos, insertContacto, updateContacto } from '../services/data';
 import { inputCls, btnGold, SEVERIDADES, SEVERIDAD_LABEL, RISK_TIPOS, RISK_TIPO_LABEL } from './trackingUi';
 
 const norm = (s) => (s || '').trim().toLowerCase();
@@ -62,8 +62,19 @@ export default function ReunionProcesar({ trackId, cliente, track, onDone }) {
       const parts = result.participantes.filter((p) => p.nombre.trim());
       // upsert contactos nuevos/actualizados
       for (const p of parts.filter((p) => p.incluir)) {
-        try { await upsertContacto({ nombre: p.nombre.trim(), email: p.email || null, organizacion: p.organizacion || null }); }
-        catch { /* duplicado (23505) u otro: seguimos */ }
+        const nombre = p.nombre.trim();
+        const hit = contactos.find((c) => norm(c.nombre) === norm(nombre));
+        try {
+          if (!hit) {
+            await insertContacto({ nombre, email: p.email || null, organizacion: p.organizacion || null });
+          } else if ((p.email && p.email !== hit.email) || (p.organizacion && p.organizacion !== hit.organizacion)) {
+            await updateContacto(hit.id, { email: p.email || hit.email || null, organizacion: p.organizacion || hit.organizacion || null });
+          }
+        } catch (e) {
+          // 23505 = duplicado por carrera (índice lower(nombre)); ignorar. Otros: avisar.
+          const msg = String(e?.message || '');
+          if (!msg.includes('23505') && !/duplicate|unique/i.test(msg)) console.warn('contacto:', msg);
+        }
       }
       const decisoesTxt = result.decisiones.filter((d) => d.incluir && d.texto.trim()).map((d) => `• ${d.texto.trim()}`).join('\n');
       await createReuniaoParaTrack(trackId, {

@@ -83,6 +83,5 @@ export async function createReuniaoParaTrack(trackId, row) {
 
 // ---- contactos (directorio global) ----
 export const fetchContactos = () => run(supabase.from('contactos').select('*').order('nombre'));
-export const upsertContacto = (row) => run(
-  supabase.from('contactos').upsert(row, { onConflict: 'nombre' }).select().single()
-);
+export const insertContacto = (row) => run(supabase.from('contactos').insert(row).select().single());
+export const updateContacto = (id, fields) => run(supabase.from('contactos').update(fields).eq('id', id).select().single());
