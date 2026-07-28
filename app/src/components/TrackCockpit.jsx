@@ -92,7 +92,7 @@ function ReunionesCard({ trackId, reuniones, onChange, onError }) {
 
 export default function TrackCockpit({ track, cliente, csm, personas, prereqs, reunioes, deps, tareas, marcos, riscos, documentos, onBack, onChange }) {
   const [err, setErr] = useState(null);
-  const [view, setView] = useState('tablero'); // 'tablero' | 'lista'
+  const [view, setView] = useState('lista'); // 'lista' | 'tablero' — Lista es el layout aprobado
 
   const today = todayISO();
   const rag = ragTrack(track, tareas, marcos, today);

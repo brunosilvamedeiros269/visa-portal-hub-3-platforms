@@ -7,7 +7,7 @@ import {
   Badge, fmtDate, stDot, inputCls, btnGold, linkGold, FRENTES, TRACK_STATUSES, RagDot, ProgressBar,
   SEVERIDAD_COLOR, SEVERIDAD_LABEL, RISK_TIPO_LABEL, RISK_STATUS_LABEL,
 } from './trackingUi';
-import { todayISO, ragProjeto, avanceProjeto, nextMarco, daysTo, countVencidas, countBloqueadas, RAG_RANK } from '../lib/pmoLogic';
+import { todayISO, ragProjeto, avanceProjeto, ragTrack, avanceTrack, nextMarco, daysTo, countVencidas, countBloqueadas, RAG_RANK } from '../lib/pmoLogic';
 import TrackCockpit from './TrackCockpit';
 
 // ---------- formulários ----------
@@ -149,6 +149,28 @@ function TrackRow({ track, onOpen }) {
         {track.frente && <span className="text-[10px] text-slate-500 hidden md:inline">{track.frente}</span>}
       </span>
       <span className="flex items-center gap-2 flex-none">
+        {track.waiver_hasta && <span className="text-[10px] text-rose-300 hidden sm:inline">⏳ {fmtDate(track.waiver_hasta)}</span>}
+        <Badge v={track.status} />
+        <ChevronRight className="w-4 h-4 text-slate-600 group-hover:text-slate-300" />
+      </span>
+    </button>
+  );
+}
+
+function TrackMiniRow({ m, track, today, onOpen }) {
+  const tareas = m.tareasByTrack[track.id] || [];
+  const rag = ragTrack(track, tareas, m.marcosByTrack[track.id] || [], today);
+  const av = avanceTrack(track, tareas);
+  return (
+    <button onClick={() => onOpen(track.id)} className="w-full flex items-center justify-between gap-3 text-left pl-6 pr-3 py-2 rounded-lg hover:bg-[#0b1626] transition-colors group">
+      <span className="flex items-center gap-2 min-w-0">
+        <RagDot rag={rag} size={9} />
+        {track.ruta_critica && <Flag className="w-3 h-3 text-[#FAA61A] flex-none" />}
+        <span className="text-[13px] text-slate-200 truncate">{track.nome}</span>
+        {track.frente && <span className="text-[10px] text-slate-500 hidden md:inline">{track.frente}</span>}
+      </span>
+      <span className="flex items-center gap-2 flex-none">
+        {av.hasData && <span className="text-[10px] text-slate-400 hidden sm:inline">{av.pct}%</span>}
         {track.waiver_hasta && <span className="text-[10px] text-rose-300 hidden sm:inline">⏳ {fmtDate(track.waiver_hasta)}</span>}
         <Badge v={track.status} />
         <ChevronRight className="w-4 h-4 text-slate-600 group-hover:text-slate-300" />
@@ -342,9 +364,19 @@ export default function TrackingView() {
               <NewProjeto clienteId={cli.id} onDone={load} />
             </div>
             <div className="bg-[#122131]/40 border border-[#273647] rounded-2xl p-2 divide-y divide-[#273647]/50">
-              {projetos.length ? projetos.map((proj) => (
-                <ProjetoRow key={proj.id} m={m} proj={proj} cli={cli} today={today} onOpen={setSelProjeto} />
-              )) : <p className="text-sm text-slate-500 px-3 py-2">Sin proyectos. Usá “Nuevo proyecto”.</p>}
+              {projetos.length ? projetos.map((proj) => {
+                const tracks = m.tracksByProjeto[proj.id] || [];
+                return (
+                  <div key={proj.id} className="py-1">
+                    <ProjetoRow m={m} proj={proj} cli={cli} today={today} onOpen={setSelProjeto} />
+                    {tracks.length > 0 && (
+                      <div className="ml-4 mt-0.5 mb-1 border-l border-[#273647]/50">
+                        {tracks.map((t) => <TrackMiniRow key={t.id} m={m} track={t} today={today} onOpen={setSelTrack} />)}
+                      </div>
+                    )}
+                  </div>
+                );
+              }) : <p className="text-sm text-slate-500 px-3 py-2">Sin proyectos. Usá “Nuevo proyecto”.</p>}
             </div>
           </div>
         );
