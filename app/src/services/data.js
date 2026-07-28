@@ -9,7 +9,7 @@ async function run(q) {
 const TABLES = [
   'clientes', 'projetos', 'tracks', 'tareas', 'personas', 'persona_tracks',
   'prerequisitos', 'reunioes', 'reunion_tracks', 'track_dependencias',
-  'marcos', 'riscos', 'documentos',
+  'marcos', 'riscos', 'documentos', 'contactos',
 ];
 
 // Lê tudo de uma vez e monta os mapas de relação no cliente.
@@ -80,3 +80,9 @@ export async function createReuniaoParaTrack(trackId, row) {
   await run(supabase.from('reunion_tracks').insert({ reuniao_id: reu.id, track_id: trackId }));
   return reu;
 }
+
+// ---- contactos (directorio global) ----
+export const fetchContactos = () => run(supabase.from('contactos').select('*').order('nombre'));
+export const upsertContacto = (row) => run(
+  supabase.from('contactos').upsert(row, { onConflict: 'nombre' }).select().single()
+);
