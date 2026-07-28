@@ -13,6 +13,8 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.110.8",
     "lucide-react": "^0.344.0",
+    "mammoth": "^1.12.0",
+    "pdfjs-dist": "^6.1.200",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
