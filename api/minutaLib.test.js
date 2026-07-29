@@ -43,3 +43,59 @@ describe('constantes', () => {
     expect(ENGINES[0].envKey).toBe('GEMINI_API_KEY');
   });
 });
+
+describe('buildPrompt multi-track', () => {
+  const tracks = [
+    { nombre: 'Tokenización Tarjeta Débito', frente: 'Tokenização TD', proximo_paso: 'Certificación de host.' },
+    { nombre: 'Click to Pay', frente: 'Click to Pay', proximo_paso: 'Enrolamiento masivo.' },
+  ];
+
+  it('lista las tracks del proyecto con su contexto', () => {
+    const p = buildPrompt('acta', { cliente: 'BROU', proyecto: 'Journey Digital', tracks });
+    expect(p).toContain('Tokenización Tarjeta Débito');
+    expect(p).toContain('Certificación de host.');
+    expect(p).toContain('Click to Pay');
+    expect(p).toContain('Journey Digital');
+  });
+
+  it('pide el campo track en action_items y riesgos', () => {
+    const p = buildPrompt('acta', { tracks });
+    expect(p).toContain('"track"');
+    expect(p).toMatch(/action_items[\s\S]*"track"/);
+    expect(p).toMatch(/riesgos[\s\S]*"track"/);
+  });
+
+  it('instruye usar "proyecto" cuando el item es transversal o dudoso', () => {
+    const p = buildPrompt('acta', { tracks });
+    expect(p).toContain('proyecto');
+    expect(p.toLowerCase()).toContain('no adivines');
+  });
+
+  it('sin tracks no rompe y no pide routing', () => {
+    const p = buildPrompt('acta', { cliente: 'BROU' });
+    expect(p).toContain('acta');
+    expect(p).not.toContain('TRACKS DEL PROYECTO');
+  });
+});
+
+describe('parseModelJson conserva track', () => {
+  it('mantiene track en action_items y riesgos', () => {
+    const raw = '{"resumen":"r","decisiones":[],"action_items":[{"titulo":"t","responsable":null,"prazo":null,"track":"Click to Pay"}],"riesgos":[{"descricao":"d","tipo":"issue","severidade":"alta","dueno":null,"track":"proyecto"}],"participantes":[]}';
+    const r = parseModelJson(raw);
+    expect(r.action_items[0].track).toBe('Click to Pay');
+    expect(r.riesgos[0].track).toBe('proyecto');
+  });
+
+  it('item sin track no rompe: queda string vacía', () => {
+    const raw = '{"resumen":"r","action_items":[{"titulo":"t"}],"riesgos":[{"descricao":"d"}]}';
+    const r = parseModelJson(raw);
+    expect(r.action_items[0].track).toBe('');
+    expect(r.riesgos[0].track).toBe('');
+  });
+
+  it('track no-string se normaliza a string vacía', () => {
+    const raw = '{"action_items":[{"titulo":"t","track":42}],"riesgos":[]}';
+    const r = parseModelJson(raw);
+    expect(r.action_items[0].track).toBe('');
+  });
+});
