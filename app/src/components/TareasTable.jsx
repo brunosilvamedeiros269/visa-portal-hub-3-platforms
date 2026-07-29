@@ -10,14 +10,14 @@ const EST_CLS = {
 };
 const inputSm = 'bg-[#0b1626] border border-[#273647] rounded px-1.5 py-1 text-[11px] text-slate-100 w-full outline-none focus:border-[#FAA61A]/50';
 
-function NewTarea({ trackId, onChange }) {
+function NewTarea({ scope, onChange }) {
   const [open, setOpen] = useState(false);
   const [f, setF] = useState({ titulo: '', responsavel: '', previsao_entrega: '', origen: 'manual' });
   const [saving, setSaving] = useState(false);
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
   const submit = async (e) => {
     e.preventDefault(); if (!f.titulo.trim()) return; setSaving(true);
-    try { await createTarea({ track_id: trackId, titulo: f.titulo.trim(), status: 'aberto', responsavel: f.responsavel || null, previsao_entrega: f.previsao_entrega || null, origen: f.origen }); setF({ titulo: '', responsavel: '', previsao_entrega: '', origen: 'manual' }); setOpen(false); onChange(); }
+    try { await createTarea({ ...scope, titulo: f.titulo.trim(), status: 'aberto', responsavel: f.responsavel || null, previsao_entrega: f.previsao_entrega || null, origen: f.origen }); setF({ titulo: '', responsavel: '', previsao_entrega: '', origen: 'manual' }); setOpen(false); onChange(); }
     finally { setSaving(false); }
   };
   if (!open) return <button onClick={() => setOpen(true)} className={linkGold}><Plus className="w-3.5 h-3.5" /> Nueva tarea</button>;
@@ -36,7 +36,7 @@ function NewTarea({ trackId, onChange }) {
 
 const COLS = ['Tarea', 'Estado', 'Responsable', 'Apertura', 'Previsión', 'Cierre', 'Origen', ''];
 
-export default function TareasTable({ trackId, tareas, onChange }) {
+export default function TareasTable({ scope, tareas, onChange }) {
   const today = todayISO();
   const ordered = [...tareas].sort((a, b) => TAREA_ORDER.indexOf(a.status) - TAREA_ORDER.indexOf(b.status));
   const [editId, setEditId] = useState(null);
@@ -70,7 +70,7 @@ export default function TareasTable({ trackId, tareas, onChange }) {
 
   return (
     <div>
-      <div className="flex justify-end mb-2"><NewTarea trackId={trackId} onChange={onChange} /></div>
+      <div className="flex justify-end mb-2"><NewTarea scope={scope} onChange={onChange} /></div>
       {err && <p className="text-[11px] text-rose-400 mb-2">{err}</p>}
       <div className="overflow-x-auto">
         <table className="w-full text-[12px]">

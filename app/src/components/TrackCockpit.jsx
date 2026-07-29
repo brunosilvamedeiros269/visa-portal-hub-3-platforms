@@ -162,7 +162,7 @@ export default function TrackCockpit({ track, cliente, csm, personas, prereqs, r
               </div>
             </div>
             {view === 'lista'
-              ? <TareasTable trackId={track.id} tareas={tareas} onChange={onChange} />
+              ? <TareasTable scope={{ track_id: track.id }} tareas={tareas} onChange={onChange} />
               : <TableroKanban tareas={tareas} onChange={onChange} today={today} onError={setErr} />}
           </div>
           <MarcosList trackId={track.id} marcos={marcos} onChange={onChange} />

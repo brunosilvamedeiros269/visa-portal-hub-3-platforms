@@ -81,6 +81,17 @@ export async function createReuniaoParaTrack(trackId, row) {
   return reu;
 }
 
+// Uma reunión pode cobrir várias tracks: `reunion_tracks` é N:N. Sem transação
+// (REST anon); se a ligação falhar, a reunión já existe e o erro sobe para a UI.
+export async function createReunionMultiTrack(row, trackIds = []) {
+  const reu = await run(supabase.from('reunioes').insert(row).select().single());
+  const ids = [...new Set(trackIds.filter(Boolean))];
+  if (ids.length) {
+    await run(supabase.from('reunion_tracks').insert(ids.map((track_id) => ({ reuniao_id: reu.id, track_id }))));
+  }
+  return reu;
+}
+
 // ---- contactos (directorio global) ----
 export const fetchContactos = () => run(supabase.from('contactos').select('*').order('nombre'));
 export const insertContacto = (row) => run(supabase.from('contactos').insert(row).select().single());
