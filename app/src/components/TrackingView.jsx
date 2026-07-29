@@ -109,7 +109,8 @@ function projetoResumo(m, proj, today) {
   // próximo marco entre todos os tracks do projeto
   const allMarcos = tracks.flatMap((t) => m.marcosByTrack[t.id] || []);
   const marco = nextMarco(allMarcos, today);
-  const tareas = tracks.flatMap((t) => m.tareasByTrack[t.id] || []);
+  // Incluir tareas de proyecto (transversales) + tareas de tracks
+  const tareas = (m.tareasByProjeto[proj.id] || []).concat(tracks.flatMap((t) => m.tareasByTrack[t.id] || []));
   const vencidas = countVencidas(tareas, today);
   const bloqueadas = countBloqueadas(tareas);
   const riesgos = (m.riscosByProjeto[proj.id] || []).length + tracks.reduce((a, t) => a + (m.riscosByTrack[t.id] || []).length, 0);
