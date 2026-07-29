@@ -9,6 +9,8 @@ import {
 } from './trackingUi';
 import { todayISO, ragProjeto, avanceProjeto, ragTrack, avanceTrack, nextMarco, daysTo, countVencidas, countBloqueadas, RAG_RANK } from '../lib/pmoLogic';
 import TrackCockpit from './TrackCockpit';
+import ReunionProcesar from './ReunionProcesar';
+import TareasTable from './TareasTable';
 
 // ---------- formulários ----------
 function Collapsible({ label, children }) {
@@ -201,6 +203,43 @@ function ProjetoRow({ m, proj, cli, today, onOpen }) {
   );
 }
 
+function ReunionesProyectoCard({ proyecto, cliente, tracks, reuniones, onChange }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="bg-[#122131]/60 border border-[#273647] rounded-2xl p-4 mb-5">
+      <div className="flex items-center justify-between mb-2">
+        <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-400 flex items-center gap-1.5"><CalendarClock className="w-3.5 h-3.5" />Reuniones del proyecto</h3>
+        {!open && <button onClick={() => setOpen(true)} className={linkGold}><Plus className="w-3.5 h-3.5" /> Registrar</button>}
+      </div>
+      {open && (
+        <div className="mb-3">
+          <ReunionProcesar proyecto={proyecto} cliente={cliente} tracks={tracks}
+            onDone={() => { setOpen(false); onChange(); }} />
+          <button onClick={() => setOpen(false)} className="text-[11px] text-slate-400 mt-1">Cerrar</button>
+        </div>
+      )}
+      {reuniones.length ? [...reuniones].sort((a, b) => String(b.data || '').localeCompare(String(a.data || ''))).map((r) => (
+        <div key={r.id} className="flex gap-2 py-1.5 border-t border-[#273647]/60 first:border-0">
+          <span className="text-[10px] text-[#FAA61A] font-bold w-12 flex-none pt-0.5">{r.data ? fmtDate(r.data).slice(0, 5) : '—'}</span>
+          <div className="min-w-0">
+            <div className="text-[12.5px] text-slate-200">{r.titulo}</div>
+            <div className="text-[10px] text-slate-500 uppercase">{r.tipo}</div>
+          </div>
+        </div>
+      )) : <p className="text-xs text-slate-400">Sin reuniones registradas.</p>}
+    </div>
+  );
+}
+
+function TareasProyectoCard({ proyecto, tareas, onChange }) {
+  return (
+    <div className="bg-[#122131]/60 border border-[#273647] rounded-2xl p-4 mb-5">
+      <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-2">Tareas del proyecto (transversales)</h3>
+      <TareasTable scope={{ projeto_id: proyecto.id }} tareas={tareas} onChange={onChange} />
+    </div>
+  );
+}
+
 // ---------- container ----------
 export default function TrackingView() {
   const [data, setData] = useState(null);
@@ -223,6 +262,8 @@ export default function TrackingView() {
     const reunioesById = idMap(data.reunioes);
     const reunioesByTrack = {};
     for (const rt of data.reunion_tracks) { (reunioesByTrack[rt.track_id] = reunioesByTrack[rt.track_id] || []).push(reunioesById[rt.reuniao_id]); }
+    // Reuniones del proyecto: `reunioes.projeto_id` es la fuente; las tracks salen de reunion_tracks.
+    const reunioesByProjeto = by(data.reunioes.filter((r) => r.projeto_id), 'projeto_id');
     const depsByTrack = {};
     for (const d of data.track_dependencias) { (depsByTrack[d.track_id] = depsByTrack[d.track_id] || []).push(tracksById[d.depende_de_id]); }
     const marcosByTrack = by(data.marcos, 'track_id');
@@ -236,10 +277,12 @@ export default function TrackingView() {
       tracksById,
       projetosByCliente: by(data.projetos, 'cliente_id'),
       tracksByProjeto: by(data.tracks, 'projeto_id'),
-      tareasByTrack: by(data.tareas, 'track_id'),
+      tareasByTrack: by(data.tareas.filter((t) => t.track_id), 'track_id'),
+      tareasByProjeto: by(data.tareas.filter((t) => t.projeto_id), 'projeto_id'),
       prereqsByTrack: by(data.prerequisitos, 'track_id'),
       personasByCliente: by(data.personas, 'cliente_id'),
       reunioesByTrack,
+      reunioesByProjeto,
       depsByTrack,
       marcosByTrack,
       riscosByTrack,
@@ -327,6 +370,11 @@ export default function TrackingView() {
             </div>
           );
         })()}
+        <ReunionesProyectoCard
+          proyecto={proj} cliente={cli?.nome} tracks={tracks}
+          reuniones={m.reunioesByProjeto[proj.id] || []} onChange={load}
+        />
+        <TareasProyectoCard proyecto={proj} tareas={m.tareasByProjeto[proj.id] || []} onChange={load} />
         <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
           <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-400">Tracks</h3>
           <NewTrack projetoId={proj.id} onDone={load} />
