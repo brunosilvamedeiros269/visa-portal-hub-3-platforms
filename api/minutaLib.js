@@ -27,6 +27,10 @@ export function buildPrompt(texto, contexto = {}) {
     ? 'En "track" usá EXACTAMENTE uno de los nombres listados arriba, o "proyecto". Si el item es transversal o no queda claro a qué track pertenece, usá "proyecto": NO adivines una track.'
     : '';
 
+  // El campo "track" solo se pide en el schema cuando hay tracks para enrutar;
+  // sin lista de tracks no hay a qué mapear, así que se omite para no invitar a inventar un nombre.
+  const campoTrack = tracks.length ? ', "track": "string"' : '';
+
   return [
     'Eres un asistente de PMO de Visa Implementation Services.',
     'Analizá la siguiente transcripción/acta de reunión y extraé la información en ESPAÑOL.',
@@ -36,8 +40,8 @@ export function buildPrompt(texto, contexto = {}) {
     '{',
     '  "resumen": "string, 2-4 frases",',
     '  "decisiones": ["string"],',
-    '  "action_items": [{ "titulo": "string", "responsable": "string|null", "prazo": "YYYY-MM-DD|null", "track": "string" }],',
-    '  "riesgos": [{ "descricao": "string", "tipo": "riesgo|issue", "severidade": "alta|media|baja", "dueno": "string|null", "track": "string" }],',
+    `  "action_items": [{ "titulo": "string", "responsable": "string|null", "prazo": "YYYY-MM-DD|null"${campoTrack} }],`,
+    `  "riesgos": [{ "descricao": "string", "tipo": "riesgo|issue", "severidade": "alta|media|baja", "dueno": "string|null"${campoTrack} }],`,
     '  "participantes": [{ "nombre": "string", "email": "string|null", "organizacion": "string|null" }]',
     '}',
     reglaTrack,

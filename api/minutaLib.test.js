@@ -75,6 +75,8 @@ describe('buildPrompt multi-track', () => {
     const p = buildPrompt('acta', { cliente: 'BROU' });
     expect(p).toContain('acta');
     expect(p).not.toContain('TRACKS DEL PROYECTO');
+    expect(p.toLowerCase()).not.toContain('no adivines');
+    expect(p).not.toContain('"track"');
   });
 });
 
