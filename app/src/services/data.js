@@ -74,13 +74,7 @@ export const deleteDocumento = async (doc) => {
   return run(supabase.from('documentos').delete().eq('id', doc.id));
 };
 
-// ---- reuniones (registro manual, ligada ao track) ----
-export async function createReuniaoParaTrack(trackId, row) {
-  const reu = await run(supabase.from('reunioes').insert(row).select().single());
-  await run(supabase.from('reunion_tracks').insert({ reuniao_id: reu.id, track_id: trackId }));
-  return reu;
-}
-
+// ---- reuniones ----
 // Uma reunión pode cobrir várias tracks: `reunion_tracks` é N:N. Sem transação
 // (REST anon); se a ligação falhar, a reunión já existe e o erro sobe para a UI.
 export async function createReunionMultiTrack(row, trackIds = []) {
