@@ -165,6 +165,8 @@ describe('buildPrompt multi-track', () => {
     const p = buildPrompt('acta', { cliente: 'BROU' });
     expect(p).toContain('acta');
     expect(p).not.toContain('TRACKS DEL PROYECTO');
+    expect(p.toLowerCase()).not.toContain('no adivines');
+    expect(p).not.toContain('"track"');
   });
 });
 
@@ -224,6 +226,10 @@ export function buildPrompt(texto, contexto = {}) {
     ? 'En "track" usá EXACTAMENTE uno de los nombres listados arriba, o "proyecto". Si el item es transversal o no queda claro a qué track pertenece, usá "proyecto": NO adivines una track.'
     : '';
 
+  // O campo "track" só entra no schema quando há tracks para rotear: sem lista,
+  // pedir o campo convidaria o modelo a inventar um nome.
+  const campoTrack = tracks.length ? ', "track": "string"' : '';
+
   return [
     'Eres un asistente de PMO de Visa Implementation Services.',
     'Analizá la siguiente transcripción/acta de reunión y extraé la información en ESPAÑOL.',
@@ -233,8 +239,8 @@ export function buildPrompt(texto, contexto = {}) {
     '{',
     '  "resumen": "string, 2-4 frases",',
     '  "decisiones": ["string"],',
-    '  "action_items": [{ "titulo": "string", "responsable": "string|null", "prazo": "YYYY-MM-DD|null", "track": "string" }],',
-    '  "riesgos": [{ "descricao": "string", "tipo": "riesgo|issue", "severidade": "alta|media|baja", "dueno": "string|null", "track": "string" }],',
+    `  "action_items": [{ "titulo": "string", "responsable": "string|null", "prazo": "YYYY-MM-DD|null"${campoTrack} }],`,
+    `  "riesgos": [{ "descricao": "string", "tipo": "riesgo|issue", "severidade": "alta|media|baja", "dueno": "string|null"${campoTrack} }],`,
     '  "participantes": [{ "nombre": "string", "email": "string|null", "organizacion": "string|null" }]',
     '}',
     reglaTrack,
