@@ -52,12 +52,22 @@ export function ragTrack(track, tareas, marcos, todayIso, amberDays = 7) {
   return 'verde';
 }
 
-export function ragProjeto(projeto, tracks, tareasByTrack, marcosByTrack, todayIso, amberDays = 7) {
+export function ragProjeto(projeto, tracks, tareasByTrack, marcosByTrack, todayIso, amberDays = 7, tareasProjeto = []) {
   if (projeto && projeto.rag_override) return projeto.rag_override;
   let worst = 0;
   for (const tr of tracks) {
     const r = ragTrack(tr, tareasByTrack[tr.id] || [], marcosByTrack[tr.id] || [], todayIso, amberDays);
     worst = Math.max(worst, RAG_RANK[r]);
+  }
+  // Tareas transversales (projeto_id, sin track): misma semántica de ragTrack,
+  // sin marcos ni waiver porque esos conceptos viven en la track.
+  const hasBlocked = tareasProjeto.some((t) => t.status === 'bloqueada');
+  if (hasBlocked) {
+    worst = Math.max(worst, RAG_RANK.rojo);
+  } else {
+    const within = (iso) => { const d = daysTo(iso, todayIso); return d != null && d >= 0 && d <= amberDays; };
+    const tareaSoon = tareasProjeto.some((t) => t.status !== 'fechado' && within(t.previsao_entrega));
+    if (tareaSoon) worst = Math.max(worst, RAG_RANK.amarelo);
   }
   return RANK_RAG[worst];
 }

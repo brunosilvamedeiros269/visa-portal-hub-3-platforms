@@ -104,13 +104,14 @@ function NewTrack({ projetoId, onDone }) {
 // ---------- helpers de resumo ----------
 function projetoResumo(m, proj, today) {
   const tracks = m.tracksByProjeto[proj.id] || [];
-  const rag = ragProjeto(proj, tracks, m.tareasByTrack, m.marcosByTrack, today);
+  const tareasProjeto = m.tareasByProjeto[proj.id] || [];
+  const rag = ragProjeto(proj, tracks, m.tareasByTrack, m.marcosByTrack, today, 7, tareasProjeto);
   const av = avanceProjeto(tracks, m.tareasByTrack);
   // próximo marco entre todos os tracks do projeto
   const allMarcos = tracks.flatMap((t) => m.marcosByTrack[t.id] || []);
   const marco = nextMarco(allMarcos, today);
   // Incluir tareas de proyecto (transversales) + tareas de tracks
-  const tareas = (m.tareasByProjeto[proj.id] || []).concat(tracks.flatMap((t) => m.tareasByTrack[t.id] || []));
+  const tareas = tareasProjeto.concat(tracks.flatMap((t) => m.tareasByTrack[t.id] || []));
   const vencidas = countVencidas(tareas, today);
   const bloqueadas = countBloqueadas(tareas);
   const riesgos = (m.riscosByProjeto[proj.id] || []).length + tracks.reduce((a, t) => a + (m.riscosByTrack[t.id] || []).length, 0);

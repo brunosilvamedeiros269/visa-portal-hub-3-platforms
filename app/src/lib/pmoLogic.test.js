@@ -84,6 +84,23 @@ describe('ragProjeto', () => {
   it('override do projeto vence', () => {
     expect(ragProjeto({ rag_override: 'amarelo' }, [], {}, {}, TODAY)).toBe('amarelo');
   });
+  it('tarea transversal (projeto_id) bloqueada pone rojo aunque las tracks estén verdes', () => {
+    const tracks = [{ id: 'a', rag_override: null, waiver_hasta: null }];
+    const byTrack = { a: [{ status: 'aberto' }] };
+    const tareasProjeto = [{ status: 'bloqueada' }];
+    expect(ragProjeto({ rag_override: null }, tracks, byTrack, {}, TODAY, 7, tareasProjeto)).toBe('rojo');
+  });
+  it('tarea transversal (projeto_id) que vence dentro de la ventana amarilla pone amarelo', () => {
+    const tracks = [{ id: 'a', rag_override: null, waiver_hasta: null }];
+    const byTrack = { a: [{ status: 'aberto' }] };
+    const tareasProjeto = [{ status: 'aberto', previsao_entrega: '2026-08-01' }]; // 5 días
+    expect(ragProjeto({ rag_override: null }, tracks, byTrack, {}, TODAY, 7, tareasProjeto)).toBe('amarelo');
+  });
+  it('sin tareas transversales no cambia el resultado (parámetro opcional)', () => {
+    const tracks = [{ id: 'a', rag_override: null, waiver_hasta: null }];
+    const byTrack = { a: [{ status: 'aberto' }] };
+    expect(ragProjeto({ rag_override: null }, tracks, byTrack, {}, TODAY)).toBe('verde');
+  });
 });
 
 describe('nextMarco / contadores', () => {
