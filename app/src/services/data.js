@@ -34,7 +34,6 @@ export const deleteTarea = (id) => run(supabase.from('tareas').delete().eq('id',
 export const createPrereq = (row) => run(supabase.from('prerequisitos').insert(row).select().single());
 export const updatePrereq = (id, fields) => run(supabase.from('prerequisitos').update(fields).eq('id', id).select().single());
 export const createPersona = (row) => run(supabase.from('personas').insert(row).select().single());
-export const createReuniao = (row) => run(supabase.from('reunioes').insert(row).select().single());
 
 // ---- projetos ----
 export const updateProjeto = (id, fields) => run(supabase.from('projetos').update(fields).eq('id', id).select().single());
