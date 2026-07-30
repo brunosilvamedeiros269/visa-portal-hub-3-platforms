@@ -115,7 +115,10 @@ function projetoResumo(m, proj, today) {
   const tareas = tareasProjeto.concat(tracks.flatMap((t) => m.tareasByTrack[t.id] || []));
   const vencidas = countVencidas(tareas, today);
   const bloqueadas = countBloqueadas(tareas);
-  const riesgos = (m.riscosByProjeto[proj.id] || []).length + tracks.reduce((a, t) => a + (m.riscosByTrack[t.id] || []).length, 0);
+  // Badge de riesgos: solo cuenta los abiertos/en mitigación — un riesgo cerrado no debe seguir sumando.
+  const riesgoAbierto = (x) => x.status !== 'cerrado';
+  const riesgos = (m.riscosByProjeto[proj.id] || []).filter(riesgoAbierto).length
+    + tracks.reduce((a, t) => a + (m.riscosByTrack[t.id] || []).filter(riesgoAbierto).length, 0);
   return { tracks, rag, pct: av.pct, pctHasData: av.hasData, marco, vencidas, bloqueadas, riesgos };
 }
 
