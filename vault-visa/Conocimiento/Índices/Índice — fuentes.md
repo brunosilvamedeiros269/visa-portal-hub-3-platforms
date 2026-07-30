@@ -6,7 +6,9 @@ tags: ["indice"]
 
 De dónde viene cada nota y su estado de verificación. Se regenera con el vault.
 
-**Total:** 96 notas · **verificadas:** 96
+**Total:** 97 notas · **verificadas:** 96 · **parciales (~):** 1
+
+`~` = el término y su papel vienen de ata de reunión, no de la especificación; falta confirmar contra documentación.
 
 ## Concepto (7)
 
@@ -27,7 +29,7 @@ De dónde viene cada nota y su estado de verificación. Se regenera con el vault
 | [[Banco de perguntas]] | Notas de estudo (Notion) | ✓ |
 | [[Plano de estudos]] | Notas de estudo (Notion) | ✓ |
 
-## Glosario (73)
+## Glosario (74)
 
 | Nota | Fuente | Estado |
 |---|---|---|
@@ -77,6 +79,7 @@ De dónde viene cada nota y su estado de verificación. Se regenera con el vault
 | [[Production Monitoring]] | Dicionário (Notion) | ✓ |
 | [[Produto (Visa)]] | Dicionário (Notion) | ✓ |
 | [[Push - In-App Provisioning (fluxo verde)]] | Dicionário (Notion) | ✓ |
+| [[Register Consumer]] | SteerCo Banco de Corrientes (30/jul/2026) | ~ |
 | [[Revisão de Artes]] | Dicionário (Notion) | ✓ |
 | [[Send Passcode]] | Dicionário (Notion) | ✓ |
 | [[Settlement]] | Dicionário (Notion) | ✓ |
