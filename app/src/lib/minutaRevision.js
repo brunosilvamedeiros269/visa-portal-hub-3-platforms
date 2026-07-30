@@ -13,10 +13,10 @@ const norm = (s) => (s || '').trim().toLowerCase();
 // Arma las filas de participantes: si el nombre matchea un contacto del
 // directorio (case-insensitive), pre-rellena email/organización desde ahí y
 // marca `existe: true`; si no, es un participante nuevo y no se le inventa
-// ni email ni organización.
+// ni email ni organización. Salta elementos nulos/indefinidos en la lista.
 export function buildParticipantes(participantesIA, contactos) {
   const byName = Object.fromEntries((contactos || []).map((c) => [norm(c.nombre), c]));
-  return (participantesIA || []).map((p) => {
+  return (participantesIA || []).filter(Boolean).map((p) => {
     const hit = byName[norm(p.nombre)];
     return {
       nombre: p.nombre || '',
@@ -30,8 +30,9 @@ export function buildParticipantes(participantesIA, contactos) {
 
 // Arma las filas de action items → tareas: recorta el prazo a YYYY-MM-DD y
 // resuelve el destino inicial (track propuesta por la IA o proyecto).
+// Salta elementos nulos/indefinidos en la lista.
 export function buildActionItems(actionItemsIA, tracks) {
-  return (actionItemsIA || []).map((a) => ({
+  return (actionItemsIA || []).filter(Boolean).map((a) => ({
     titulo: a.titulo || '',
     responsable: a.responsable || '',
     prazo: (a.prazo || '').slice(0, 10),
@@ -43,8 +44,9 @@ export function buildActionItems(actionItemsIA, tracks) {
 // Arma las filas de riesgos → RAID: clampa tipo/severidade a los valores
 // permitidos (si la IA devuelve algo fuera de esos conjuntos, cae al default)
 // y resuelve el destino inicial igual que un action item.
+// Salta elementos nulos/indefinidos en la lista.
 export function buildRiesgos(riesgosIA, tracks) {
-  return (riesgosIA || []).map((x) => ({
+  return (riesgosIA || []).filter(Boolean).map((x) => ({
     descricao: x.descricao || '',
     tipo: RISK_TIPOS.includes(x.tipo) ? x.tipo : 'riesgo',
     severidade: SEVERIDADES.includes(x.severidade) ? x.severidade : 'media',
@@ -56,8 +58,9 @@ export function buildRiesgos(riesgosIA, tracks) {
 
 // Arma las filas de decisiones. El modelo puede devolver strings sueltos o
 // objetos { texto }; acá se normaliza a un solo shape.
+// Salta elementos nulos/indefinidos en la lista.
 export function buildDecisiones(decisionesIA) {
-  return (decisionesIA || []).map((d) => ({
+  return (decisionesIA || []).filter(Boolean).map((d) => ({
     texto: typeof d === 'string' ? d : (d.texto || ''),
     incluir: true,
   }));
@@ -66,7 +69,8 @@ export function buildDecisiones(decisionesIA) {
 // Arma el `result` completo que espera ReunionRevision a partir del resultado
 // crudo de procesarMinuta, las tracks del proyecto y el directorio de
 // contactos. Bloques ausentes o vacíos en el resultado de la IA producen
-// listas vacías, nunca un throw.
+// listas vacías, nunca un throw. Los elementos nulos/indefinidos dentro de
+// un bloque presente son saltados (no lanzan excepción).
 export function buildRevisionResult(resultadoIA, tracks, contactos) {
   const r = resultadoIA || {};
   return {

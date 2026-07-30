@@ -33,6 +33,12 @@ describe('buildParticipantes', () => {
       { nombre: 'Ana Pérez', email: '', organizacion: '', incluir: true, existe: false },
     ]);
   });
+  it('salta elementos nulos/indefinidos dentro de la lista', () => {
+    const out = buildParticipantes([{ nombre: 'Ana Pérez' }, null, { nombre: 'Juan Nuevo' }, undefined], CONTACTOS);
+    expect(out).toHaveLength(2);
+    expect(out[0]).toMatchObject({ nombre: 'Ana Pérez', existe: true });
+    expect(out[1]).toMatchObject({ nombre: 'Juan Nuevo', existe: false });
+  });
 });
 
 describe('buildActionItems', () => {
@@ -50,6 +56,14 @@ describe('buildActionItems', () => {
   it('lista vacía o ausente → []', () => {
     expect(buildActionItems([], TRACKS)).toEqual([]);
     expect(buildActionItems(undefined, TRACKS)).toEqual([]);
+  });
+  it('salta elementos nulos/indefinidos dentro de la lista', () => {
+    const out = buildActionItems([{ titulo: 'Certificar', track: 'Apple Pay' }, null, { titulo: 'Probar' }, undefined], TRACKS);
+    expect(out).toHaveLength(2);
+    expect(out[0].titulo).toBe('Certificar');
+    expect(out[0].destino).toBe('t-ap');
+    expect(out[1].titulo).toBe('Probar');
+    expect(out[1].destino).toBe('proyecto');
   });
 });
 
@@ -70,6 +84,12 @@ describe('buildRiesgos', () => {
     expect(buildRiesgos([], TRACKS)).toEqual([]);
     expect(buildRiesgos(undefined, TRACKS)).toEqual([]);
   });
+  it('salta elementos nulos/indefinidos dentro de la lista', () => {
+    const out = buildRiesgos([{ descricao: 'Falla en cert.', tipo: 'issue', severidade: 'alta' }, null, { descricao: 'Otro riesgo' }, undefined], TRACKS);
+    expect(out).toHaveLength(2);
+    expect(out[0]).toMatchObject({ descricao: 'Falla en cert.', tipo: 'issue', severidade: 'alta' });
+    expect(out[1]).toMatchObject({ descricao: 'Otro riesgo', tipo: 'riesgo', severidade: 'media' });
+  });
 });
 
 describe('buildDecisiones', () => {
@@ -82,6 +102,12 @@ describe('buildDecisiones', () => {
   it('lista vacía o ausente → []', () => {
     expect(buildDecisiones([])).toEqual([]);
     expect(buildDecisiones(undefined)).toEqual([]);
+  });
+  it('salta elementos nulos/indefinidos dentro de la lista', () => {
+    const out = buildDecisiones(['Se aprueba X', null, { texto: 'Se rechaza Y' }, undefined]);
+    expect(out).toHaveLength(2);
+    expect(out[0]).toEqual({ texto: 'Se aprueba X', incluir: true });
+    expect(out[1]).toEqual({ texto: 'Se rechaza Y', incluir: true });
   });
 });
 
