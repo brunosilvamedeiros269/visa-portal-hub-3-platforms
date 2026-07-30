@@ -9,6 +9,9 @@ import {
 } from './trackingUi';
 import { todayISO, ragProjeto, avanceProjeto, ragTrack, avanceTrack, nextMarco, daysTo, countVencidas, countBloqueadas, RAG_RANK } from '../lib/pmoLogic';
 import TrackCockpit from './TrackCockpit';
+import ReunionProcesar from './ReunionProcesar';
+import TareasTable from './TareasTable';
+import RaidList from './RaidList';
 
 // ---------- formulários ----------
 function Collapsible({ label, children }) {
@@ -102,15 +105,20 @@ function NewTrack({ projetoId, onDone }) {
 // ---------- helpers de resumo ----------
 function projetoResumo(m, proj, today) {
   const tracks = m.tracksByProjeto[proj.id] || [];
-  const rag = ragProjeto(proj, tracks, m.tareasByTrack, m.marcosByTrack, today);
-  const av = avanceProjeto(tracks, m.tareasByTrack);
+  const tareasProjeto = m.tareasByProjeto[proj.id] || [];
+  const rag = ragProjeto(proj, tracks, m.tareasByTrack, m.marcosByTrack, today, 7, tareasProjeto);
+  const av = avanceProjeto(tracks, m.tareasByTrack, tareasProjeto);
   // próximo marco entre todos os tracks do projeto
   const allMarcos = tracks.flatMap((t) => m.marcosByTrack[t.id] || []);
   const marco = nextMarco(allMarcos, today);
-  const tareas = tracks.flatMap((t) => m.tareasByTrack[t.id] || []);
+  // Incluir tareas de proyecto (transversales) + tareas de tracks
+  const tareas = tareasProjeto.concat(tracks.flatMap((t) => m.tareasByTrack[t.id] || []));
   const vencidas = countVencidas(tareas, today);
   const bloqueadas = countBloqueadas(tareas);
-  const riesgos = (m.riscosByProjeto[proj.id] || []).length + tracks.reduce((a, t) => a + (m.riscosByTrack[t.id] || []).length, 0);
+  // Badge de riesgos: solo cuenta los abiertos/en mitigación — un riesgo cerrado no debe seguir sumando.
+  const riesgoAbierto = (x) => x.status !== 'cerrado';
+  const riesgos = (m.riscosByProjeto[proj.id] || []).filter(riesgoAbierto).length
+    + tracks.reduce((a, t) => a + (m.riscosByTrack[t.id] || []).filter(riesgoAbierto).length, 0);
   return { tracks, rag, pct: av.pct, pctHasData: av.hasData, marco, vencidas, bloqueadas, riesgos };
 }
 
@@ -201,6 +209,43 @@ function ProjetoRow({ m, proj, cli, today, onOpen }) {
   );
 }
 
+function ReunionesProyectoCard({ proyecto, cliente, tracks, reuniones, onChange }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="bg-[#122131]/60 border border-[#273647] rounded-2xl p-4 mb-5">
+      <div className="flex items-center justify-between mb-2">
+        <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-400 flex items-center gap-1.5"><CalendarClock className="w-3.5 h-3.5" />Reuniones del proyecto</h3>
+        {!open && <button onClick={() => setOpen(true)} className={linkGold}><Plus className="w-3.5 h-3.5" /> Registrar</button>}
+      </div>
+      {open && (
+        <div className="mb-3">
+          <ReunionProcesar proyecto={proyecto} cliente={cliente} tracks={tracks}
+            onDone={() => { setOpen(false); onChange(); }} />
+          <button onClick={() => setOpen(false)} className="text-[11px] text-slate-400 mt-1">Cerrar</button>
+        </div>
+      )}
+      {reuniones.length ? [...reuniones].sort((a, b) => String(b.data || '').localeCompare(String(a.data || ''))).map((r) => (
+        <div key={r.id} className="flex gap-2 py-1.5 border-t border-[#273647]/60 first:border-0">
+          <span className="text-[10px] text-[#FAA61A] font-bold w-12 flex-none pt-0.5">{r.data ? fmtDate(r.data).slice(0, 5) : '—'}</span>
+          <div className="min-w-0">
+            <div className="text-[12.5px] text-slate-200">{r.titulo}</div>
+            <div className="text-[10px] text-slate-500 uppercase">{r.tipo}</div>
+          </div>
+        </div>
+      )) : <p className="text-xs text-slate-400">Sin reuniones registradas.</p>}
+    </div>
+  );
+}
+
+function TareasProyectoCard({ proyecto, tareas, onChange }) {
+  return (
+    <div className="bg-[#122131]/60 border border-[#273647] rounded-2xl p-4 mb-5">
+      <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-2">Tareas del proyecto (transversales)</h3>
+      <TareasTable scope={{ projeto_id: proyecto.id }} tareas={tareas} onChange={onChange} />
+    </div>
+  );
+}
+
 // ---------- container ----------
 export default function TrackingView() {
   const [data, setData] = useState(null);
@@ -223,6 +268,8 @@ export default function TrackingView() {
     const reunioesById = idMap(data.reunioes);
     const reunioesByTrack = {};
     for (const rt of data.reunion_tracks) { (reunioesByTrack[rt.track_id] = reunioesByTrack[rt.track_id] || []).push(reunioesById[rt.reuniao_id]); }
+    // Reuniones del proyecto: `reunioes.projeto_id` es la fuente; las tracks salen de reunion_tracks.
+    const reunioesByProjeto = by(data.reunioes.filter((r) => r.projeto_id), 'projeto_id');
     const depsByTrack = {};
     for (const d of data.track_dependencias) { (depsByTrack[d.track_id] = depsByTrack[d.track_id] || []).push(tracksById[d.depende_de_id]); }
     const marcosByTrack = by(data.marcos, 'track_id');
@@ -236,10 +283,12 @@ export default function TrackingView() {
       tracksById,
       projetosByCliente: by(data.projetos, 'cliente_id'),
       tracksByProjeto: by(data.tracks, 'projeto_id'),
-      tareasByTrack: by(data.tareas, 'track_id'),
+      tareasByTrack: by(data.tareas.filter((t) => t.track_id), 'track_id'),
+      tareasByProjeto: by(data.tareas.filter((t) => t.projeto_id), 'projeto_id'),
       prereqsByTrack: by(data.prerequisitos, 'track_id'),
       personasByCliente: by(data.personas, 'cliente_id'),
       reunioesByTrack,
+      reunioesByProjeto,
       depsByTrack,
       marcosByTrack,
       riscosByTrack,
@@ -312,21 +361,30 @@ export default function TrackingView() {
           <Kpi n={r.bloqueadas} label="Bloqueadas" danger />
           <Kpi n={r.vencidas} label="Vencidas" danger />
         </div>
-        {(() => {
-          const riesgos = [...(m.riscosByProjeto[proj.id] || []), ...r.tracks.flatMap((t) => (m.riscosByTrack[t.id] || []).map((x) => ({ ...x, _track: t.nome })))];
-          if (!riesgos.length) return null;
-          return (
-            <div className="bg-[#122131]/60 border border-[#273647] rounded-2xl p-4 mb-5">
-              <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-2">Riesgos &amp; Issues del proyecto</h3>
-              {riesgos.map((x) => (
-                <div key={x.id} className="flex gap-2 py-1.5 border-t border-[#273647]/60 first:border-0 text-[12.5px]">
-                  <span className="w-1 rounded self-stretch flex-none" style={{ background: SEVERIDAD_COLOR[x.severidade] || '#94a3b8' }} />
-                  <div><div className="text-slate-200">{x.descricao}</div><div className="text-[10px] text-slate-500">{RISK_TIPO_LABEL[x.tipo]} · {SEVERIDAD_LABEL[x.severidade]} · {x.dueno || '—'} · {RISK_STATUS_LABEL[x.status]}{x._track ? ` · ${x._track}` : ''}</div></div>
-                </div>
-              ))}
-            </div>
-          );
-        })()}
+        <div className="mb-5">
+          <RaidList scope={{ projeto_id: proj.id }} riscos={m.riscosByProjeto[proj.id] || []} onChange={load} />
+          {(() => {
+            // Riesgos de las tracks: solo contexto acá, se gestionan en el cockpit de cada track.
+            const riesgosTracks = r.tracks.flatMap((t) => (m.riscosByTrack[t.id] || []).map((x) => ({ ...x, _track: t.nome })));
+            if (!riesgosTracks.length) return null;
+            return (
+              <div className="mt-3 bg-[#122131]/60 border border-[#273647] rounded-2xl p-4">
+                <div className="text-[10px] uppercase tracking-wide text-slate-500 mb-1.5">Riesgos de las tracks (contexto, se gestionan en cada track)</div>
+                {riesgosTracks.map((x) => (
+                  <div key={x.id} className="flex gap-2 py-1.5 border-t border-[#273647]/60 first:border-0 text-[12.5px]">
+                    <span className="w-1 rounded self-stretch flex-none" style={{ background: SEVERIDAD_COLOR[x.severidade] || '#94a3b8' }} />
+                    <div><div className="text-slate-200">{x.descricao}</div><div className="text-[10px] text-slate-500">{RISK_TIPO_LABEL[x.tipo]} · {SEVERIDAD_LABEL[x.severidade]} · {x.dueno || '—'} · {RISK_STATUS_LABEL[x.status]} · {x._track}</div></div>
+                  </div>
+                ))}
+              </div>
+            );
+          })()}
+        </div>
+        <ReunionesProyectoCard
+          proyecto={proj} cliente={cli?.nome} tracks={tracks}
+          reuniones={m.reunioesByProjeto[proj.id] || []} onChange={load}
+        />
+        <TareasProyectoCard proyecto={proj} tareas={m.tareasByProjeto[proj.id] || []} onChange={load} />
         <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
           <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-400">Tracks</h3>
           <NewTrack projetoId={proj.id} onDone={load} />

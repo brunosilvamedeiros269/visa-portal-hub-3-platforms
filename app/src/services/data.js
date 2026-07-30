@@ -34,7 +34,6 @@ export const deleteTarea = (id) => run(supabase.from('tareas').delete().eq('id',
 export const createPrereq = (row) => run(supabase.from('prerequisitos').insert(row).select().single());
 export const updatePrereq = (id, fields) => run(supabase.from('prerequisitos').update(fields).eq('id', id).select().single());
 export const createPersona = (row) => run(supabase.from('personas').insert(row).select().single());
-export const createReuniao = (row) => run(supabase.from('reunioes').insert(row).select().single());
 
 // ---- projetos ----
 export const updateProjeto = (id, fields) => run(supabase.from('projetos').update(fields).eq('id', id).select().single());
@@ -74,10 +73,15 @@ export const deleteDocumento = async (doc) => {
   return run(supabase.from('documentos').delete().eq('id', doc.id));
 };
 
-// ---- reuniones (registro manual, ligada ao track) ----
-export async function createReuniaoParaTrack(trackId, row) {
+// ---- reuniones ----
+// Uma reunión pode cobrir várias tracks: `reunion_tracks` é N:N. Sem transação
+// (REST anon); se a ligação falhar, a reunión já existe e o erro sobe para a UI.
+export async function createReunionMultiTrack(row, trackIds = []) {
   const reu = await run(supabase.from('reunioes').insert(row).select().single());
-  await run(supabase.from('reunion_tracks').insert({ reuniao_id: reu.id, track_id: trackId }));
+  const ids = [...new Set(trackIds.filter(Boolean))];
+  if (ids.length) {
+    await run(supabase.from('reunion_tracks').insert(ids.map((track_id) => ({ reuniao_id: reu.id, track_id }))));
+  }
   return reu;
 }
 

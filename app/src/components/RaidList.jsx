@@ -3,7 +3,7 @@ import { Plus } from 'lucide-react';
 import { createRisco, updateRisco, deleteRisco } from '../services/data';
 import { inputCls, btnGold, linkGold, SEVERIDADES, SEVERIDAD_LABEL, SEVERIDAD_COLOR, RISK_TIPOS, RISK_TIPO_LABEL, RISK_STATUSES, RISK_STATUS_LABEL } from './trackingUi';
 
-export default function RaidList({ trackId, riscos, onChange }) {
+export default function RaidList({ scope, riscos, onChange }) {
   const [open, setOpen] = useState(false);
   const [f, setF] = useState({ descricao: '', tipo: 'riesgo', severidade: 'media', dueno: '', status: 'abierto' });
   const [saving, setSaving] = useState(false);
@@ -11,7 +11,7 @@ export default function RaidList({ trackId, riscos, onChange }) {
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
   const add = async (e) => {
     e.preventDefault(); if (!f.descricao.trim()) return; setSaving(true); setError(null);
-    try { await createRisco({ track_id: trackId, ...f, descricao: f.descricao.trim() }); setF({ descricao: '', tipo: 'riesgo', severidade: 'media', dueno: '', status: 'abierto' }); setOpen(false); onChange(); }
+    try { await createRisco({ ...scope, ...f, descricao: f.descricao.trim() }); setF({ descricao: '', tipo: 'riesgo', severidade: 'media', dueno: '', status: 'abierto' }); setOpen(false); onChange(); }
     catch (e) { setError(e.message); }
     finally { setSaving(false); }
   };

@@ -2,12 +2,15 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Upload, Loader2, AlertTriangle } from 'lucide-react';
 import { extractText } from '../lib/extractText';
 import { enginesDisponibles, procesarMinuta } from '../services/ai';
-import { createReuniaoParaTrack, createTarea, createRisco, fetchContactos, insertContacto, updateContacto } from '../services/data';
-import { inputCls, btnGold, SEVERIDADES, SEVERIDAD_LABEL, RISK_TIPOS, RISK_TIPO_LABEL } from './trackingUi';
+import { createReunionMultiTrack, createTarea, createRisco, fetchContactos, insertContacto, updateContacto } from '../services/data';
+import { destinoFields, tracksConItems, reconcileTrackIds, toggleTrackId, buildContexto } from '../lib/minutaRouting';
+import { buildRevisionResult } from '../lib/minutaRevision';
+import { inputCls, btnGold } from './trackingUi';
+import ReunionRevision from './ReunionRevision';
 
 const norm = (s) => (s || '').trim().toLowerCase();
 
-export default function ReunionProcesar({ trackId, cliente, track, onDone }) {
+export default function ReunionProcesar({ proyecto, cliente, tracks, onDone }) {
   const [engines, setEngines] = useState([]);
   const [engine, setEngine] = useState('');
   const [meta, setMeta] = useState({ titulo: '', tipo: 'semanal', data: '' });
@@ -17,7 +20,11 @@ export default function ReunionProcesar({ trackId, cliente, track, onDone }) {
   const [err, setErr] = useState(null);
   const [saving, setSaving] = useState(false);
   const [contactos, setContactos] = useState([]);
-  const [result, setResult] = useState(null); // { resumen, decisiones, action_items[], riesgos[], participantes[] } editable
+  const [result, setResult] = useState(null);
+  const [trackIds, setTrackIds] = useState([]);
+  // Tracks que el usuario desmarcó a mano: reconcileTrackIds no las reingresa
+  // aunque un item se corrija después hacia ellas (el desmarque manual gana).
+  const [uncheckedTrackIds, setUncheckedTrackIds] = useState([]);
   const inputRef = useRef();
 
   useEffect(() => {
@@ -38,20 +45,13 @@ export default function ReunionProcesar({ trackId, cliente, track, onDone }) {
     if (!texto.trim()) { setErr('Subí un archivo o pegá la transcripción'); return; }
     setErr(null); setPhase('loading');
     try {
-      const r = await procesarMinuta(engine, texto, { track, cliente });
-      // Pre-rellena email de participantes desde el directorio + marca "incluir" en todo
-      const byName = Object.fromEntries(contactos.map((c) => [norm(c.nombre), c]));
-      const participantes = (r.participantes || []).map((p) => {
-        const hit = byName[norm(p.nombre)];
-        return { nombre: p.nombre || '', email: p.email || hit?.email || '', organizacion: p.organizacion || hit?.organizacion || '', incluir: true, existe: Boolean(hit) };
-      });
-      setResult({
-        resumen: r.resumen || '',
-        decisiones: (r.decisiones || []).map((d) => ({ texto: typeof d === 'string' ? d : (d.texto || ''), incluir: true })),
-        action_items: (r.action_items || []).map((a) => ({ titulo: a.titulo || '', responsable: a.responsable || '', prazo: (a.prazo || '').slice(0, 10), incluir: true })),
-        riesgos: (r.riesgos || []).map((x) => ({ descricao: x.descricao || '', tipo: RISK_TIPOS.includes(x.tipo) ? x.tipo : 'riesgo', severidade: SEVERIDADES.includes(x.severidade) ? x.severidade : 'media', dueno: x.dueno || '', incluir: true })),
-        participantes,
-      });
+      const ctx = buildContexto(cliente, proyecto, tracks);
+      const r = await procesarMinuta(engine, texto, ctx);
+      const nextResult = buildRevisionResult(r, tracks, contactos);
+      setResult(nextResult);
+      // Pré-marca as tracks que receberam algum item; o usuário ajusta na revisão.
+      setTrackIds(tracksConItems(nextResult.action_items, nextResult.riesgos));
+      setUncheckedTrackIds([]);
       setPhase('review');
     } catch (x) { setErr(x.message); setPhase('input'); }
   };
@@ -77,7 +77,9 @@ export default function ReunionProcesar({ trackId, cliente, track, onDone }) {
         }
       }
       const decisoesTxt = result.decisiones.filter((d) => d.incluir && d.texto.trim()).map((d) => `• ${d.texto.trim()}`).join('\n');
-      await createReuniaoParaTrack(trackId, {
+      await createReunionMultiTrack({
+        cliente_id: proyecto.cliente_id,
+        projeto_id: proyecto.id,
         titulo: meta.titulo.trim() || `Reunión ${meta.tipo}`,
         tipo: meta.tipo,
         data: meta.data || null,
@@ -85,19 +87,49 @@ export default function ReunionProcesar({ trackId, cliente, track, onDone }) {
         ata: texto,
         resumo_ia: result.resumen || null,
         decisoes: decisoesTxt || null,
-      });
+      }, trackIds);
+
       for (const a of result.action_items.filter((a) => a.incluir && a.titulo.trim())) {
-        await createTarea({ track_id: trackId, titulo: a.titulo.trim(), status: 'aberto', responsavel: a.responsable || null, previsao_entrega: a.prazo || null, origen: 'reunion' });
+        await createTarea({
+          ...destinoFields(a.destino, proyecto.id),
+          titulo: a.titulo.trim(), status: 'aberto',
+          responsavel: a.responsable || null, previsao_entrega: a.prazo || null, origen: 'reunion',
+        });
       }
       for (const x of result.riesgos.filter((x) => x.incluir && x.descricao.trim())) {
-        await createRisco({ track_id: trackId, descricao: x.descricao.trim(), tipo: x.tipo, severidade: x.severidade, dueno: x.dueno || null, status: 'abierto' });
+        await createRisco({
+          ...destinoFields(x.destino, proyecto.id),
+          descricao: x.descricao.trim(), tipo: x.tipo, severidade: x.severidade,
+          dueno: x.dueno || null, status: 'abierto',
+        });
       }
       onDone && onDone();
     } catch (x) { setErr(x.message); } finally { setSaving(false); }
   };
 
   const setR = (patch) => setResult((r) => ({ ...r, ...patch }));
-  const setItem = (key, i, patch) => setResult((r) => ({ ...r, [key]: r[key].map((it, j) => (j === i ? { ...it, ...patch } : it)) }));
+  const setItem = (key, i, patch) => {
+    setResult((r) => ({ ...r, [key]: r[key].map((it, j) => (j === i ? { ...it, ...patch } : it)) }));
+    // Si el usuario corrige el destino de un action item o riesgo hacia una
+    // track, o vuelve a incluir un item ya destinado a una track, esa track se
+    // suma a "Tracks de esta reunión" (reconcileTrackIds decide, respetando
+    // desmarque manual e items excluidos).
+    if (key === 'action_items' || key === 'riesgos') {
+      const isDestinoChange = patch.destino !== undefined;
+      const isIncluirChange = patch.incluir !== undefined;
+      if (isDestinoChange || isIncluirChange) {
+        const item = result[key][i];
+        const destino = isDestinoChange ? patch.destino : item.destino;
+        const incluir = isIncluirChange ? patch.incluir : item.incluir !== false;
+        setTrackIds((ids) => reconcileTrackIds(ids, uncheckedTrackIds, destino, incluir));
+      }
+    }
+  };
+  const toggleTrack = (id) => {
+    const next = toggleTrackId(trackIds, uncheckedTrackIds, id);
+    setTrackIds(next.trackIds);
+    setUncheckedTrackIds(next.uncheckedIds);
+  };
 
   // ---------- render ----------
   if (phase === 'loading') {
@@ -106,63 +138,11 @@ export default function ReunionProcesar({ trackId, cliente, track, onDone }) {
 
   if (phase === 'review' && result) {
     return (
-      <div className="space-y-4 bg-[#0b1626] border border-[#273647] rounded-xl p-3">
-        <div className="text-[11px] uppercase tracking-wide text-slate-400">Revisá y ajustá antes de guardar</div>
-        {err && <p className="text-[11px] text-rose-400 flex items-center gap-1"><AlertTriangle className="w-3.5 h-3.5" />{err}</p>}
-
-        <label className="block text-[11px] text-slate-400">Resumen
-          <textarea className={inputCls} rows={2} value={result.resumen} onChange={(e) => setR({ resumen: e.target.value })} />
-        </label>
-
-        <Section title="Decisiones">
-          {result.decisiones.map((d, i) => (
-            <Row key={i} incluir={d.incluir} onToggle={() => setItem('decisiones', i, { incluir: !d.incluir })}>
-              <input className={inputCls} value={d.texto} onChange={(e) => setItem('decisiones', i, { texto: e.target.value })} />
-            </Row>
-          ))}
-        </Section>
-
-        <Section title="Action items → tareas">
-          {result.action_items.map((a, i) => (
-            <Row key={i} incluir={a.incluir} onToggle={() => setItem('action_items', i, { incluir: !a.incluir })}>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-1.5 w-full">
-                <input className={inputCls} placeholder="Tarea" value={a.titulo} onChange={(e) => setItem('action_items', i, { titulo: e.target.value })} />
-                <input className={inputCls} placeholder="Responsable" value={a.responsable} onChange={(e) => setItem('action_items', i, { responsable: e.target.value })} />
-                <input type="date" className={inputCls} value={a.prazo} onChange={(e) => setItem('action_items', i, { prazo: e.target.value })} />
-              </div>
-            </Row>
-          ))}
-        </Section>
-
-        <Section title="Riesgos → RAID">
-          {result.riesgos.map((x, i) => (
-            <Row key={i} incluir={x.incluir} onToggle={() => setItem('riesgos', i, { incluir: !x.incluir })}>
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-1.5 w-full">
-                <input className={`${inputCls} md:col-span-2`} placeholder="Descripción" value={x.descricao} onChange={(e) => setItem('riesgos', i, { descricao: e.target.value })} />
-                <select className={inputCls} value={x.tipo} onChange={(e) => setItem('riesgos', i, { tipo: e.target.value })}>{RISK_TIPOS.map((t) => <option key={t} value={t}>{RISK_TIPO_LABEL[t]}</option>)}</select>
-                <select className={inputCls} value={x.severidade} onChange={(e) => setItem('riesgos', i, { severidade: e.target.value })}>{SEVERIDADES.map((s) => <option key={s} value={s}>{SEVERIDAD_LABEL[s]}</option>)}</select>
-              </div>
-            </Row>
-          ))}
-        </Section>
-
-        <Section title="Participantes → directorio">
-          {result.participantes.map((p, i) => (
-            <Row key={i} incluir={p.incluir} onToggle={() => setItem('participantes', i, { incluir: !p.incluir })}>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-1.5 w-full items-center">
-                <input className={inputCls} placeholder="Nombre" value={p.nombre} onChange={(e) => setItem('participantes', i, { nombre: e.target.value })} />
-                <input className={inputCls} placeholder="Email" value={p.email} onChange={(e) => setItem('participantes', i, { email: e.target.value })} />
-                <span className="text-[10px] text-slate-500">{p.existe ? 'ya en directorio' : 'nuevo'}</span>
-              </div>
-            </Row>
-          ))}
-        </Section>
-
-        <div className="flex gap-2">
-          <button disabled={saving} onClick={guardar} className={btnGold}>{saving ? 'Guardando…' : 'Guardar reunión'}</button>
-          <button onClick={() => setPhase('input')} className="text-xs text-slate-400 px-2">Volver</button>
-        </div>
-      </div>
+      <ReunionRevision
+        result={result} tracks={tracks} trackIds={trackIds} saving={saving} err={err}
+        onChangeResult={setR} onChangeItem={setItem} onToggleTrack={toggleTrack}
+        onGuardar={guardar} onVolver={() => setPhase('input')}
+      />
     );
   }
 
@@ -195,26 +175,8 @@ export default function ReunionProcesar({ trackId, cliente, track, onDone }) {
         </label>
         <button onClick={procesar} disabled={!engines.length} className={btnGold}>Procesar con IA</button>
       </div>
+      <p className="text-[10px] text-slate-500">La IA propone a qué track va cada item; vos lo corregís antes de guardar.</p>
       {!engines.length && <p className="text-[10px] text-amber-300">Configurá una API key (ej.: GEMINI_API_KEY) en Vercel para habilitar el procesamiento.</p>}
-    </div>
-  );
-}
-
-function Section({ title, children }) {
-  return (
-    <div>
-      <div className="text-[10px] uppercase tracking-wide text-slate-500 mb-1">{title}</div>
-      <div className="space-y-1.5">{children}</div>
-      {(!children || (Array.isArray(children) && !children.length)) && <div className="text-[11px] text-slate-500">— nada —</div>}
-    </div>
-  );
-}
-
-function Row({ incluir, onToggle, children }) {
-  return (
-    <div className="flex items-start gap-2">
-      <button onClick={onToggle} title={incluir ? 'Incluir' : 'Omitir'} className={`mt-1.5 w-4 h-4 rounded border grid place-items-center flex-none ${incluir ? 'bg-emerald-500/25 border-emerald-400 text-emerald-300' : 'border-slate-500 text-transparent'}`}>✓</button>
-      <div className="flex-1">{children}</div>
     </div>
   );
 }

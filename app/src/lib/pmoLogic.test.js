@@ -54,6 +54,23 @@ describe('avanceProjeto', () => {
     const r = avanceProjeto([{ id: 'a', avance: null }, { id: 'b', avance: null }], { a: [], b: [] });
     expect(r).toEqual({ pct: 0, hasData: false });
   });
+  it('tareas transversales (projeto_id) entram como pseudo-track adicional en el promedio', () => {
+    const tracks = [{ id: 'a', avance: null }, { id: 'b', avance: null }];
+    const byTrack = { a: [{ status: 'fechado' }, { status: 'aberto' }], b: [{ status: 'fechado' }] }; // 50 y 100
+    const tareasProjeto = [{ status: 'fechado' }, { status: 'aberto' }, { status: 'aberto' }, { status: 'aberto' }]; // 25
+    expect(avanceProjeto(tracks, byTrack, tareasProjeto)).toEqual({ pct: 58, hasData: true }); // (50+100+25)/3 = 58.33 -> 58
+  });
+  it('conjunto transversal vacío no cambia el resultado (parámetro opcional)', () => {
+    const tracks = [{ id: 'a', avance: null }, { id: 'b', avance: null }];
+    const byTrack = { a: [{ status: 'fechado' }, { status: 'aberto' }], b: [{ status: 'fechado' }] };
+    expect(avanceProjeto(tracks, byTrack, [])).toEqual(avanceProjeto(tracks, byTrack));
+  });
+  it('proyecto solo con tareas transversales (sin datos de tracks) igual reporta hasData true', () => {
+    const tracks = [{ id: 'a', avance: null }];
+    const byTrack = { a: [] }; // track sin tareas => sin datos
+    const tareasProjeto = [{ status: 'fechado' }, { status: 'fechado' }, { status: 'aberto' }, { status: 'aberto' }]; // 50
+    expect(avanceProjeto(tracks, byTrack, tareasProjeto)).toEqual({ pct: 50, hasData: true });
+  });
 });
 
 describe('ragTrack', () => {
@@ -83,6 +100,23 @@ describe('ragProjeto', () => {
   });
   it('override do projeto vence', () => {
     expect(ragProjeto({ rag_override: 'amarelo' }, [], {}, {}, TODAY)).toBe('amarelo');
+  });
+  it('tarea transversal (projeto_id) bloqueada pone rojo aunque las tracks estén verdes', () => {
+    const tracks = [{ id: 'a', rag_override: null, waiver_hasta: null }];
+    const byTrack = { a: [{ status: 'aberto' }] };
+    const tareasProjeto = [{ status: 'bloqueada' }];
+    expect(ragProjeto({ rag_override: null }, tracks, byTrack, {}, TODAY, 7, tareasProjeto)).toBe('rojo');
+  });
+  it('tarea transversal (projeto_id) que vence dentro de la ventana amarilla pone amarelo', () => {
+    const tracks = [{ id: 'a', rag_override: null, waiver_hasta: null }];
+    const byTrack = { a: [{ status: 'aberto' }] };
+    const tareasProjeto = [{ status: 'aberto', previsao_entrega: '2026-08-01' }]; // 5 días
+    expect(ragProjeto({ rag_override: null }, tracks, byTrack, {}, TODAY, 7, tareasProjeto)).toBe('amarelo');
+  });
+  it('sin tareas transversales no cambia el resultado (parámetro opcional)', () => {
+    const tracks = [{ id: 'a', rag_override: null, waiver_hasta: null }];
+    const byTrack = { a: [{ status: 'aberto' }] };
+    expect(ragProjeto({ rag_override: null }, tracks, byTrack, {}, TODAY)).toBe('verde');
   });
 });
 

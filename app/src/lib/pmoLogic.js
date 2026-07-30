@@ -31,10 +31,15 @@ export function avanceTrack(track, tareas) {
   return { pct: Math.round((done / total) * 100), hasData: true };
 }
 
-export function avanceProjeto(tracks, tareasByTrack) {
+export function avanceProjeto(tracks, tareasByTrack, tareasProjeto = []) {
   const withData = tracks
     .map((tr) => avanceTrack(tr, tareasByTrack[tr.id] || []))
     .filter((a) => a.hasData);
+  // Tareas transversales (projeto_id, sin track) entram no promedio como una pseudo-track
+  // adicional, con la misma regla de datos/porcentaje de avanceTrack (sin override manual,
+  // pues no hay track). Solo cuenta si tiene tareas — no fabricar dados.
+  const pseudo = avanceTrack(null, tareasProjeto);
+  if (pseudo.hasData) withData.push(pseudo);
   if (!withData.length) return { pct: 0, hasData: false };
   return { pct: Math.round(withData.reduce((acc, a) => acc + a.pct, 0) / withData.length), hasData: true };
 }
@@ -52,12 +57,22 @@ export function ragTrack(track, tareas, marcos, todayIso, amberDays = 7) {
   return 'verde';
 }
 
-export function ragProjeto(projeto, tracks, tareasByTrack, marcosByTrack, todayIso, amberDays = 7) {
+export function ragProjeto(projeto, tracks, tareasByTrack, marcosByTrack, todayIso, amberDays = 7, tareasProjeto = []) {
   if (projeto && projeto.rag_override) return projeto.rag_override;
   let worst = 0;
   for (const tr of tracks) {
     const r = ragTrack(tr, tareasByTrack[tr.id] || [], marcosByTrack[tr.id] || [], todayIso, amberDays);
     worst = Math.max(worst, RAG_RANK[r]);
+  }
+  // Tareas transversales (projeto_id, sin track): misma semántica de ragTrack,
+  // sin marcos ni waiver porque esos conceptos viven en la track.
+  const hasBlocked = tareasProjeto.some((t) => t.status === 'bloqueada');
+  if (hasBlocked) {
+    worst = Math.max(worst, RAG_RANK.rojo);
+  } else {
+    const within = (iso) => { const d = daysTo(iso, todayIso); return d != null && d >= 0 && d <= amberDays; };
+    const tareaSoon = tareasProjeto.some((t) => t.status !== 'fechado' && within(t.previsao_entrega));
+    if (tareaSoon) worst = Math.max(worst, RAG_RANK.amarelo);
   }
   return RANK_RAG[worst];
 }

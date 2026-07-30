@@ -36,7 +36,10 @@ create index if not exists riscos_track_idx on riscos(track_id);
 do $$ begin
   alter table riscos drop constraint if exists riscos_projeto_id_check1;
 exception when others then null; end $$;
--- nota: se a tabela já existia com o check antigo, ajustar manualmente é opcional (a UI só cria riscos por track).
+-- nota: se a tabela já existia com o check antigo, ajustar manualmente é opcional — verificado
+-- na base viva que o check XOR (projeto_id, track_id) já funciona corretamente (insert só com
+-- projeto_id sucede; setar as duas colunas falha com 23514), então nenhuma migração é necessária.
+-- A UI cria riscos tanto por track quanto no nível do projeto.
 
 -- 3. tareas: cierre + origen
 alter table tareas add column if not exists data_fechamento date;
