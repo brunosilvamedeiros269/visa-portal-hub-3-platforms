@@ -107,7 +107,7 @@ function projetoResumo(m, proj, today) {
   const tracks = m.tracksByProjeto[proj.id] || [];
   const tareasProjeto = m.tareasByProjeto[proj.id] || [];
   const rag = ragProjeto(proj, tracks, m.tareasByTrack, m.marcosByTrack, today, 7, tareasProjeto);
-  const av = avanceProjeto(tracks, m.tareasByTrack);
+  const av = avanceProjeto(tracks, m.tareasByTrack, tareasProjeto);
   // próximo marco entre todos os tracks do projeto
   const allMarcos = tracks.flatMap((t) => m.marcosByTrack[t.id] || []);
   const marco = nextMarco(allMarcos, today);

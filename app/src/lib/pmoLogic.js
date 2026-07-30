@@ -31,10 +31,15 @@ export function avanceTrack(track, tareas) {
   return { pct: Math.round((done / total) * 100), hasData: true };
 }
 
-export function avanceProjeto(tracks, tareasByTrack) {
+export function avanceProjeto(tracks, tareasByTrack, tareasProjeto = []) {
   const withData = tracks
     .map((tr) => avanceTrack(tr, tareasByTrack[tr.id] || []))
     .filter((a) => a.hasData);
+  // Tareas transversales (projeto_id, sin track) entram no promedio como una pseudo-track
+  // adicional, con la misma regla de datos/porcentaje de avanceTrack (sin override manual,
+  // pues no hay track). Solo cuenta si tiene tareas — no fabricar dados.
+  const pseudo = avanceTrack(null, tareasProjeto);
+  if (pseudo.hasData) withData.push(pseudo);
   if (!withData.length) return { pct: 0, hasData: false };
   return { pct: Math.round(withData.reduce((acc, a) => acc + a.pct, 0) / withData.length), hasData: true };
 }

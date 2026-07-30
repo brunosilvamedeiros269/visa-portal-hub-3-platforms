@@ -54,6 +54,23 @@ describe('avanceProjeto', () => {
     const r = avanceProjeto([{ id: 'a', avance: null }, { id: 'b', avance: null }], { a: [], b: [] });
     expect(r).toEqual({ pct: 0, hasData: false });
   });
+  it('tareas transversales (projeto_id) entram como pseudo-track adicional en el promedio', () => {
+    const tracks = [{ id: 'a', avance: null }, { id: 'b', avance: null }];
+    const byTrack = { a: [{ status: 'fechado' }, { status: 'aberto' }], b: [{ status: 'fechado' }] }; // 50 y 100
+    const tareasProjeto = [{ status: 'fechado' }, { status: 'aberto' }, { status: 'aberto' }, { status: 'aberto' }]; // 25
+    expect(avanceProjeto(tracks, byTrack, tareasProjeto)).toEqual({ pct: 58, hasData: true }); // (50+100+25)/3 = 58.33 -> 58
+  });
+  it('conjunto transversal vacío no cambia el resultado (parámetro opcional)', () => {
+    const tracks = [{ id: 'a', avance: null }, { id: 'b', avance: null }];
+    const byTrack = { a: [{ status: 'fechado' }, { status: 'aberto' }], b: [{ status: 'fechado' }] };
+    expect(avanceProjeto(tracks, byTrack, [])).toEqual(avanceProjeto(tracks, byTrack));
+  });
+  it('proyecto solo con tareas transversales (sin datos de tracks) igual reporta hasData true', () => {
+    const tracks = [{ id: 'a', avance: null }];
+    const byTrack = { a: [] }; // track sin tareas => sin datos
+    const tareasProjeto = [{ status: 'fechado' }, { status: 'fechado' }, { status: 'aberto' }, { status: 'aberto' }]; // 50
+    expect(avanceProjeto(tracks, byTrack, tareasProjeto)).toEqual({ pct: 50, hasData: true });
+  });
 });
 
 describe('ragTrack', () => {
