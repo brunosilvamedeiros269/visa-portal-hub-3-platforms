@@ -26,6 +26,20 @@ export function destinoInicial(item, tracks) {
   return hit ? hit.id : PROYECTO;
 }
 
+// Arma el payload `contexto` que se envía a procesarMinuta (api/minutaLib.js).
+// Acá pasa la traducción crítica: `tracks` viene de la base con la columna
+// `nome` (portugués) y el contrato de la API espera `nombre` (español). Esta
+// es exactamente la línea que causó el bug silencioso — leer `t.nombre` de la
+// fila cruda devolvía siempre undefined y la IA nunca recibía los nombres de
+// las tracks — por eso está separada y bajo test.
+export function buildContexto(cliente, proyecto, tracks) {
+  return {
+    cliente,
+    proyecto: proyecto && proyecto.nome,
+    tracks: (tracks || []).map((t) => ({ nombre: t.nome, frente: t.frente, proximo_paso: t.proximo_paso })),
+  };
+}
+
 export function destinoFields(destino, projetoId) {
   return destino === PROYECTO
     ? { track_id: null, projeto_id: projetoId }

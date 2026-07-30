@@ -1,4 +1,8 @@
 import React from 'react';
+// RISK_TIPOS/SEVERIDADES son valores puros (sin React) que lib/minutaRevision.js
+// también necesita; viven en lib/ y acá solo se reexportan para no duplicarlos.
+import { RISK_TIPOS, SEVERIDADES } from '../lib/raidConstants';
+export { RISK_TIPOS, SEVERIDADES };
 
 // [label ES, classes badge, cor do ponto]
 export const TRACK_STATUS = {
@@ -56,10 +60,8 @@ export function ProgressBar({ pct }) {
 
 export const ORIGENES = ['manual', 'reunion', 'prerequisito', 'riesgo'];
 export const ORIGEN_LABEL = { manual: 'Manual', reunion: 'Reunión', prerequisito: 'Prerequisito', riesgo: 'Riesgo' };
-export const SEVERIDADES = ['alta', 'media', 'baja'];
 export const SEVERIDAD_LABEL = { alta: 'Alta', media: 'Media', baja: 'Baja' };
 export const SEVERIDAD_COLOR = { alta: '#fb7185', media: '#fbbf24', baja: '#94a3b8' };
-export const RISK_TIPOS = ['riesgo', 'issue'];
 export const RISK_TIPO_LABEL = { riesgo: 'Riesgo', issue: 'Issue' };
 export const RISK_STATUSES = ['abierto', 'en_mitigacion', 'cerrado'];
 export const RISK_STATUS_LABEL = { abierto: 'Abierto', en_mitigacion: 'En mitigación', cerrado: 'Cerrado' };

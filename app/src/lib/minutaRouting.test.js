@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   PROYECTO, normalizeName, matchTrack, destinoInicial, destinoFields, resumenRateo, tracksConItems,
-  reconcileTrackIds, toggleTrackId,
+  reconcileTrackIds, toggleTrackId, buildContexto,
 } from './minutaRouting';
 
 // Filas crudas de la base: la columna es `nome` (portugués), no `nombre`.
@@ -111,6 +111,28 @@ describe('reconcileTrackIds', () => {
   });
   it('re-incluir un item ya destinado a una track sí la agrega', () => {
     expect(reconcileTrackIds(['t-ctp'], [], 't-ap', true)).toEqual(['t-ctp', 't-ap']);
+  });
+});
+
+describe('buildContexto', () => {
+  // Regresión del bug crítico: la fila de track como la devuelve la base
+  // (columna `nome`, sin `nombre`) tiene que salir con `nombre` poblado en el
+  // contexto que se manda a la IA. Si alguien vuelve a leer `t.nombre` acá,
+  // este test falla porque `nombre` sale undefined.
+  it('traduce filas crudas de la base (columna `nome`) a `nombre` en el contexto', () => {
+    const trackRow = { id: 't-tok', projeto_id: 'p-1', nome: 'Tokenización Tarjeta Débito', frente: 'Tokenização TD', status: 'Em curso', proximo_paso: 'Certificación' };
+    const ctx = buildContexto('Banco Alfa', { nome: 'Implementación Apple Pay' }, [trackRow]);
+    expect(ctx.tracks).toEqual([{ nombre: 'Tokenización Tarjeta Débito', frente: 'Tokenização TD', proximo_paso: 'Certificación' }]);
+    expect(ctx.tracks[0].nombre).toBeTruthy();
+  });
+  it('arma cliente y proyecto tal cual', () => {
+    const ctx = buildContexto('Banco Alfa', { nome: 'Implementación Apple Pay' }, []);
+    expect(ctx.cliente).toBe('Banco Alfa');
+    expect(ctx.proyecto).toBe('Implementación Apple Pay');
+    expect(ctx.tracks).toEqual([]);
+  });
+  it('sin tracks → lista vacía, no throw', () => {
+    expect(buildContexto('X', { nome: 'Y' }, undefined).tracks).toEqual([]);
   });
 });
 

@@ -3,8 +3,9 @@ import { Upload, Loader2, AlertTriangle } from 'lucide-react';
 import { extractText } from '../lib/extractText';
 import { enginesDisponibles, procesarMinuta } from '../services/ai';
 import { createReunionMultiTrack, createTarea, createRisco, fetchContactos, insertContacto, updateContacto } from '../services/data';
-import { destinoInicial, destinoFields, tracksConItems, reconcileTrackIds, toggleTrackId } from '../lib/minutaRouting';
-import { inputCls, btnGold, SEVERIDADES, RISK_TIPOS } from './trackingUi';
+import { destinoFields, tracksConItems, reconcileTrackIds, toggleTrackId, buildContexto } from '../lib/minutaRouting';
+import { buildRevisionResult } from '../lib/minutaRevision';
+import { inputCls, btnGold } from './trackingUi';
 import ReunionRevision from './ReunionRevision';
 
 const norm = (s) => (s || '').trim().toLowerCase();
@@ -44,38 +45,12 @@ export default function ReunionProcesar({ proyecto, cliente, tracks, onDone }) {
     if (!texto.trim()) { setErr('Subí un archivo o pegá la transcripción'); return; }
     setErr(null); setPhase('loading');
     try {
-      const ctx = {
-        cliente,
-        proyecto: proyecto.nome,
-        // `tracks` viene de la base (columna `nome`, portugués); acá se traduce
-        // al contrato en español que espera api/minutaLib.js.
-        tracks: tracks.map((t) => ({ nombre: t.nome, frente: t.frente, proximo_paso: t.proximo_paso })),
-      };
+      const ctx = buildContexto(cliente, proyecto, tracks);
       const r = await procesarMinuta(engine, texto, ctx);
-      // Pre-rellena email de participantes desde el directorio + marca "incluir" en todo
-      const byName = Object.fromEntries(contactos.map((c) => [norm(c.nombre), c]));
-      const participantes = (r.participantes || []).map((p) => {
-        const hit = byName[norm(p.nombre)];
-        return { nombre: p.nombre || '', email: p.email || hit?.email || '', organizacion: p.organizacion || hit?.organizacion || '', incluir: true, existe: Boolean(hit) };
-      });
-      const action_items = (r.action_items || []).map((a) => ({
-        titulo: a.titulo || '', responsable: a.responsable || '', prazo: (a.prazo || '').slice(0, 10),
-        destino: destinoInicial(a, tracks), incluir: true,
-      }));
-      const riesgos = (r.riesgos || []).map((x) => ({
-        descricao: x.descricao || '',
-        tipo: RISK_TIPOS.includes(x.tipo) ? x.tipo : 'riesgo',
-        severidade: SEVERIDADES.includes(x.severidade) ? x.severidade : 'media',
-        dueno: x.dueno || '',
-        destino: destinoInicial(x, tracks), incluir: true,
-      }));
-      setResult({
-        resumen: r.resumen || '',
-        decisiones: (r.decisiones || []).map((d) => ({ texto: typeof d === 'string' ? d : (d.texto || ''), incluir: true })),
-        action_items, riesgos, participantes,
-      });
+      const nextResult = buildRevisionResult(r, tracks, contactos);
+      setResult(nextResult);
       // Pré-marca as tracks que receberam algum item; o usuário ajusta na revisão.
-      setTrackIds(tracksConItems(action_items, riesgos));
+      setTrackIds(tracksConItems(nextResult.action_items, nextResult.riesgos));
       setUncheckedTrackIds([]);
       setPhase('review');
     } catch (x) { setErr(x.message); setPhase('input'); }
