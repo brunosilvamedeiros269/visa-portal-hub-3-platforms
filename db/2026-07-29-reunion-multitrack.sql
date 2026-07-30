@@ -16,3 +16,14 @@ do $$ begin
   alter table tareas add constraint tareas_scope_chk
     check ((projeto_id is null) <> (track_id is null));
 exception when duplicate_object then null; end $$;
+
+-- 3. Backfill de reuniones creadas antes de este bloque: el `createReuniaoParaTrack`
+-- que existía entonces nunca seteaba `reunioes.projeto_id` (solo ligaba por
+-- reunion_tracks), así que el card "Reuniones del proyecto" — que filtra por
+-- `reunioes.projeto_id` — no las mostraba. Idempotente: solo toca filas con
+-- projeto_id nulo que tengan una track ligada.
+update reunioes r
+set projeto_id = t.projeto_id
+from reunion_tracks rt
+join tracks t on t.id = rt.track_id
+where rt.reuniao_id = r.id and r.projeto_id is null;
