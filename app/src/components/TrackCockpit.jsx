@@ -3,8 +3,9 @@ import {
   ArrowLeft, Flag, CalendarClock, Link2, AlertTriangle, Users,
 } from 'lucide-react';
 import {
-  Badge, fmtDate, stDot, stLabel,
-  TAREA_ORDER, TAREA_CYCLE, RagDot, ProgressBar, RAG_COLOR, RAG_LABEL,
+  Badge, fmtDate, stDot, stLabel, stClass,
+  TAREA_ORDER, TAREA_CYCLE, TRACK_STATUSES, RagDot, ProgressBar, RAG_COLOR, RAG_LABEL,
+  inputCls, btnGold,
 } from './trackingUi';
 import { updateTrack, updateTareaStatus, updatePrereq } from '../services/data';
 import { ragTrack, avanceTrack, todayISO, countVencidas, countBloqueadas, isOverdue } from '../lib/pmoLogic';
@@ -67,6 +68,60 @@ function ReunionesCard({ reuniones }) {
   );
 }
 
+// El estado de la track se elegía sólo en el alta: acá se puede corregir sin
+// salir del cockpit. Es un select porque son 6 valores fijos — ciclar como en
+// las tareas obligaría a dar la vuelta entera para volver uno atrás.
+function StatusEditable({ value, onSave }) {
+  const [editing, setEditing] = useState(false);
+  if (!editing) {
+    return (
+      <button onClick={() => setEditing(true)} title="Cambiar estado" className="group inline-flex items-center gap-1">
+        <Badge v={value} className="group-hover:brightness-125" />
+        <span className="text-slate-600 group-hover:text-[#FAA61A] text-[10px]">✎</span>
+      </button>
+    );
+  }
+  return (
+    <select
+      autoFocus
+      className={`text-[11px] px-2 py-1 rounded-full font-semibold border outline-none ${stClass(value)}`}
+      value={value || ''}
+      onBlur={() => setEditing(false)}
+      onChange={(e) => { setEditing(false); if (e.target.value !== value) onSave(e.target.value); }}
+    >
+      {TRACK_STATUSES.map((s) => <option key={s} value={s} className="bg-[#0b1626] text-slate-100">{stLabel(s)}</option>)}
+    </select>
+  );
+}
+
+// "Próximo paso" es lo primero que envejece después de una reunión y hasta acá
+// era sólo de lectura: se editaba escribiendo en la base por fuera del app.
+function ProximoPaso({ value, onSave }) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(value || '');
+  const abrir = () => { setDraft(value || ''); setEditing(true); };
+  const guardar = () => { setEditing(false); const v = draft.trim(); if (v !== (value || '')) onSave(v || null); };
+  return (
+    <div className="bg-[#1C2B3C] border border-[#273647] border-l-[3px] border-l-[#FAA61A] rounded-xl p-3 mb-5">
+      <div className="text-[10px] uppercase tracking-wide text-slate-400 mb-1 flex items-center justify-between">
+        Próximo paso
+        {!editing && <button onClick={abrir} className="text-slate-500 hover:text-[#FAA61A]" title="Editar próximo paso">✎</button>}
+      </div>
+      {editing ? (
+        <div className="space-y-2">
+          <textarea autoFocus rows={3} className={inputCls} value={draft} placeholder="¿Qué sigue en esta track?" onChange={(e) => setDraft(e.target.value)} />
+          <div className="flex gap-2 items-center">
+            <button onClick={guardar} className={btnGold}>Guardar</button>
+            <button onClick={() => setEditing(false)} className="text-xs text-slate-400">Cancelar</button>
+          </div>
+        </div>
+      ) : (
+        <div className={`text-[13px] ${value ? 'text-slate-200' : 'text-slate-500 italic'}`}>{value || 'Sin definir — hacé clic en ✎ para escribirlo.'}</div>
+      )}
+    </div>
+  );
+}
+
 export default function TrackCockpit({ track, cliente, csm, personas, prereqs, reunioes, deps, tareas, marcos, riscos, documentos, onBack, onChange }) {
   const [err, setErr] = useState(null);
   const [view, setView] = useState('lista'); // 'lista' | 'tablero' — Lista es el layout aprobado
@@ -78,6 +133,7 @@ export default function TrackCockpit({ track, cliente, csm, personas, prereqs, r
 
   const setRag = async (val) => { setErr(null); try { await updateTrack(track.id, { rag_override: val }); onChange(); } catch (e) { setErr(e.message); } };
   const setAvance = async (val) => { if (val !== null && Number.isNaN(val)) { setErr('Avance inválido'); return; } setErr(null); try { await updateTrack(track.id, { avance: val }); onChange(); } catch (e) { setErr(e.message); } };
+  const setCampo = async (fields) => { setErr(null); try { await updateTrack(track.id, fields); onChange(); } catch (e) { setErr(e.message); } };
 
   const togglePrereq = async (p) => {
     setErr(null);
@@ -102,8 +158,8 @@ export default function TrackCockpit({ track, cliente, csm, personas, prereqs, r
             <span className="text-[11px] px-2.5 py-1 rounded-full font-semibold border text-blue-300 bg-blue-500/15 border-blue-500/25">{cliente?.nome?.split('—')[0]?.trim() || cliente?.nome}</span>
             {track.frente && <span className="text-[11px] px-2.5 py-1 rounded-full font-semibold border text-[#FAA61A] bg-[#FAA61A]/12 border-[#FAA61A]/25">{track.frente}</span>}
             {track.ruta_critica && <span className="text-[11px] px-2.5 py-1 rounded-full font-semibold border text-[#FAA61A] bg-[#FAA61A]/12 border-[#FAA61A]/25">Ruta crítica</span>}
-            <Badge v={track.status} />
-            {track.waiver_hasta && <span className="text-[11px] px-2.5 py-1 rounded-full font-semibold border text-rose-300 bg-rose-500/15 border-rose-500/25">Waiver: {fmtDate(track.waiver_hasta)}</span>}
+            <StatusEditable value={track.status} onSave={(v) => setCampo({ status: v })} />
+            {track.waiver_hasta &&<span className="text-[11px] px-2.5 py-1 rounded-full font-semibold border text-rose-300 bg-rose-500/15 border-rose-500/25">Waiver: {fmtDate(track.waiver_hasta)}</span>}
             {csm && <span className="text-[11px] px-2.5 py-1 rounded-full border border-[#273647] text-slate-300">CSM: {csm}</span>}
             <span className="text-[11px] px-2.5 py-1 rounded-full border border-[#273647] text-slate-300">TPM: {track.technical_pm || '—'}</span>
             {track.responsavel && <span className="text-[11px] px-2.5 py-1 rounded-full border border-[#273647] text-slate-300">Responsable: {track.responsavel}</span>}
@@ -132,12 +188,7 @@ export default function TrackCockpit({ track, cliente, csm, personas, prereqs, r
 
       {av.hasData && <div className="mb-5"><ProgressBar pct={av.pct} /></div>}
 
-      {track.proximo_paso && (
-        <div className="bg-[#1C2B3C] border border-[#273647] border-l-[3px] border-l-[#FAA61A] rounded-xl p-3 mb-5">
-          <div className="text-[10px] uppercase tracking-wide text-slate-400 mb-1">Próximo paso</div>
-          <div className="text-[13px] text-slate-200">{track.proximo_paso}</div>
-        </div>
-      )}
+      <ProximoPaso value={track.proximo_paso} onSave={(v) => setCampo({ proximo_paso: v })} />
 
       {err && <div className="text-xs text-amber-300 bg-amber-500/10 border border-amber-500/25 rounded-lg px-3 py-2 mb-3 flex items-center gap-2"><AlertTriangle className="w-3.5 h-3.5" /> {err}</div>}
 
