@@ -11,6 +11,7 @@ import { todayISO, ragProjeto, avanceProjeto, ragTrack, avanceTrack, nextMarco, 
 import TrackCockpit from './TrackCockpit';
 import ReunionProcesar from './ReunionProcesar';
 import TareasTable from './TareasTable';
+import RaidList from './RaidList';
 
 // ---------- formulários ----------
 function Collapsible({ label, children }) {
@@ -357,21 +358,26 @@ export default function TrackingView() {
           <Kpi n={r.bloqueadas} label="Bloqueadas" danger />
           <Kpi n={r.vencidas} label="Vencidas" danger />
         </div>
-        {(() => {
-          const riesgos = [...(m.riscosByProjeto[proj.id] || []), ...r.tracks.flatMap((t) => (m.riscosByTrack[t.id] || []).map((x) => ({ ...x, _track: t.nome })))];
-          if (!riesgos.length) return null;
-          return (
-            <div className="bg-[#122131]/60 border border-[#273647] rounded-2xl p-4 mb-5">
-              <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-2">Riesgos &amp; Issues del proyecto</h3>
-              {riesgos.map((x) => (
-                <div key={x.id} className="flex gap-2 py-1.5 border-t border-[#273647]/60 first:border-0 text-[12.5px]">
-                  <span className="w-1 rounded self-stretch flex-none" style={{ background: SEVERIDAD_COLOR[x.severidade] || '#94a3b8' }} />
-                  <div><div className="text-slate-200">{x.descricao}</div><div className="text-[10px] text-slate-500">{RISK_TIPO_LABEL[x.tipo]} · {SEVERIDAD_LABEL[x.severidade]} · {x.dueno || '—'} · {RISK_STATUS_LABEL[x.status]}{x._track ? ` · ${x._track}` : ''}</div></div>
-                </div>
-              ))}
-            </div>
-          );
-        })()}
+        <div className="bg-[#122131]/60 border border-[#273647] rounded-2xl p-4 mb-5">
+          <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-2">Riesgos &amp; Issues del proyecto</h3>
+          <RaidList scope={{ projeto_id: proj.id }} riscos={m.riscosByProjeto[proj.id] || []} onChange={load} />
+          {(() => {
+            // Riesgos de las tracks: solo contexto acá, se gestionan en el cockpit de cada track.
+            const riesgosTracks = r.tracks.flatMap((t) => (m.riscosByTrack[t.id] || []).map((x) => ({ ...x, _track: t.nome })));
+            if (!riesgosTracks.length) return null;
+            return (
+              <div className="mt-3 pt-3 border-t border-[#273647]/60">
+                <div className="text-[10px] uppercase tracking-wide text-slate-500 mb-1.5">De las tracks (contexto, se gestionan en cada track)</div>
+                {riesgosTracks.map((x) => (
+                  <div key={x.id} className="flex gap-2 py-1.5 border-t border-[#273647]/60 first:border-0 text-[12.5px]">
+                    <span className="w-1 rounded self-stretch flex-none" style={{ background: SEVERIDAD_COLOR[x.severidade] || '#94a3b8' }} />
+                    <div><div className="text-slate-200">{x.descricao}</div><div className="text-[10px] text-slate-500">{RISK_TIPO_LABEL[x.tipo]} · {SEVERIDAD_LABEL[x.severidade]} · {x.dueno || '—'} · {RISK_STATUS_LABEL[x.status]} · {x._track}</div></div>
+                  </div>
+                ))}
+              </div>
+            );
+          })()}
+        </div>
         <ReunionesProyectoCard
           proyecto={proj} cliente={cli?.nome} tracks={tracks}
           reuniones={m.reunioesByProjeto[proj.id] || []} onChange={load}

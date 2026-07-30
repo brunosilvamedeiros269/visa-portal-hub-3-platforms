@@ -156,7 +156,7 @@ export default function TrackCockpit({ track, cliente, csm, personas, prereqs, r
               : <TableroKanban tareas={tareas} onChange={onChange} today={today} onError={setErr} />}
           </div>
           <MarcosList trackId={track.id} marcos={marcos} onChange={onChange} />
-          <RaidList trackId={track.id} riscos={riscos} onChange={onChange} />
+          <RaidList scope={{ track_id: track.id }} riscos={riscos} onChange={onChange} />
         </div>
 
         <div className="space-y-4">
