@@ -59,9 +59,13 @@ export function tracksConItems(...listas) {
 }
 
 // Concilia "Tracks de esta reunión" cuando el usuario corrige a mano el destino
-// de un item hacia una track: esa track se suma a trackIds, salvo que el usuario
-// ya la haya desmarcado explícitamente — el desmarque manual siempre gana.
-export function reconcileTrackIds(trackIds, uncheckedIds, destino) {
+// de un item hacia una track (o lo vuelve a incluir): esa track se suma a
+// trackIds, salvo que el usuario ya la haya desmarcado explícitamente — el
+// desmarque manual siempre gana — o que el item esté excluido (`incluir: false`),
+// porque un item excluido no genera tarea ni riesgo y no debería arrastrar su
+// track a la reunión.
+export function reconcileTrackIds(trackIds, uncheckedIds, destino, incluir = true) {
+  if (incluir === false) return trackIds;
   if (!destino || destino === PROYECTO) return trackIds;
   if (trackIds.includes(destino) || (uncheckedIds || []).includes(destino)) return trackIds;
   return [...trackIds, destino];

@@ -135,10 +135,19 @@ export default function ReunionProcesar({ proyecto, cliente, tracks, onDone }) {
   const setR = (patch) => setResult((r) => ({ ...r, ...patch }));
   const setItem = (key, i, patch) => {
     setResult((r) => ({ ...r, [key]: r[key].map((it, j) => (j === i ? { ...it, ...patch } : it)) }));
-    // Si el usuario corrigió el destino de un action item o riesgo hacia una
-    // track, esa track se suma a "Tracks de esta reunión" (salvo desmarque manual).
-    if ((key === 'action_items' || key === 'riesgos') && patch.destino) {
-      setTrackIds((ids) => reconcileTrackIds(ids, uncheckedTrackIds, patch.destino));
+    // Si el usuario corrige el destino de un action item o riesgo hacia una
+    // track, o vuelve a incluir un item ya destinado a una track, esa track se
+    // suma a "Tracks de esta reunión" (reconcileTrackIds decide, respetando
+    // desmarque manual e items excluidos).
+    if (key === 'action_items' || key === 'riesgos') {
+      const isDestinoChange = patch.destino !== undefined;
+      const isIncluirChange = patch.incluir !== undefined;
+      if (isDestinoChange || isIncluirChange) {
+        const item = result[key][i];
+        const destino = isDestinoChange ? patch.destino : item.destino;
+        const incluir = isIncluirChange ? patch.incluir : item.incluir !== false;
+        setTrackIds((ids) => reconcileTrackIds(ids, uncheckedTrackIds, destino, incluir));
+      }
     }
   };
   const toggleTrack = (id) => {

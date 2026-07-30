@@ -106,6 +106,12 @@ describe('reconcileTrackIds', () => {
     expect(reconcileTrackIds(['t-ctp'], [], PROYECTO)).toEqual(['t-ctp']);
     expect(reconcileTrackIds(['t-ctp'], [], '')).toEqual(['t-ctp']);
   });
+  it('un item excluido que cambia de destino no agrega la track', () => {
+    expect(reconcileTrackIds(['t-ctp'], [], 't-ap', false)).toEqual(['t-ctp']);
+  });
+  it('re-incluir un item ya destinado a una track sí la agrega', () => {
+    expect(reconcileTrackIds(['t-ctp'], [], 't-ap', true)).toEqual(['t-ctp', 't-ap']);
+  });
 });
 
 describe('toggleTrackId', () => {
