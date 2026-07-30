@@ -3,7 +3,7 @@ import { Upload, Loader2, AlertTriangle } from 'lucide-react';
 import { extractText } from '../lib/extractText';
 import { enginesDisponibles, procesarMinuta } from '../services/ai';
 import { createReunionMultiTrack, createTarea, createRisco, fetchContactos, insertContacto, updateContacto } from '../services/data';
-import { PROYECTO, destinoInicial, destinoFields, tracksConItems } from '../lib/minutaRouting';
+import { destinoInicial, destinoFields, tracksConItems, reconcileTrackIds, toggleTrackId } from '../lib/minutaRouting';
 import { inputCls, btnGold, SEVERIDADES, RISK_TIPOS } from './trackingUi';
 import ReunionRevision from './ReunionRevision';
 
@@ -21,6 +21,9 @@ export default function ReunionProcesar({ proyecto, cliente, tracks, onDone }) {
   const [contactos, setContactos] = useState([]);
   const [result, setResult] = useState(null);
   const [trackIds, setTrackIds] = useState([]);
+  // Tracks que el usuario desmarcó a mano: reconcileTrackIds no las reingresa
+  // aunque un item se corrija después hacia ellas (el desmarque manual gana).
+  const [uncheckedTrackIds, setUncheckedTrackIds] = useState([]);
   const inputRef = useRef();
 
   useEffect(() => {
@@ -44,7 +47,9 @@ export default function ReunionProcesar({ proyecto, cliente, tracks, onDone }) {
       const ctx = {
         cliente,
         proyecto: proyecto.nome,
-        tracks: tracks.map((t) => ({ nombre: t.nombre, frente: t.frente, proximo_paso: t.proximo_paso })),
+        // `tracks` viene de la base (columna `nome`, portugués); acá se traduce
+        // al contrato en español que espera api/minutaLib.js.
+        tracks: tracks.map((t) => ({ nombre: t.nome, frente: t.frente, proximo_paso: t.proximo_paso })),
       };
       const r = await procesarMinuta(engine, texto, ctx);
       // Pre-rellena email de participantes desde el directorio + marca "incluir" en todo
@@ -71,6 +76,7 @@ export default function ReunionProcesar({ proyecto, cliente, tracks, onDone }) {
       });
       // Pré-marca as tracks que receberam algum item; o usuário ajusta na revisão.
       setTrackIds(tracksConItems(action_items, riesgos));
+      setUncheckedTrackIds([]);
       setPhase('review');
     } catch (x) { setErr(x.message); setPhase('input'); }
   };
@@ -127,7 +133,19 @@ export default function ReunionProcesar({ proyecto, cliente, tracks, onDone }) {
   };
 
   const setR = (patch) => setResult((r) => ({ ...r, ...patch }));
-  const setItem = (key, i, patch) => setResult((r) => ({ ...r, [key]: r[key].map((it, j) => (j === i ? { ...it, ...patch } : it)) }));
+  const setItem = (key, i, patch) => {
+    setResult((r) => ({ ...r, [key]: r[key].map((it, j) => (j === i ? { ...it, ...patch } : it)) }));
+    // Si el usuario corrigió el destino de un action item o riesgo hacia una
+    // track, esa track se suma a "Tracks de esta reunión" (salvo desmarque manual).
+    if ((key === 'action_items' || key === 'riesgos') && patch.destino) {
+      setTrackIds((ids) => reconcileTrackIds(ids, uncheckedTrackIds, patch.destino));
+    }
+  };
+  const toggleTrack = (id) => {
+    const next = toggleTrackId(trackIds, uncheckedTrackIds, id);
+    setTrackIds(next.trackIds);
+    setUncheckedTrackIds(next.uncheckedIds);
+  };
 
   // ---------- render ----------
   if (phase === 'loading') {
@@ -138,7 +156,7 @@ export default function ReunionProcesar({ proyecto, cliente, tracks, onDone }) {
     return (
       <ReunionRevision
         result={result} tracks={tracks} trackIds={trackIds} saving={saving} err={err}
-        onChangeResult={setR} onChangeItem={setItem} onChangeTrackIds={setTrackIds}
+        onChangeResult={setR} onChangeItem={setItem} onToggleTrack={toggleTrack}
         onGuardar={guardar} onVolver={() => setPhase('input')}
       />
     );

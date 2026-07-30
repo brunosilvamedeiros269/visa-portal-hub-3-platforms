@@ -6,14 +6,10 @@ import { inputCls, btnGold, SEVERIDADES, SEVERIDAD_LABEL, RISK_TIPOS, RISK_TIPO_
 // Painel de revisão da minuta. Controlado pelo ReunionProcesar: aqui não há estado.
 export default function ReunionRevision({
   result, tracks, trackIds, saving, err,
-  onChangeResult, onChangeItem, onChangeTrackIds, onGuardar, onVolver,
+  onChangeResult, onChangeItem, onToggleTrack, onGuardar, onVolver,
 }) {
   const rateo = resumenRateo([...result.action_items, ...result.riesgos], tracks);
   const sugeridas = tracksConItems(result.action_items, result.riesgos);
-
-  const toggleTrack = (id) => {
-    onChangeTrackIds(trackIds.includes(id) ? trackIds.filter((x) => x !== id) : [...trackIds, id]);
-  };
 
   return (
     <div className="space-y-4 bg-[#0b1626] border border-[#273647] rounded-xl p-3">
@@ -85,9 +81,9 @@ export default function ReunionRevision({
           {tracks.map((t) => {
             const on = trackIds.includes(t.id);
             return (
-              <button key={t.id} onClick={() => toggleTrack(t.id)}
+              <button key={t.id} onClick={() => onToggleTrack(t.id)}
                 className={`text-[11px] px-2.5 py-1 rounded-full border ${on ? 'text-[#FAA61A] bg-[#FAA61A]/12 border-[#FAA61A]/40' : 'text-slate-400 border-[#273647] hover:border-slate-500'}`}>
-                {on ? '✓ ' : ''}{t.nombre}{sugeridas.includes(t.id) && !on ? ' ·' : ''}
+                {on ? '✓ ' : ''}{t.nome}{sugeridas.includes(t.id) && !on ? ' ·' : ''}
               </button>
             );
           })}
@@ -107,7 +103,7 @@ function DestinoSelect({ tracks, value, onChange }) {
   return (
     <select className={inputCls} value={value} onChange={(e) => onChange(e.target.value)} title="Destino del item">
       <option value={PROYECTO}>▲ Proyecto</option>
-      {tracks.map((t) => <option key={t.id} value={t.id}>{t.nombre}</option>)}
+      {tracks.map((t) => <option key={t.id} value={t.id}>{t.nome}</option>)}
     </select>
   );
 }

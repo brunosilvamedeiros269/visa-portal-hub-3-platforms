@@ -1,10 +1,14 @@
 import { describe, it, expect } from 'vitest';
-import { PROYECTO, normalizeName, matchTrack, destinoInicial, destinoFields, resumenRateo, tracksConItems } from './minutaRouting';
+import {
+  PROYECTO, normalizeName, matchTrack, destinoInicial, destinoFields, resumenRateo, tracksConItems,
+  reconcileTrackIds, toggleTrackId,
+} from './minutaRouting';
 
+// Filas crudas de la base: la columna es `nome` (portugués), no `nombre`.
 const TRACKS = [
-  { id: 't-tok', nombre: 'Tokenización Tarjeta Débito' },
-  { id: 't-ctp', nombre: 'Click to Pay' },
-  { id: 't-ap', nombre: 'Apple Pay' },
+  { id: 't-tok', nome: 'Tokenización Tarjeta Débito' },
+  { id: 't-ctp', nome: 'Click to Pay' },
+  { id: 't-ap', nome: 'Apple Pay' },
 ];
 const PROJ = 'p-1';
 
@@ -86,4 +90,34 @@ describe('tracksConItems', () => {
     expect(tracksConItems([{ destino: 't-ap', incluir: false }])).toEqual([]);
   });
   it('sin listas → []', () => expect(tracksConItems()).toEqual([]));
+});
+
+describe('reconcileTrackIds', () => {
+  it('un cambio manual de destino hacia una track la agrega', () => {
+    expect(reconcileTrackIds(['t-ctp'], [], 't-ap')).toEqual(['t-ctp', 't-ap']);
+  });
+  it('no duplica si la track ya estaba marcada', () => {
+    expect(reconcileTrackIds(['t-ctp'], [], 't-ctp')).toEqual(['t-ctp']);
+  });
+  it('un desmarque manual explícito de esa track queda desmarcado', () => {
+    expect(reconcileTrackIds([], ['t-ap'], 't-ap')).toEqual([]);
+  });
+  it('ignora el sentinela proyecto y valores vacíos', () => {
+    expect(reconcileTrackIds(['t-ctp'], [], PROYECTO)).toEqual(['t-ctp']);
+    expect(reconcileTrackIds(['t-ctp'], [], '')).toEqual(['t-ctp']);
+  });
+});
+
+describe('toggleTrackId', () => {
+  it('desmarcar una track con items la saca de trackIds y registra el desmarque', () => {
+    expect(toggleTrackId(['t-ap'], [], 't-ap')).toEqual({ trackIds: [], uncheckedIds: ['t-ap'] });
+  });
+  it('re-marcar funciona: vuelve a trackIds y limpia el desmarque', () => {
+    expect(toggleTrackId([], ['t-ap'], 't-ap')).toEqual({ trackIds: ['t-ap'], uncheckedIds: [] });
+  });
+  it('el desmarque manual persiste ante una corrección posterior de destino hacia esa track', () => {
+    const afterUncheck = toggleTrackId(['t-ap'], [], 't-ap');
+    const afterDestino = reconcileTrackIds(afterUncheck.trackIds, afterUncheck.uncheckedIds, 't-ap');
+    expect(afterDestino).toEqual([]);
+  });
 });

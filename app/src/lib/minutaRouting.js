@@ -15,7 +15,8 @@ export function normalizeName(s) {
 export function matchTrack(nombre, tracks) {
   const n = normalizeName(nombre);
   if (!n) return null;
-  return (tracks || []).find((t) => normalizeName(t.nombre) === n) || null;
+  // `tracks` acá son filas crudas de la base: la columna es `nome` (portugués).
+  return (tracks || []).find((t) => normalizeName(t.nome) === n) || null;
 }
 
 export function destinoInicial(item, tracks) {
@@ -41,7 +42,7 @@ export function resumenRateo(items, tracks) {
   // Ordem estável: as tracks na ordem do proyecto, e o proyecto no final.
   const out = [];
   for (const t of tracks || []) {
-    if (cuenta.has(t.id)) out.push({ label: t.nombre, n: cuenta.get(t.id) });
+    if (cuenta.has(t.id)) out.push({ label: t.nome, n: cuenta.get(t.id) });
   }
   if (cuenta.has(PROYECTO)) out.push({ label: 'Proyecto', n: cuenta.get(PROYECTO) });
   return out;
@@ -55,4 +56,30 @@ export function tracksConItems(...listas) {
     }
   }
   return ids;
+}
+
+// Concilia "Tracks de esta reunión" cuando el usuario corrige a mano el destino
+// de un item hacia una track: esa track se suma a trackIds, salvo que el usuario
+// ya la haya desmarcado explícitamente — el desmarque manual siempre gana.
+export function reconcileTrackIds(trackIds, uncheckedIds, destino) {
+  if (!destino || destino === PROYECTO) return trackIds;
+  if (trackIds.includes(destino) || (uncheckedIds || []).includes(destino)) return trackIds;
+  return [...trackIds, destino];
+}
+
+// Alterna una track a mano en el panel de revisión (checkbox "Tracks de esta
+// reunión"), llevando también el registro de desmarques manuales que
+// reconcileTrackIds respeta. Re-marcar limpia el desmarque.
+export function toggleTrackId(trackIds, uncheckedIds, id) {
+  const unchecked = uncheckedIds || [];
+  if (trackIds.includes(id)) {
+    return {
+      trackIds: trackIds.filter((x) => x !== id),
+      uncheckedIds: unchecked.includes(id) ? unchecked : [...unchecked, id],
+    };
+  }
+  return {
+    trackIds: [...trackIds, id],
+    uncheckedIds: unchecked.filter((x) => x !== id),
+  };
 }
