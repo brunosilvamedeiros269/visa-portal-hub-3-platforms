@@ -8,12 +8,14 @@ Términos del glosario en esta categoría.
 
 - [[CS Implementations]] — Quem configura no VisaNet (Miami executa, Argentina orquestra). Direção: Melina Albornoz. Fornece o TPM.
 - [[CSM (Customer Success Manager)]] — Contato do emissor; abre os projetos, entrega os pré-requisitos e o SOW.
+- [[Friends and Family]] — Piloto produtivo controlado por whitelist; a remoção da whitelist é o go-live.
 - [[HST - HCT]] — Provedor/habilitador que conecta o emissor à Visa para o Click to Pay (caso BROU, via Sistarbank).
 - [[Prisma]] — Processador do Banco de Corrientes.
 - [[PRM (Visa Access)]] — Portal onde o emissor enrola o ITSP como Third Party Agent (pré-requisito).
 - [[Production Monitoring]] — Acompanhamento (~10 dias) do aprovisionamento após o Comercial Launch.
 - [[Produto (Visa)]] — Representante de Wallets ou Click to Pay (Alexis Maso / Damian Ortiz); dá a palestra ao cliente.
 - [[Revisão de Artes]] — Validação das imagens do card (na VCMM) que o cliente verá na wallet.
+- [[Scoping call]] — Sessão que fecha o alcance do script e agenda as janelas de certificação. Não executa provas.
 - [[Sistarbank]] — Processador do BROU; faria o enrolamento massivo do Click to Pay.
 - [[SOW Token Service]] — Documento com os pré-requisitos e o escopo (funcionalidades, BINs, tokenizador). Preenchido pelo cliente.
 - [[Thales]] — Provedor de tokenização (TSP/ITSP) e SDK do Banco de Corrientes.

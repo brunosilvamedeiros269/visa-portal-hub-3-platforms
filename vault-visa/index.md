@@ -19,6 +19,7 @@ Mi base personal. Está **separada en dos**: conocimiento **general** (reutiliza
 6. [[6. Processo PMO de Carteiras]]
 7. [[7. Mandatos e Waivers]]
 ### Glosario por categoría
+- [[MOC — Autorizações e Fraude]]
 - [[MOC — Carteiras]]
 - [[MOC — Click to Pay]]
 - [[MOC — Fundamentos]]
@@ -39,15 +40,21 @@ Mi base personal. Está **separada en dos**: conocimiento **general** (reutiliza
 - [[Visa Direct e mandatos (OCT-AFT, ANI) — aprofundamento]]
 - [[Click to Pay — comunicação e marketing (fase 3)]]
 - [[PMO de Carteiras — rol e responsabilidades]]
+- [[Squad de autorizações e fraude]]
 ### Troubleshooting
 - [[Troubleshooting — crash do fluxo verde (push provisioning)]]
 - [[Troubleshooting — Google push provisioning que não chega]]
+- [[Troubleshooting — certificação de tokenização (provas e janelas)]]
 ### Índices
 - [[Índice — fuentes]] — de dónde viene cada nota y su estado
 
 ## 🗂️ Proyectos (contexto por cliente)
-- [[BROU — dossiê]] *(BROU)*
-- [[Banco de Corrientes — dossiê]] *(Banco de Corrientes)*
+- [[BROU — dossiê]] *(BROU · Uruguai)* — 7 tracks; tokenização certificada, decisão de extensão em aberto
+- [[Banco de Corrientes — dossiê]] *(Banco de Corrientes · Argentina)* — Apple Pay e Click to Pay; mandato em 30/set
+- [[BancoEstado — dossiê]] *(BancoEstado · Chile)* — Apple Pay + SDK; **pré-projeto**, travado no contratual
+- [[BBVA Uruguay — dossiê]] *(BBVA Uruguay)* — switch/ITSP + Google Pay; **em reta final**
+- [[Banco de Chile (Nuek) — dossiê]] *(Banco de Chile)* — migração de processador, fase de estabilização
+- [[Banco Provincia (Bapro) — dossiê]] *(Banco Provincia · Argentina)* — squad de autorizações e fraude
 
 ## Cómo está organizado
 - **Conocimiento/** — general y reutilizable: `Conceptos/` (temas + mermaid), `Glosario/` (1 nota por término, con siglas como `aliases`), `MOCs/` (mapas por categoría) y `Estudo/`.

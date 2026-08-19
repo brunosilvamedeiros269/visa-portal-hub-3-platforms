@@ -16,14 +16,14 @@ estado: verificado
 - **Contatos —** Banco: Martín De la Vega (executivo), Juan Torres "Juanjo" (Torres Barusso), Verónica Escobar, Valentina Torrado, Cristian (técnico). Visa: Lina Torres, Marlene Migliardi, Javier Cadena, Laura. [[Thales]]: Patricia González, Miguel Ángel. [[Prisma]]: Ivan Hirsch, Mario.
   - ⚠️ A tabela de participantes da minuta de 30/jul lista **Edgar Javier Cadena** na linha do banco e embaralha as linhas de Visa/[[Thales]]/[[Prisma]] (Patricia González aparece sob Visa, Ivan Hirsch sob Thales). O vínculo aqui — Patricia/[[Thales]], Ivan/[[Prisma]], Javier Cadena/Visa — é o verificado nos weeklies; **confirmar com o autor da minuta** antes de propagar a versão dela.
 
-## Status atual (base: 2º SteerCo, 30/jul/2026)
-**[[Click to Pay]]** âmbar tendendo a verde — desenvolvimento funcional praticamente completo, travado num único ponto de backend. **Apple Pay** âmbar — crédito destravou (push provisioning bem-sucedido), débito ainda falha.
+## Status atual (base: weekly de 7/ago/2026)
+**Apple Pay** âmbar — o **push provisioning já funciona**, e a causa do impasse da semana anterior foi encontrada: os dados de Apple no **[[VCMM|BCM]] nunca haviam sido submetidos**. O bloqueio agora é **[[Wallet Extensions|Wallet Extension]]**, que segue falhando, e o **[[Partner Hub]] está parado à espera da assinatura do contrato de T&C** pela gerência do banco. **[[Click to Pay]]** âmbar — conectividade com a [[Thales]] resolvida (certificado), mas restam o **HTTP 503 no PUT** e colisões de **[[CAR ID]] / Consumer ID** no [[Register Consumer]], com o mandato vencendo em 30/set.
 
 ## Frentes / tracks
 | Frente | Situação |
 |---|---|
-| [[Click to Pay]] | Móvel praticamente completo; ambientes e config já não são bloqueio; **API Register Consumer devolvendo HTTP 500** impede o E2E |
-| Apple Pay | Crédito: push provisioning **OK**. Débito: **HTTP 400 / responseCode 911**. Estado pós-provisioning não reflete na app |
+| [[Click to Pay]] | Móvel praticamente completo. Certificado corrigido; **HTTP 503 no PUT** e colisão de [[CAR ID]] no [[Register Consumer]] ainda impedem o E2E. Notificações (Firebase/APNs) ficam para depois — não são *stopper* |
+| Apple Pay | **Push provisioning OK.** [[Wallet Extensions|Wallet Extension]] falhando. [[Partner Hub]] bloqueado pela assinatura do contrato de T&C. Material de marketing atrasado |
 
 ## Histórico (linha do tempo)
 - **2025** — Pré-requisito Apple enviado (e-mail do [[AID (Apple)|AID]] à Apple).
@@ -34,6 +34,8 @@ estado: verificado
 - **29–31/jul** — Janela-alvo do 2º SteerCo (remarcado para garantir Martín e Agustín).
 - **30/jul/2026** — **2º SteerCo** (ver seção abaixo): crédito destravado no Apple Pay; [[Click to Pay]] bloqueado no Register Consumer.
 - **31/jul/2026** — Sessão técnica banco + [[Thales]] sobre o HTTP 500 do Register Consumer.
+- **6/ago/2026** — Briefing de handover: Javier Cadena passa a condução das weeklies a Bruno (feriado na Colômbia + licença da Lina).
+- **7/ago/2026** — **Weekly dupla Apple Pay + [[Click to Pay]]** (ver seção abaixo): push provisioning funcionando; config do [[VCMM|BCM]] regravada ao vivo.
 - **28/ago/2026** — **3º SteerCo** (agendado).
 - **30/set/2026** — Data-limite do mandato [[Click to Pay]].
 
@@ -60,6 +62,43 @@ Segundo Steering Committee do programa. Objetivo declarado: **converter o avanç
 
 **Riscos levantados no comitê:** débito HTTP 400/911 (âmbar/vermelho) · Apple Pay ainda não pronto para [[FIME]] (âmbar) · backend interno travando o E2E de [[Click to Pay]] (âmbar) · deadline regulatório de 30/set (âmbar).
 
+## Weekly de 7/ago/2026 — Apple Pay e Click to Pay
+
+Sessão conduzida em cobertura dupla: Javier de feriado e Lina de licença. A weekly é **duas reuniões no mesmo canal** — bloco Apple Pay (conduzido pela Visa/Argentina, que também envia a minuta) e, na sequência, bloco [[Click to Pay]].
+
+### Apple Pay — o achado da semana
+O **push provisioning passou a funcionar** — o bloqueio central de julho ficou para trás. Mas apareceu um sintoma novo: depois de um provisioning bem-sucedido, ao consultar o **estado do cartão** por outro método, a [[Thales]] devolvia estado incorreto e a app seguia oferecendo o botão de provisionar.
+
+A causa foi encontrada ao vivo: no **[[VCMM|BCM]] → aba *Additional Information* → seção iOS (**App ID** / **Banking Store ID**), os valores **não apareciam**. O banco os havia digitado, mas **o submit nunca foi efetivado** — o campo *Last Update* ainda marcava **2 de julho**. A [[Thales]] havia alertado sobre isso quatro ou cinco vezes. Regravado na sessão; custo: uma semana inteira de testes.
+
+> [!warning] Lição
+> No [[VCMM|BCM]], **conferir o campo *Last Update* depois de gravar**. Digitar não é submeter — e o alerta do fornecedor foi ignorado várias vezes antes de alguém abrir a tela.
+
+Notas técnicas de [[VCMM|BCM]] registradas na sessão:
+- Mudanças em *Additional Information* precisam estar atribuídas aos ranges de [[BIN]] (aba *Assignments → Manage Assignments*). Como o banco tem **um único grupo**, todos os ranges já estão vinculados — **não é preciso reatribuir**.
+- A propagação leva **algumas horas**.
+- O campo **URL** só é necessário para **INAP** (In-App Provisioning), fora do escopo atual.
+
+**[[Wallet Extensions|Wallet Extension]]** seguia falhando ao fim da reunião ("no se puede agregar la tarjeta"). A [[Thales]] associa diretamente à configuração ausente no BCM e aponta que existe uma linha dedicada à extension na configuração do SDK.
+
+**[[Partner Hub]]:** o banco não tem dúvidas e vinha avançando, mas está **bloqueado aguardando a assinatura do contrato de termos e condições pela área gerencial** — o contrato foi ao jurídico, que precisa traduzi-lo e revisá-lo. A ação pendente no Hub é carregar o contrato assinado. **Material de marketing "bastante atrasado"**; a Visa **não participa** da produção — o banco produz conforme os requisitos da Apple e carrega no Hub para aprovação.
+
+**[[FIME]]:** orientação de **consultar a disponibilidade sem fechar data**, decidindo depois em função do avanço dos testes.
+
+### Click to Pay — dois incidentes
+**Conectividade — resolvida.** O certificado usado pelo banco referenciava **Amazon RCA**, enquanto o endpoint da [[Thales]] em **STG** passou a apresentar **Amazon RCA 2048-M**; corrigida a cadeia de confiança, a resposta passou a ser bem-sucedida. Em 7/ago o tema é descrito simplesmente como certificado vencido. Fica em aberto perguntar à Thales se houve renovação planejada de certificados no STG.
+
+**HTTP 503 no PUT — aberto.** Superada a geração de token/OAuth, o consumo do serviço seguinte (uma requisição **PUT**) retorna **503**. Sem causa raiz nem ETA; dependência total da [[Thales]].
+
+**[[Register Consumer]] — causa identificada.** A falha era de dado: tentava-se registrar um **PAN já registrado na [[Thales]] com outro [[CAR ID]]**. O cartão terminado em 7392 já constava com um CAR ID específico e o Consumer ID correspondente. **Existem registros bem-sucedidos de 5/ago** — o banco tem jogo de dados válido.
+
+> [!tip] Recomendação da [[Thales]]
+> Parar de gastar tempo na etapa de registro em ambiente de teste: usar a dupla **[[CAR ID]] + Consumer ID já registrada**, ou dados limpos, ou bypassar o registro — e ir direto às provas de [[Click to Pay]] com o SDK, que é o que interessa. Existe a API **`getCard`** (entra o CAR ID, devolve o PAN); o banco deve manter **tabela associativa própria** entre seus dados e os CAR IDs.
+
+**Notificações (push do [[Click to Pay]]):** duas opções — **backend-to-backend** ou **via frontend** do banco. Para frontend, a [[Thales]] precisa de dados de **Firebase e APNs**; prazo de 5 dias em teste + 5 em produção, mais aprovação em **CAB**. **Decisão: não são obrigatórias para a homologação e não são *stopper*** — ficam para depois, dado o aperto de prazo.
+
+**Mecânica assíncrona explicada na sessão:** a API de enrolamento disparada pelo SDK vai à Visa de forma assíncrona — a Thales envia o requerimento, a Visa devolve erros de dados no momento, e depois há um **polling da Thales à Visa** buscando o estado; quando a Visa responde, a Thales responde ao banco.
+
 ## Decisões e pontos importantes
 - **Certificados Apple Pay — encerrado.** Confirmou-se que os certificados usados no Google Pay e no Apple Pay **são os mesmos** e já estavam validados internamente: não é preciso gerar certificado exclusivo para Apple Pay. Resta só seguimento por e-mail de qualquer ponta solta.
 - **Foco do Apple Pay migra** da configuração para a **correção do comportamento funcional pós-provisioning** e o fecho do débito.
@@ -69,29 +108,37 @@ Segundo Steering Committee do programa. Objetivo declarado: **converter o avanç
 - **Ações Apple Pay:** publicar a app no **[[TestFlight]]**; reenviar e-mail à Apple confirmando o **[[AID (Apple)|AID]]**; compartilhar **Correlation ID / Token Reference ID** ([[Vital Sign]]) para diagnóstico.
 - **[[Partner Hub]] — boa prática:** garantir mais de uma pessoa do banco com acesso.
 
-## Pendências e riscos (atualizado no 2º SteerCo, 30/jul/2026)
+## Pendências e riscos (atualizado na weekly de 7/ago/2026)
 
 **Apple Pay**
-- Corrigir a **falha do débito**: HTTP 400 / responseCode 911 em `checkCardEligibility` / `requestCardDigitization`. Falta **definir o owner do fecho técnico** e a data de resposta ([[Prisma]] / banco / [[Thales]]).
-- Corrigir a **devolução do status pós-provisioning** — hoje a app segue mostrando o cartão como não enrolado e permite repetir a operação.
-- **Marcar a próxima prova integral crédito + débito** (data em aberto).
-- **Definir o critério de avanço para [[FIME]]** — o comitê já alinhou que fica condicionado a crédito + débito OK com evidência de tokenização.
+- **Carregar o contrato de termos e condições assinado no [[Partner Hub]]** — depende da gerência e do jurídico do banco (tradução + revisão). **Bloqueio ativo, sem prazo e fora do controle do time de projeto.** Precisa de escalonamento.
+- **Resolver a [[Wallet Extensions|Wallet Extension]]** — prioridade nº 1 do track e portão para a certificação [[FIME]]. Capturar logs de console e revisar a configuração da extension dentro do SDK da [[Thales]].
+- **Produzir e carregar o material de marketing** conforme os requisitos da Apple (Yamila/marketing + Seba/comercial). Em atraso — e há precedente de emissor parado 2 meses por rejeição de peça.
+- **Consultar a disponibilidade da [[FIME]]** sem fechar data.
+- **Definir o critério de avanço para [[FIME]]** — condicionado a crédito + débito OK com evidência de tokenização.
+- Garantir **2º acesso testado** ao [[Partner Hub]].
 
 **[[Click to Pay]]**
-- **Destravar a API Register Consumer** (HTTP 500 na interação com a [[Thales]]) — condição necessária para começar o E2E. Sessão técnica em 31/jul.
-- **Confirmar o responsável de backend do banco** por esse ponto.
-- **Confirmar a data do re-test E2E** e qual evidência será compartilhada na weekly / PMO.
-- Concluir o processo administrativo do caso de implementação para disparar o **SLA de 5 dias úteis** da Visa e habilitar o ambiente de provas.
+- **Explicar/resolver o HTTP 503 no PUT** — sem causa raiz nem ETA, dependência total da [[Thales]]. É o que bloqueia o E2E.
+- **Confirmar com a [[Thales]]** se houve mudança planejada ou renovação de certificados no ambiente STG.
+- **Carregar manualmente os cartões nas tabelas do banco** e retestar o fluxo; exercitar o registro completo com outros cartões.
+- Enviar dados de **Firebase e APNs** à [[Thales]] — pós-homologação, não bloqueante.
 - **Deadline regulatório 30/set/2026** — sem evidência de E2E o risco de descumprimento sobe; manter tracking semanal e escalar cedo.
 
 **Encerrado desde o último dossiê**
+- ~~Crash do fluxo verde / push provisioning~~ — **funcionando** desde 7/ago.
+- ~~Configuração de Apple no [[VCMM|BCM]]~~ — descoberto que o submit nunca fora efetivado; **regravado** na sessão de 7/ago.
+- ~~Conectividade banco ↔ [[Thales]] em [[Click to Pay]]~~ — resolvida (cadeia de certificados Amazon RCA → RCA 2048-M / certificado vencido).
+- ~~Causa do erro de [[Register Consumer]]~~ — identificada: PAN já registrado com outro [[CAR ID]]. Existem registros bem-sucedidos de 5/ago.
+- ~~Necessidade de reatribuir ranges de [[BIN]] no BCM~~ — descartada (grupo único de Additional Information).
+- ~~Obrigatoriedade das notificações para homologar~~ — esclarecido que **não são *stopper***.
 - ~~Certificados Apple (JWS/JWE, WSD/ZCMK)~~ — mesmos certificados do Google Pay, validados; tema fechado no SteerCo.
 - ~~DEF dos 5 BINes~~ — enviados **5 BINs de crédito + 2 de débito**; DEF/BINes validado.
-- ~~Crash do fluxo verde no crédito~~ — push provisioning de crédito concluído com sucesso após ajuste da [[Prisma]]. (A causa raiz permanece aberta **para débito**.)
 
 **Ainda em aberto do ciclo anterior**
 - Confirmar a vigência do [[AID (Apple)|AID]] com a Apple.
 - Compartilhar **Correlation ID / Token Reference ID** para diagnóstico.
+- **Débito no Apple Pay** — HTTP 400 / responseCode 911 reportado no SteerCo de 30/jul; a weekly de 7/ago não retomou o tema explicitamente. **Confirmar se segue aberto.**
 
 ---
 [[Home]]
