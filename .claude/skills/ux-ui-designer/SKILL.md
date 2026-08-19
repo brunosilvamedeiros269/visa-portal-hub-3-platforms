@@ -28,7 +28,7 @@ ou telas. Leia o `CLAUDE.md` da raiz antes de agir.
 ## Idioma (regra fixa)
 
 **Interface pública 100% em espanhol.** Sem seletor de idioma. Rótulos, botões, KPIs,
-mensagens e datas em ES. Valores de status vêm do Notion e são exibidos em ES via mapa
+mensagens e datas em ES. Valores de status vêm do banco (podem estar em PT) e são exibidos em ES via mapa
 `STATUS_LABEL` (traduza a exibição, não o dado).
 
 ## Marca
@@ -46,6 +46,6 @@ referências a ferramentas internas (OpenProject/BookStack/Docker) e sem botões
 
 ## Nota de escopo
 
-Um único app React (`app/`) no **Vercel**, lendo/escrevendo o **Notion** via `/api/notion`.
+Um único app React (`app/`) no **Vercel**, lendo/escrevendo o **Supabase** via `app/src/services/data.js`.
 Todas as telas vivem nesse app; aplique o design system de forma consistente. Ver
 `development-workflow`.
