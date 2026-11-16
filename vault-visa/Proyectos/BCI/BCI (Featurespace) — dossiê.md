@@ -26,7 +26,7 @@ estado: parcial
 - **Sem Client Services:** projetos Featurespace correm fora de CS.
 
 ## Por que este caso importa
-Dentro da Visa o BCI foi apresentado como o **primeiro caso global com Featurespace** — foi candidato a prémio interno em agosto e subiu ao palco do LAC Market Kickoff em outubro. Em 26/10 Lina resumiu: nenhum projeto Featurespace está em execução, e o BCI foi o único já executado (o assessment). O que se aprender aqui vira modelo para as oportunidades seguintes.
+Dentro da Visa o BCI foi apresentado como o **primeiro caso global com Featurespace** — foi candidato a prêmio interno em agosto e subiu ao palco do LAC Market Kickoff em outubro. Em 26/10 Lina resumiu: nenhum projeto Featurespace está em execução, e o BCI foi o único já executado (o assessment). O que se aprender aqui vira modelo para as oportunidades seguintes.
 
 ## A história até aqui
 **O ponto de partida.** O BCI opera a plataforma por conta própria, em infraestrutura sua. O assessment da Visa — quatro equipes: tecnologia (Lina), risco, Core Consulting e regras — terminou por volta de agosto–setembro de 2026 e encontrou um ambiente difícil de sustentar: sem gestão de patches, upgrade de MongoDB caro, Red Hat perto de ficar sem suporte, sem plano de recuperação de desastre. No uso, dois achados de negócio: a plataforma não decide em tempo real para o crédito do banco, e o [[Processador|processador]] decide por fraude antes das validações operativas.
@@ -46,8 +46,8 @@ Federico apresentou ao time a demo inicial padrão — a mesma dada a emissores 
 
 - **Não é só um motor de regras nem só um score**: é a plataforma inteira de gestão de risco. Decide em tempo real, near-real-time e batch.
 - **Soluções modulares**: crime financeiro, cartões e autenticação, pagamentos em tempo real e canais digitais, adquirência (dois módulos), onboarding. Cada uma com regras adaptativas por comportamento e modelo de machine learning próprio.
-- **SaaS em AWS**, interface web, um ambiente isolado por cliente. Utilizadores e atualizações de versão incluídos.
-- **Três canais**: interface de utilizador, uma API de eventos única, e saída de dados por S3 para o data lake do cliente.
+- **SaaS em AWS**, interface web, um ambiente isolado por cliente. Usuários e atualizações de versão incluídos.
+- **Três canais**: interface de usuário, uma API de eventos única, e saída de dados por S3 para o data lake do cliente.
 - **Retenção**: 3 meses ao vivo, 13 meses de histórico. Para auditoria de 2 anos, o cliente tem de exportar.
 - **Operação**: alertas agrupam-se em incidentes por entidade; filtros viram filas de trabalho; o analista marca risco/genuíno e isso realimenta os modelos.
 - **Multi-tenancy**: uma processadora pode revender criando tenants por banco.

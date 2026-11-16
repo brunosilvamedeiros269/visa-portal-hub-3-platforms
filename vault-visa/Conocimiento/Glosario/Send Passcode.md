@@ -12,4 +12,4 @@ estado: verificado
 
 API do fluxo de OTP no step-up.
 
-**Categoría:** [[MOC — Tokenização]]
+**Categoria:** [[MOC — Tokenização]]

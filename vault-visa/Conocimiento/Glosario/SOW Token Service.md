@@ -12,4 +12,4 @@ estado: verificado
 
 Documento com os pré-requisitos e o escopo (funcionalidades, BINs, tokenizador). Preenchido pelo cliente.
 
-**Categoría:** [[MOC — Processo-PMO]]
+**Categoria:** [[MOC — Processo-PMO]]

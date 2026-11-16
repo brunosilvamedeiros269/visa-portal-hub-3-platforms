@@ -1,6 +1,6 @@
 ---
 tags: ["proyecto", "cliente/BBVA-Uruguay"]
-fuente: Seguimiento Switch ITSP + Google Pay (18/ago/2026); transcrições automáticas de ago–nov/2026 (seguimento ~24/ago, weekly 31/ago, Pipeline Review 4/set, Weekly Tech 28/set–16/nov)
+fuente: Seguimento Switch ITSP + Google Pay (18/ago/2026); transcrições automáticas de ago–nov/2026 (seguimento ~24/ago, weekly 31/ago, Pipeline Review 4/set, Weekly Tech 28/set–16/nov)
 estado: parcial
 ---
 
@@ -19,7 +19,7 @@ estado: parcial
 > O projeto original (switch/ITSP + Google Pay) foi **encerrado** e saiu da carteira de Bruno (até 5/out/2026). O que vem de **18/ago** para trás foi verificado; o que foi acrescentado em 16/nov vem de **transcrições automáticas não validadas** (por isso `estado: parcial`). As seções novas estão marcadas com "(acréscimo de 16/nov)".
 
 ## Status atual (base: 16/nov/2026) — acréscimo de 16/nov
-**Projeto original: fechado.** O Google Pay saiu a produção em **20/ago/2026**, com aprovisionamento médio de **~93%**. Em 4/set decidiu-se fechar em ~10 dias, sem extensão de contrato; em ~28–29/set o projeto consta como fechado, com mail de cierre enviado pelo Franco (Technical PM de CS).
+**Projeto original: fechado.** O Google Pay saiu a produção em **20/ago/2026**, com aprovisionamento médio de **~93%**. Em 4/set decidiu-se fechar em ~10 dias, sem extensão de contrato; em ~28–29/set o projeto consta como fechado, com e-mail de encerramento enviado pelo Franco (Technical PM de CS).
 
 **O que segue vivo é comercial, não é de Bruno:** uma oportunidade de **Apple Pay** (Lina e Desi), em que o cliente, em 16/nov, aceitou os requisitos mas **rejeitou o prazo de 4–6 meses** (esperava 3), e um prospect novo de **Featurespace** (Q2/Q3).
 
@@ -76,10 +76,10 @@ A dúvida registrada em 18/ago ("existe rollback da reatribuição de tokens?") 
 ## Por que o projeto foi fechado como foi (set/2026) — acréscimo de 16/nov
 Na primeira Pipeline Review VCA × CS (**4/set**), o quadro era: Google Pay em produção desde agosto com ~90% de aprovisionamento, **contrato já vencido** e a pendência restante atribuída ao Google. A decisão foi dar **até ~10 dias** e fechar com carta de turnover, **sem extensão**. Ou seja: produto no ar, contrato sem vigência e o que restava fora do controle da Visa — não se abriu adenda para esperar.
 
-Em ~28/set o projeto aparece como fechado (mail de cierre). Em ~29/set Bruno registra que houve desencontro de agenda na reunião de fechamento e que Franco já tinha enviado o mail. Em 5/out, com a Lina de volta, Bruno confirma que BBVA não está mais na sua carteira.
+Em ~28/set o projeto aparece como fechado (e-mail de encerramento). Em ~29/set Bruno registra que houve desencontro de agenda na reunião de fechamento e que Franco já tinha enviado o mail. Em 5/out, com a Lina de volta, Bruno confirma que BBVA não está mais na sua carteira.
 
 > [!note] O que não se sabe sobre o fechamento
-> A data exata do mail de cierre, se a reunião de fechamento foi refeita e se a regra de marca destacada em 18/ago (toda campanha nova de Google Pay passa pelo portal do Google) ficou por escrito na entrega.
+> A data exata do e-mail de encerramento, se a reunião de fechamento foi refeita e se a regra de marca destacada em 18/ago (toda campanha nova de Google Pay passa pelo portal do Google) ficou por escrito na entrega.
 
 ## Apple Pay: de "dentro de poco" a oportunidade em negociação — acréscimo de 16/nov
 Já em ~24/ago o banco dizia que o projeto incluía, "dentro de poco", a carteira da Apple. Ao reassumir a carteira (~28/set), Lina contou o histórico que explica por que a Apple não entrou no projeto original: a troca de [[ITSP]] para o processador novo (ouvido "Tohu" — grafia a confirmar; o anterior é HCT) e o pedido de **[[Waiver|waiver]] de [[Wallet Extensions]], negado pela Apple** mesmo com escalada até Miami. Wallet Extensions é pré-requisito de Apple Pay, e esse caso passou a ser citado internamente como prova de que a Apple não abre exceção.
@@ -104,7 +104,7 @@ Sequência da oportunidade:
 - **31/ago** — Weekly: média ~93%; causa interna do OTP; TLCM fechado sem solução; promoções por BIN.
 - **1/set** — Correção do OTP prevista (sem confirmação).
 - **4/set** — Pipeline Review VCA × CS: fechar em ~10 dias, sem extensão.
-- **~28–29/set** — Projeto fechado; mail de cierre do Franco.
+- **~28–29/set** — Projeto fechado; e-mail de encerramento do Franco.
 - **5/out** — Fora da carteira de Bruno; Apple Pay entra como prospecting.
 - **2/nov** — Apple Pay: processador desenvolve Wallet Extensions; banco sem resposta; escalado.
 - **16/nov** — Apple Pay: cliente aceita requisitos, rejeita 4–6 meses. Featurespace citado como prospect.
@@ -120,7 +120,7 @@ Sequência da oportunidade:
 
 ## Pessoas (ago–nov/2026) — acréscimo de 16/nov
 - **Visa:** Franco (Technical PM de CS — conduziu a implementação e o fechamento); Bruno (acompanhamento VCA durante a licença da Lina); Lina Torres e Desi (oportunidades de Apple Pay e Featurespace); Dani ([[CSM (Customer Success Manager)|CSM]]); Vane/Vanessa (BD); Felipe Merea (contato interno da conta — papel a confirmar).
-- **BBVA:** Diego (interlocutor principal); Guille; Andrea (head de pagos, citada).
+- **BBVA:** Diego (interlocutor principal); Guille; Andrea (head de pagamentos, citada).
 - **Processador novo:** Paco e Inés. **A confirmar:** Rafa (analisa logs com Franco; empresa não confirmada).
 
 ---

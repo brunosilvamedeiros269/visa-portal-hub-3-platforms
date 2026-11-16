@@ -12,4 +12,4 @@ estado: verificado
 
 Evolução do push provisioning do Google; mandato de migração até o fim de 2026.
 
-**Categoría:** [[MOC — Carteiras]]
+**Categoria:** [[MOC — Carteiras]]

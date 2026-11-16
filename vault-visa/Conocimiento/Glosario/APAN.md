@@ -12,4 +12,4 @@ estado: verificado
 
 Token de conta derivado do [[DPAN]], para pagamentos multi-comércio.
 
-**Categoría:** [[MOC — Tokenização]]
+**Categoria:** [[MOC — Tokenização]]

@@ -67,9 +67,9 @@ estado: parcial
 
 **Apple Pay** — avançado, entrando numa fase em que **1–2 definições técnicas** condicionam o próximo passo. Preparação para certificação [[FIME]]; exige coordenar dispositivos, cartões e [[Whitelist|whitelist]]. Config com **CCM Digital** agendada (17/jun); pendências: certificados **JWS/JWE** e chave **WSD/ZCMK**.
 
-**[[Click to Pay]]** — plano aprovado (2ª prórroga), fecha **30/set/2026**, integração técnica em curso. Banco enviará **DEF para os 5 BINes**; o CCM estimou **~5 dias hábeis por ambiente**.
+**[[Click to Pay]]** — plano aprovado (2ª prorrogação), fecha **30/set/2026**, integração técnica em curso. Banco enviará **DEF para os 5 BINs**; o CCM estimou **~5 dias úteis por ambiente**.
 
-**Linha do tempo técnica ([[Thales]]):** SDK iOS/Android **v4.3.0** → integração do app BanCo com o SDK → config de bines/certificados/chaves no tenant Thales (Pre-PRD) → habilitar ao menos 1 [[BIN]].
+**Linha do tempo técnica ([[Thales]]):** SDK iOS/Android **v4.3.0** → integração do app BanCo com o SDK → config de BINs/certificados/chaves no tenant Thales (Pre-PRD) → habilitar ao menos 1 [[BIN]].
 
 ## 2º SteerCo (30/jul/2026)
 Segundo Steering Committee do programa. Objetivo declarado: **converter o avanço técnico recente em decisão executiva** — owner claro, data da próxima prova e rota de evidência para as duas frentes. O programa saiu da fase de dependências de configuração e entrou em **provas reais**.
@@ -78,7 +78,7 @@ Segundo Steering Committee do programa. Objetivo declarado: **converter o avanç
 - **Débito continua falhando.** A [[Thales]] reporta **HTTP 400** vindo de [[Prisma]]/emissor, associado a `checkCardEligibility` / `requestCardDigitization`, com **responseCode 911 — Operation failed**.
 - **O estado pós-enrolamento não volta correto para a app do banco.** Depois de um provisioning bem-sucedido a app segue mostrando o cartão como não enrolado, e deixa o usuário repetir a operação. O banco entende que a revisão tem de focar na **devolução do status pelas plataformas envolvidas**, não na app.
 
-**[[Click to Pay]] — âmbar tendendo a verde.** A funcionalidade móvel está praticamente completa e ambientes/configurações deixaram de ser percebidos como bloqueio. Os **BINs foram enviados: 5 de crédito e 2 de débito**. Uma vez gerado o caso de implementação, a Visa tem **SLA de 5 dias úteis** para habilitar o ambiente de provas. Situação por componente: **DEF/BINes validado · Ambientes prontos · Backend quase pronto · Provas E2E por evidenciar**.
+**[[Click to Pay]] — âmbar tendendo a verde.** A funcionalidade móvel está praticamente completa e ambientes/configurações deixaram de ser percebidos como bloqueio. Os **BINs foram enviados: 5 de crédito e 2 de débito**. Uma vez gerado o caso de implementação, a Visa tem **SLA de 5 dias úteis** para habilitar o ambiente de provas. Situação por componente: **DEF/BINs validado · Ambientes prontos · Backend quase pronto · Provas E2E por evidenciar**.
 - **Bloqueio único:** a **API Register Consumer**. O banco achou de início que era problema interno, mas hoje observa **HTTP 500** devolvido na interação com a [[Thales]]. Sessão técnica dedicada marcada para 31/jul.
 
 **Preocupação executiva (Martín De la Vega).** Pressão para cumprir o roadmap por obrigação regulatória; recursos econômicos já comprometidos nas duas frentes; exigência de que **todo bloqueio seja identificado e comunicado no tempo certo**, com **transparência sobre a origem** e coordenação estreita entre Visa, [[Prisma]], [[Thales]] e banco para não acumular atraso por dependência de terceiros.
@@ -126,7 +126,7 @@ Notas técnicas de [[VCMM|BCM]] registradas na sessão:
 - **Certificados Apple Pay — encerrado.** Confirmou-se que os certificados usados no Google Pay e no Apple Pay **são os mesmos** e já estavam validados internamente: não é preciso gerar certificado exclusivo para Apple Pay. Resta só seguimento por e-mail de qualquer ponta solta.
 - **Foco do Apple Pay migra** da configuração para a **correção do comportamento funcional pós-provisioning** e o fecho do débito.
 - **[[FIME]] fica condicionado** a prova bem-sucedida de crédito **+** débito com evidência de tokenização.
-- **Governança mantida:** rastreabilidade e visibilidade de bloqueadores nas weeklies, com os hitos de Apple Pay e [[Click to Pay]] alinhados ao roadmap regulatório. Próximo SteerCo: **28/ago/2026**.
+- **Governança mantida:** rastreabilidade e visibilidade de bloqueadores nas weeklies, com os marcos de Apple Pay e [[Click to Pay]] alinhados ao roadmap regulatório. Próximo SteerCo: **28/ago/2026**.
 - **Apple Pay — causa raiz** provável no **payload/token de login** (banco + [[Thales]]), não na config da Visa.
 - **Ações Apple Pay:** publicar a app no **[[TestFlight]]**; reenviar e-mail à Apple confirmando o **[[AID (Apple)|AID]]**; compartilhar **Correlation ID / Token Reference ID** ([[Vital Sign]]) para diagnóstico.
 - **[[Partner Hub]] — boa prática:** garantir mais de uma pessoa do banco com acesso.
@@ -156,7 +156,7 @@ Notas técnicas de [[VCMM|BCM]] registradas na sessão:
 - ~~Necessidade de reatribuir ranges de [[BIN]] no BCM~~ — descartada (grupo único de Additional Information).
 - ~~Obrigatoriedade das notificações para homologar~~ — esclarecido que **não são *stopper***.
 - ~~Certificados Apple (JWS/JWE, WSD/ZCMK)~~ — mesmos certificados do Google Pay, validados; tema fechado no SteerCo.
-- ~~DEF dos 5 BINes~~ — enviados **5 BINs de crédito + 2 de débito**; DEF/BINes validado.
+- ~~DEF dos 5 BINs~~ — enviados **5 BINs de crédito + 2 de débito**; DEF/BINs validado.
 
 **Ainda em aberto do ciclo anterior**
 - Confirmar a vigência do [[AID (Apple)|AID]] com a Apple.

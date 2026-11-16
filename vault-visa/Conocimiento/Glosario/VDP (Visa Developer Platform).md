@@ -12,4 +12,4 @@ estado: verificado
 
 Portal com a documentação/specs das APIs (ex.: BK Batch Specification do [[Click to Pay]]).
 
-**Categoría:** [[MOC — Tokenização]]
+**Categoria:** [[MOC — Tokenização]]

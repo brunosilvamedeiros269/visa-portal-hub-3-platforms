@@ -12,4 +12,4 @@ estado: verificado
 
 Serviço de tokenização da Visa, com APIs no Visa Developer.
 
-**Categoría:** [[MOC — Tokenização]]
+**Categoria:** [[MOC — Tokenização]]

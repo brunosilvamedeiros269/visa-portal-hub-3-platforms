@@ -12,4 +12,4 @@ estado: verificado
 
 Modelo em que a rede valida o cryptograma/verificação em nome do emissor.
 
-**Categoría:** [[MOC — Carteiras]]
+**Categoria:** [[MOC — Carteiras]]

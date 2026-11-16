@@ -9,12 +9,12 @@ estado: verificado
 Aprofunda o conceito [[3. Tokenização]]. Baseado na **capacitação técnica da Visa** (fluxos de API lado emissor) + a norma **[[SRC - EMVCo|EMVCo]] Payment Tokenisation** (2014), que o [[VTS (Visa Token Service)|VTS]] implementa.
 
 ## Arquitetura [[VTS (Visa Token Service)|VTS]] — três papéis
-O [[VTS (Visa Token Service)|VTS]] é a **plataforma/bóveda** que troca dados entre solicitantes de token e emissores.
+O [[VTS (Visa Token Service)|VTS]] é a **plataforma/cofre** que troca dados entre solicitantes de token e emissores.
 
 | Papel | Quem | Função |
 |---|---|---|
 | **Token Requestor (TR-[[TSP (Token Service Provider)|TSP]])** | Carteiras (Apple/Google/Samsung/Garmin/Fitbit), comércios, e-comm/CoF | Solicita o token |
-| **[[VTS (Visa Token Service)|VTS]]** | Visa | Bóveda/**geração de tokens**; processa transações de token (**destokenização** e controles de domínio) |
+| **[[VTS (Visa Token Service)|VTS]]** | Visa | Cofre/**geração de tokens**; processa transações de token (**destokenização** e controles de domínio) |
 | **Issuer TSP** | [[ITSP]] do emissor | Serviços de token do lado do banco |
 
 Cada um oferece: incorporação/gestão, aprovisionamento, ID&V, gestão do ciclo de vida e notificações. **Card Present** usa o **Secure Element (SE)**; **Card Not Present** usa **HCE / e-comm / CoF**.
@@ -27,14 +27,14 @@ Cada um oferece: incorporação/gestão, aprovisionamento, ID&V, gestão do cicl
 5. **Notifications** — Token Created, Card Metadata / PAN Update.
 6. **Life Cycle Management** — ACTIVATE, SUSPEND, RESUME, DELETE, UPDATE PAN EXPIRATION.
 7. **Device Token Binding** — [[CTF (Cloud Token Framework)|CTF]].
-8. **Update Card Metadata** — atualiza a carátula (o [[VTS (Visa Token Service)|VTS]] notifica as carteiras).
+8. **Update Card Metadata** — atualiza a arte (o [[VTS (Visa Token Service)|VTS]] notifica as carteiras).
 
 ## Fluxo de aprovisionamento (alto nível)
 ```mermaid
 sequenceDiagram
   participant W as Wallet (TR-TSP)
   participant VTS as VTS
-  participant I as Emisor (Issuer TSP)
+  participant I as Emissor (Issuer TSP)
   W->>VTS: Enroll Device / Enroll PAN
   VTS->>I: Check Eligibility (PAN elegível?)
   I-->>VTS: elegível -> card art, T&C, metadata, enrollment ID

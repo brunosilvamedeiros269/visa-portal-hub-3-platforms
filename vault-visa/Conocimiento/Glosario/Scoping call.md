@@ -23,7 +23,7 @@ Ao final, o engenheiro envia o convite **com o script anexo**, incluindo os caso
 > [!tip] O que essa sessão pode resolver de graça
 > Casos que o banco não consegue executar às vezes simplesmente **não se aplicam** ao seu perfil. No [[BROU — dossiê|BROU]], o caso **13.2 (Dynamic CVV)** era a única prova pendente e foi encerrado como *no aplica* — sem nenhuma execução. Revisar o script antes evita o banco travar achando que tem caso pendente. O mesmo costuma valer para [[OCT - AFT|AFT e OCT]] em emissores que não participam desses fluxos.
 
-**Categoría:** [[MOC — Processo-PMO]]
+**Categoria:** [[MOC — Processo-PMO]]
 
 ---
 [[Home]]

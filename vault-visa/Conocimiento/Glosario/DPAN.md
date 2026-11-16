@@ -12,4 +12,4 @@ estado: verificado
 
 Device PAN: token no dispositivo (Apple/Google Pay).
 
-**Categoría:** [[MOC — Tokenização]]
+**Categoria:** [[MOC — Tokenização]]

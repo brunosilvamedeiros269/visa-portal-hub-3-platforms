@@ -20,4 +20,4 @@ Plataforma da Visa para clientes: abertura de projeto (ticket), [[Revisão de Ar
 > [!info] Notas de operação
 > Mudanças em *Additional Information* precisam estar atribuídas aos ranges de [[BIN]] (aba *Assignments → Manage Assignments*); com um único grupo de Additional Information, todos os ranges já estão vinculados e não é preciso reatribuir. A propagação leva **algumas horas**. O campo **URL** só é necessário para In-App Provisioning (INAP).
 
-**Categoría:** [[MOC — Processo-PMO]]
+**Categoria:** [[MOC — Processo-PMO]]

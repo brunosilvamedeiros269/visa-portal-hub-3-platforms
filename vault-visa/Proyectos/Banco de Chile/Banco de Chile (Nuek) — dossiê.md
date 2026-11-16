@@ -1,6 +1,6 @@
 ---
 tags: ["proyecto", "cliente/Banco-de-Chile"]
-fuente: Dailies de estabilización — Banco de Chile × Nuek; transcrições automáticas de ago–nov/2026 (não validadas)
+fuente: Dailies de estabilização — Banco de Chile × Nuek; transcrições automáticas de ago–nov/2026 (não validadas)
 estado: parcial
 ---
 
@@ -63,14 +63,14 @@ Fila ativa, com alguns temas já dados por fechados (incidente "incoming Visa", 
 1. **Funcionalidade perdida na migração** — a renovação antecipada existia no legado e não existe na Nuek. A alternativa (mexer no parâmetro de 5 meses) é **global**, com efeito colateral amplo. *"Puede cambiar un solo parametrito, puede gatillar quizás cuántas cosas."*
 2. **Distorção da LCN** — a base de estatísticas do banco não é confiável desde 15/jul.
 3. **Cartão virtual** com segundo caso de rejeição por CVV e mensagens 1120 inesperadas — não é problema isolado.
-4. **Cota tomada indevidamente** em avances (divergência processador × canais) — impacto direto e recorrente no cliente.
+4. **Cota tomada indevidamente** em *avances* — adiantamentos em dinheiro (divergência processador × canais) — impacto direto e recorrente no cliente.
 5. **Volume e emaranhamento de tickets** — risco explicitado pelo próprio banco de perder rastreabilidade dentro de um ticket gigante.
 6. **Transição de PM em pleno período de instabilidade.**
 7. Dependência de analista externo com restrição de fuso.
 
 ## Linha do tempo (ago–nov/2026)
 - **26/ago/2026** — 1:1 de contexto com o banco: **142 tickets abertos, 34 prioritários**; 65 em Nuek sem data-objetivo. Bruno assume o caso do bloqueio por fraude que não chega à marca.
-- **27/ago/2026** — O diretório do banco aprova pagos e ajustes por *fecha valor*. Do lado comercial, o sponsor de medios de pago sai em 31/ago.
+- **27/ago/2026** — A diretoria do banco aprova pagamentos e ajustes por *data-valor*. Do lado comercial, o sponsor de meios de pagamento sai em 31/ago.
 - **~28/ago/2026** — Daily: recusas que o atendimento não consegue ver; a Visa já havia respondido o caso de fraude.
 - **4/set/2026** — Daily: erro criptográfico do [[BIN]] 415282 com correção no dia; Bruno acionado num segundo caso com a marca (fallback manual).
 - **5/out/2026** — Lina dá o contexto ao time: CYBS com 9 pessoas, contrato até dez/2026, funcionalidades que a Nuek não entrega.
@@ -96,16 +96,16 @@ Além das regressões já listadas, a estabilização teve um problema transvers
 
 Por decisão do banco, esses tickets **não foram marcados como "proyecto"**, para não inflar o estoque da estabilização — o que ajuda a ler os números, mas esconde a dor. A Nuek levou o tema a uma mesa de "glosas e fluxo" *(estado posterior desconhecido)*.
 
-Outros temas de fundo do mesmo período: reversa que conta no limite diário de operações (solução levada a produto, sem data); *fecha valor* com devolução de impostos, possível em duas fases; erro criptográfico ligado à parametria de CVV depois da abertura de intervalos de BIN para cartão virtual.
+Outros temas de fundo do mesmo período: reversa que conta no limite diário de operações (solução levada a produto, sem data); *data-valor* com devolução de impostos, possível em duas fases; erro criptográfico ligado à parametrização de CVV depois da abertura de intervalos de BIN para cartão virtual.
 
-## Fechamento e vídeo de cierre (out/2026)
+## Fechamento e vídeo de encerramento (out/2026)
 O fechamento foi contado a partir do deck que a CYBS completou em 27/out:
 
 - **Objetivo:** assegurar continuidade, estabilidade e controle durante execução, go-live e estabilização.
 - **Entregue:** 4 migrações, todos os F&F, capacitação e gestão da mudança; estabilização em etapa de fechamento.
 - **Equipe:** não só PMO — suporte à certificação com as bandeiras, contabilidade e regulação, especialistas técnicos, suporte à migração. Coordenação central da Visa ([[VIS (Visa Implementation Services)|VIS]] + CYBS) entre banco, processador novo, bandeiras e processador anterior.
 - **Indicador:** 772 tickets fechados. Decidiu-se usar **apenas indicadores com número comprovável**.
-- **Valor técnico:** a validação financeiro-contábil pós-migração (devengo, juros, diferenças), feita quase caso a caso.
+- **Valor técnico:** a validação financeiro-contábil pós-migração (competência, juros, diferenças), feita quase caso a caso.
 - **Legado:** modelo de seguimento instalado e marco de validações pós-migração; os pendentes principais ficam para **2027**, sem linha de tempo.
 
 O vídeo, pedido pela direção, ficou pronto em 28/out (~3 minutos, roteiro por cenas, feito com Claude). A alternativa Copilot + Clipchamp foi apresentada ao time no mesmo dia; um aprendizado útil: anexar a PPT faz o Copilot narrar o deck inteiro, incluindo o aviso de confidencialidade.

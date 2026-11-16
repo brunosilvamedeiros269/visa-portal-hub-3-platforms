@@ -4,7 +4,7 @@ fuente: Guias da pasta + fontes públicas
 estado: verificado
 ---
 
-# Google Pay — [[Push - In-App Provisioning (fluxo verde)|Push]] Provisioning (proceso)
+# Google Pay — [[Push - In-App Provisioning (fluxo verde)|Push]] Provisioning (processo)
 
 > [!info] Resumo estruturado (fonte: guias técnicos Visa/Google — conteúdo confidencial, aqui só a síntese do processo).
 

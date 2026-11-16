@@ -10,6 +10,6 @@ estado: verificado
 
 > [!info] Carteiras
 
-Portal administrativo da Apple (bines, produtos, marketing, certificador). Não é onde se resolvem problemas técnicos.
+Portal administrativo da Apple (BINs, produtos, marketing, certificador). Não é onde se resolvem problemas técnicos.
 
-**Categoría:** [[MOC — Carteiras]]
+**Categoria:** [[MOC — Carteiras]]

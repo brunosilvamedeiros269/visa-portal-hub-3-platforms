@@ -3,7 +3,7 @@
 > Instruções mestras do projeto. Este arquivo é o **ponto único de contexto** para
 > qualquer pessoa (ou IA) que trabalhe no repositório. Leia-o antes de tudo.
 >
-> **Última revisão: 19/08/2026.** Se algo aqui divergir do código, o código ganha —
+> **Última revisão: 16/11/2026.** Se algo aqui divergir do código, o código ganha —
 > e conserte este arquivo no mesmo commit.
 
 ## 1. O que é este projeto
@@ -28,14 +28,14 @@ central é **carga cognitiva** — informação fragmentada em reuniões, PDFs, 
 |---|---|---|
 | **Dados de projeto** (fonte da verdade) | **Supabase** (projeto `iuwvwhofxuvmwnpbsnth`) | Clientes, projetos, tracks, tarefas, marcos, riscos, reuniões, documentos |
 | **App / cockpit** | `app/` — React + Vite → **Vercel** | Lê **e escreve** no Supabase direto pelo cliente `anon` (RLS aberto). Ingere transcrições por IA |
-| **Vault de conhecimento** | `vault-visa/` — markdown com wikilinks | Aberto como vault no **Obsidian**. Conceitos, glossário, MOCs, técnico, troubleshooting e **dossiês por cliente** |
-| **Wiki pública** | `wiki/` — **Quartz** → **Vercel** | Publica o `vault-visa/` como site estático |
+| **Vault de conhecimento** | `vault-visa/` (português) e `vault-visa-es/` (espanhol) — markdown com wikilinks | Abertos como vaults no **Obsidian**. Conceitos, glossário, MOCs, técnico, troubleshooting e **dossiês por cliente** |
+| **Wiki pública** | `wiki/` — **Quartz** → **Vercel** | Publica os dois vaults como site estático: português na raiz, espanhol em `/es/`, com seletor PT \| ES na barra |
 | **Migrações de banco** | `db/*.sql` | Um arquivo datado por mudança. Idempotentes |
 | **Ponte de IA** | `api/procesar-minuta.js` + `api/engines.js` | Serverless: recebe o texto da ata e devolve decisões, action items e riscos estruturados |
 
 ### As duas URLs publicadas
 - **App / seguimento:** `https://visa-portal-hub-3-platforms.vercel.app/`
-- **Wiki:** `https://visa-wiki.vercel.app/` — build: `npx quartz build -d ../vault-visa -o public`
+- **Wiki:** `https://visa-wiki.vercel.app/` (português) e `https://visa-wiki.vercel.app/es/` (espanhol) — build: `cd wiki && node build.mjs`
 
 **Elas se alimentam de fontes diferentes.** Mudar o Supabase muda só o app. Mudar o
 `vault-visa/` muda só a wiki — e **só depois de um deploy**. Atualizar um e esquecer o outro é
@@ -50,6 +50,17 @@ sensível em tabela sem RLS restritiva**.
 As chaves de IA (`GEMINI_API_KEY`, `XAI_API_KEY`, `ANTHROPIC_API_KEY`) vivem **só** como env
 vars no Vercel e são usadas apenas em `api/`. **Nunca** com prefixo `VITE_` — isso as exporia
 ao navegador.
+
+### Wiki em duas línguas — a regra que não se quebra
+
+`vault-visa/` e `vault-visa-es/` são **espelhos**: mesmas pastas, **mesmos nomes de arquivo**, mesmos alvos de
+wikilink. Só o conteúdo muda de língua. É isso que permite ao seletor PT | ES (em `wiki/inject.mjs`) levar à
+mesma nota na outra língua.
+
+- Nota nova, renomeada ou apagada: faça **nos dois vaults**, no mesmo caminho.
+- Na versão em espanhol o título exibido vem de `title:` no frontmatter (o nome do arquivo fica em português).
+- Alvo de wikilink nunca se traduz; para ler bem em espanhol use apelido: `[[Enrolamento massivo|enrolamiento masivo]]`.
+- `Conocimiento/Índices/Índice — fuentes.md` é gerado: `python3 wiki/indice-fuentes.py` regenera os dois.
 
 ## 3. Modelo de dados (tabelas no Supabase)
 
@@ -89,8 +100,9 @@ use exatamente estes valores):
 app/                  Cockpit React + Vite. Lê/escreve Supabase. Deploy raiz do Vercel
 api/                  Serverless: procesar-minuta.js (IA) e engines.js
 db/*.sql              Migrações datadas e idempotentes
-vault-visa/           Vault do Obsidian — conhecimento + dossiês por cliente
-wiki/                 Quartz. Publica o vault-visa como site estático
+vault-visa/           Vault do Obsidian em português — conhecimento + dossiês por cliente
+vault-visa-es/        Espelho em espanhol (mesmos caminhos e nomes de arquivo)
+wiki/                 Quartz. Publica os dois vaults (build.mjs, inject.mjs, indice-fuentes.py)
 01_Projetos/ 02_Reunioes/ 03_Produtos/ 04_Visa_Workflows/ 05_Dicionario_Termos/
                       Seed histórico em markdown. NÃO é fonte da verdade; ninguém alimenta mais
 .claude/skills/       Skills que guiam o trabalho aqui
@@ -102,7 +114,7 @@ CLAUDE.md             Este arquivo
 | O que você tem | Onde vai |
 |---|---|
 | Status, datas, % , pendências, riscos, marcos | **Supabase** — pelo app ou por migração em `db/` |
-| Contexto, história, decisões, incidentes de um cliente | **`vault-visa/Proyectos/<Cliente>/<Cliente> — dossiê.md`** |
+| Contexto, história, decisões, incidentes de um cliente | **`vault-visa/Proyectos/<Cliente>/<Cliente> — dossiê.md`** e o espelho em `vault-visa-es/` |
 | Conceito, sigla, processo reutilizável | **`vault-visa/Conocimiento/`** (Glosario, Técnico, Troubleshooting, MOCs) |
 | Transcrição bruta, PDF, PPTX | Fora do repo (OneDrive). No repo entra só o **destilado** |
 
@@ -127,11 +139,11 @@ entendimento. O banco registra o fato; o vault registra o significado.
 
 1. Trabalhe em **branch** (`claude/...` é o padrão do repo). Nunca direto em `main`.
 2. **Se mexeu no app:** `cd app && npm run build` tem de passar.
-3. **Se mexeu no vault:** `cd wiki && npm install && npx quartz build -d ../vault-visa -o public`
-   tem de passar. Confira que as páginas novas saíram em `wiki/public/`.
+3. **Se mexeu no vault:** `cd wiki && npm install && node build.mjs` tem de passar. Confira que as
+   páginas novas saíram em `wiki/public/` **e** em `wiki/public/es/`.
 4. **Se mexeu em links do vault:** rode um verificador de wikilinks quebrados antes de commitar.
 5. **Se criou nota nova no vault:** atualize `vault-visa/index.md`, o **MOC** da categoria e
-   regenere `Conocimiento/Índices/Índice — fuentes.md`.
+   regenere `Conocimiento/Índices/Índice — fuentes.md` (`python3 wiki/indice-fuentes.py`) — nos dois vaults.
 6. **Se escreveu migração:** valide contra um Postgres local e rode **duas vezes** para provar
    idempotência.
 7. Commit com mensagem clara (o quê + por quê), co-autoria Claude.

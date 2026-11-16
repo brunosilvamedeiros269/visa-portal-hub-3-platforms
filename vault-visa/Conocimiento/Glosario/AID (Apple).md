@@ -12,4 +12,4 @@ estado: verificado
 
 Identificador do app/entidade na Apple; precisa estar vigente para o Apple Pay.
 
-**Categoría:** [[MOC — Carteiras]]
+**Categoria:** [[MOC — Carteiras]]

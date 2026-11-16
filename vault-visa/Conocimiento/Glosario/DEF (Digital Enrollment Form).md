@@ -2,7 +2,7 @@
 aliases: ["DEF", "Digital Enrollment Form"]
 tags: ["glosario/tokenizacao"]
 categoria: Tokenização
-fuente: Seguimiento VTS COF/e-Commerce — BROU (ago/2026)
+fuente: Seguimento VTS COF/e-Commerce — BROU (ago/2026)
 estado: verificado
 ---
 
@@ -23,7 +23,7 @@ Formulário que declara à Visa as **URLs e os campos a ativar a nível de [[Pro
 > [!warning] Armadilha conhecida
 > A entrega do DEF já falhou por **bloqueio de e-mail com anexo** entre banco e Visa. Se o e-mail não chegar, anexar ao caso no **Dynamics** ou usar correio seguro.
 
-**Categoría:** [[MOC — Tokenização]]
+**Categoria:** [[MOC — Tokenização]]
 
 ---
 [[Home]]

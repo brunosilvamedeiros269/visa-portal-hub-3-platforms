@@ -2,7 +2,7 @@
 aliases: ["F&F", "Friends & Family", "piloto produtivo"]
 tags: ["glosario/processo-pmo"]
 categoria: Processo/PMO
-fuente: Seguimiento VTS COF/e-Commerce — BROU (ago/2026)
+fuente: Seguimento VTS COF/e-Commerce — BROU (ago/2026)
 estado: verificado
 ---
 
@@ -25,7 +25,7 @@ estado: verificado
 > [!tip] Regras de risco
 > Antes do piloto, comparar os **casos de uso sugeridos de VRM** para o produto que está entrando (ex.: token e-Commerce/COF de débito) com as regras já configuradas para crédito e pré-pago. A decisão sobre regras é **sempre do emissor** — mas regras não revisadas geram recusas indevidas justamente no piloto.
 
-**Categoría:** [[MOC — Processo-PMO]]
+**Categoria:** [[MOC — Processo-PMO]]
 
 ---
 [[Home]]

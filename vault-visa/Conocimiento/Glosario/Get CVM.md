@@ -12,4 +12,4 @@ estado: verificado
 
 API para obter os métodos de verificação do titular (OTP, call center) no step-up.
 
-**Categoría:** [[MOC — Tokenização]]
+**Categoria:** [[MOC — Tokenização]]

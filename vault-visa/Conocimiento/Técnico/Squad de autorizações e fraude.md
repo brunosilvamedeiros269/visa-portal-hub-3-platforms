@@ -1,6 +1,6 @@
 ---
 tags: ["tecnico"]
-fuente: Handover de autorizaciones y fraude — Bapro (10/ago/2026)
+fuente: Handover de autorizações e fraude — Bapro (10/ago/2026)
 estado: verificado
 ---
 
@@ -48,8 +48,8 @@ Os **5 bancos mais parecidos**, selecionados por volume de transações, públic
 - Para NSF em débito só cabe ação **comunicacional** (avisar o cliente que um serviço vence em 3 dias).
 
 ## Exemplo canônico de recomendação — estratégia de *over limit*
-1. Detecta-se excesso de rejeições por limite insuficiente num **rubro (MCC) específico**.
-2. Analisa-se como vêm os gastos nesse rubro, o **ticket médio das rejeitadas** e o **score de risco** desses clientes.
+1. Detecta-se excesso de rejeições por limite insuficiente num **ramo (MCC) específico**.
+2. Analisa-se como vêm os gastos nesse ramo, o **ticket médio das rejeitadas** e o **score de risco** desses clientes.
 3. Recomenda-se com especificidade numérica: *"para este rubro específico debería haber un over limit de 20 dólares, porque con ese límite no corres mucho riesgo en fraude y va a subir tu tasa de aprobación en tanto porcentaje."*
 4. Entrega ao banco e acompanhamento junto ao processador até a implementação.
 

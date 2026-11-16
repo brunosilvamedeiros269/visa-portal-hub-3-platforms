@@ -4,7 +4,7 @@ tags: ["moc"]
 
 # MOC — Fundamentos
 
-Términos del glosario en esta categoría.
+Termos do glossário nesta categoria.
 
 - [[Adquirente]] — Banco do comércio; captura a transação e a envia à Visa.
 - [[BIN]] — Faixa de numeração do cartão; as configurações são feitas por BIN participante.

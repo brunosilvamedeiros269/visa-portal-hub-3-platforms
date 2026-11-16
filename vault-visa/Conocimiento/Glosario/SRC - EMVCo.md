@@ -12,4 +12,4 @@ estado: verificado
 
 Secure Remote Commerce (EMVCo, 2019), base do [[Click to Pay]]; o ícone é marca da EMVCo.
 
-**Categoría:** [[MOC — Click to Pay]]
+**Categoria:** [[MOC — Click to Pay]]

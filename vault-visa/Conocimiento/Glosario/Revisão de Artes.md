@@ -12,4 +12,4 @@ estado: verificado
 
 Validação das imagens do card (na [[VCMM]]) que o cliente verá na wallet.
 
-**Categoría:** [[MOC — Processo-PMO]]
+**Categoria:** [[MOC — Processo-PMO]]

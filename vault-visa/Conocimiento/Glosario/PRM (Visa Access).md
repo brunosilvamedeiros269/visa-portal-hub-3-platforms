@@ -12,4 +12,4 @@ estado: verificado
 
 Portal onde o emissor enrola o [[ITSP]] como [[Third Party Agent]] (pré-requisito).
 
-**Categoría:** [[MOC — Processo-PMO]]
+**Categoria:** [[MOC — Processo-PMO]]

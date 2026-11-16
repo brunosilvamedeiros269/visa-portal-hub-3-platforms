@@ -12,4 +12,4 @@ estado: verificado
 
 Business ID do emissor na Visa, exigido no onboarding do Google Pay (6-20 dígitos).
 
-**Categoría:** [[MOC — Carteiras]]
+**Categoria:** [[MOC — Carteiras]]

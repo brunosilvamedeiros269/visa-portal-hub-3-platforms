@@ -12,4 +12,4 @@ estado: verificado
 
 Merchant PAN: token vinculado a um comércio (recorrência/assinaturas).
 
-**Categoría:** [[MOC — Tokenização]]
+**Categoria:** [[MOC — Tokenização]]

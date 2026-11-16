@@ -63,11 +63,11 @@ Ver se a config da Visa está OK (fluxo amarelo funciona? T&C carregados?). Se s
 </details>
 <details><summary>O [[Partner Hub]] é técnico ou administrativo?</summary>
 
-Administrativo (bines, produtos, certificador, marketing). Problemas técnicos de push provisioning não se resolvem lá.
+Administrativo (BINs, produtos, certificador, marketing). Problemas técnicos de push provisioning não se resolvem lá.
 </details>
 
 ## P4 · [[Click to Pay]]
-<details><summary>Por que o [[Click to Pay]] é cross-emisor e cross-marca?</summary>
+<details><summary>Por que o [[Click to Pay]] é cross-emissor e cross-marca?</summary>
 
 Porque é solução de indústria (SRC/[[SRC - EMVCo|EMVCo]]). Ao logar (email ou telefone, via OTP), o lookup lista todas as credenciais associadas àquele contato — Visa, Mastercard, de vários bancos.
 </details>

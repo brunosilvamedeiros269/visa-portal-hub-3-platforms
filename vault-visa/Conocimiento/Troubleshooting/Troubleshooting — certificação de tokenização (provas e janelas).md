@@ -7,7 +7,7 @@ estado: verificado
 # Troubleshooting — certificação de tokenização (provas e janelas)
 
 > [!bug] Sintoma
-> A certificação de [[Tokenização|tokenização]] não avança: casos travados, janelas desperdiçadas, provas que não se conseguem executar — e o track inteiro de billeteras parado atrás dela.
+> A certificação de [[Tokenização|tokenização]] não avança: casos travados, janelas desperdiçadas, provas que não se conseguem executar — e o track inteiro de carteiras parado atrás dela.
 
 Reunião a reunião, os bloqueios de certificação do [[BROU — dossiê|BROU]] caíram em quatro categorias. Nenhuma era um defeito de plataforma.
 

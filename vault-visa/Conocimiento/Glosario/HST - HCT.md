@@ -12,4 +12,4 @@ estado: verificado
 
 Provedor/habilitador que conecta o emissor à Visa para o [[Click to Pay]] (caso BROU, via [[Sistarbank]]).
 
-**Categoría:** [[MOC — Processo-PMO]]
+**Categoria:** [[MOC — Processo-PMO]]

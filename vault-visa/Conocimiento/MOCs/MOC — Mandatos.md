@@ -4,7 +4,7 @@ tags: ["moc"]
 
 # MOC — Mandatos
 
-Términos del glosario en esta categoría.
+Termos do glossário nesta categoria.
 
 - [[ANI]] — 3º mandato do BROU (antes anotado como Annie); waiver até agosto/2026.
 - [[Mandato]] — Regra que a Visa impõe a todos os emissores. Descumprir gera multa (não para o serviço). Ex.: Click to Pay.

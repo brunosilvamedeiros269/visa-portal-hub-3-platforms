@@ -12,4 +12,4 @@ estado: verificado
 
 Site legado onde o consumidor se enrolava sozinho; fica somente-leitura quando o emissor assume a gestão.
 
-**Categoría:** [[MOC — Click to Pay]]
+**Categoria:** [[MOC — Click to Pay]]

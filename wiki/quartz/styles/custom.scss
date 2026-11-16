@@ -110,6 +110,24 @@
     border-radius: 12px;
     padding: 4px;
   }
+  .vt-right {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .vt-langs {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    background: rgba(5, 14, 31, 0.7);
+    border: 1px solid #1e2a44;
+    border-radius: 12px;
+    padding: 4px;
+  }
+  .vt-pill.vt-lang {
+    padding: 0.42rem 0.6rem;
+    letter-spacing: 0.04em;
+  }
   .vt-pill {
     display: inline-flex;
     align-items: center;

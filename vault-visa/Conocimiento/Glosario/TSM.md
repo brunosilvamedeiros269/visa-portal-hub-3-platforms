@@ -12,4 +12,4 @@ estado: verificado
 
 Trusted Service Manager: serviços que geram/provisionam DPANs aos dispositivos.
 
-**Categoría:** [[MOC — Carteiras]]
+**Categoria:** [[MOC — Carteiras]]

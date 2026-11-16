@@ -18,7 +18,7 @@ API do fluxo de enrolamento de [[Click to Pay]] que **registra o consumidor** �
 > [!note] Estado desta nota
 > O nome e o papel vêm da ata do SteerCo, não da especificação. **Contrato exato, parâmetros e códigos de erro não foram confirmados contra a documentação** — confirmar com o [[ITSP]] antes de usar como referência técnica.
 
-**Categoría:** [[MOC — Click to Pay]]
+**Categoria:** [[MOC — Click to Pay]]
 
 ---
 [[Home]]

@@ -12,4 +12,4 @@ estado: verificado
 
 Provisioning sem step-up; típico de enrolar de dentro do app do banco (cliente já autenticado).
 
-**Categoría:** [[MOC — Tokenização]]
+**Categoria:** [[MOC — Tokenização]]

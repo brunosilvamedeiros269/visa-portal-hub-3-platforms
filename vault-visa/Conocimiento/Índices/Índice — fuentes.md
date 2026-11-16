@@ -2,17 +2,17 @@
 tags: ["indice"]
 ---
 
-# Índice de fuentes
+# Índice de fontes
 
-De dónde viene cada nota y su estado de verificación. Se regenera con el vault.
+De onde vem cada nota e o seu estado de verificação. É regenerado com o vault.
 
-**Total:** 114 notas · **verificadas:** 100 · **parciales (~):** 14
+**Total:** 114 notas · **verificadas:** 100 · **parciais (~):** 14
 
-`~` = el término y su papel vienen de ata o transcripción de reunión, no de la especificación; falta confirmar contra documentación.
+`~` = o termo e o seu papel vêm de ata ou transcrição de reunião, não da especificação; falta confirmar contra a documentação.
 
-## Concepto (7)
+## Conceito (7)
 
-| Nota | Fuente | Estado |
+| Nota | Fonte | Estado |
 |---|---|---|
 | [[1. Visão geral — nosso papel e o fluxo]] | Notas do time (Notion) | ✓ |
 | [[2. Fundamentos de pagamentos]] | Notas do time (Notion) | ✓ |
@@ -24,14 +24,14 @@ De dónde viene cada nota y su estado de verificación. Se regenera con el vault
 
 ## Estudo (2)
 
-| Nota | Fuente | Estado |
+| Nota | Fonte | Estado |
 |---|---|---|
 | [[Banco de perguntas]] | Notas de estudo (Notion) | ✓ |
 | [[Plano de estudos]] | Notas de estudo (Notion) | ✓ |
 
-## Glosario (80)
+## Glossário (80)
 
-| Nota | Fuente | Estado |
+| Nota | Fonte | Estado |
 |---|---|---|
 | [[Adquirente]] | Dicionário (Notion) | ✓ |
 | [[AID (Apple)]] | Dicionário (Notion) | ✓ |
@@ -48,7 +48,7 @@ De dónde viene cada nota y su estado de verificación. Se regenera con el vault
 | [[CSM (Customer Success Manager)]] | Dicionário (Notion) | ✓ |
 | [[CTA (Click-to-Accept)]] | Dicionário (Notion) | ✓ |
 | [[CTF (Cloud Token Framework)]] | Dicionário (Notion) | ✓ |
-| [[DEF (Digital Enrollment Form)]] | Seguimiento VTS COF/e-Commerce — BROU (ago/2026) | ✓ |
+| [[DEF (Digital Enrollment Form)]] | Seguimento VTS COF/e-Commerce — BROU (ago/2026) | ✓ |
 | [[Destination Site]] | Dicionário (Notion) | ✓ |
 | [[DPAN]] | Dicionário (Notion) | ✓ |
 | [[Emissor]] | Dicionário (Notion) | ✓ |
@@ -59,7 +59,7 @@ De dónde viene cada nota y su estado de verificación. Se regenera con el vault
 | [[Fluxo amarelo (85)]] | Dicionário (Notion) | ✓ |
 | [[Fluxo verde (00)]] | Dicionário (Notion) | ✓ |
 | [[FPAN]] | Dicionário (Notion) | ✓ |
-| [[Friends and Family]] | Seguimiento VTS COF/e-Commerce — BROU (ago/2026) | ✓ |
+| [[Friends and Family]] | Seguimento VTS COF/e-Commerce — BROU (ago/2026) | ✓ |
 | [[Get CVM]] | Dicionário (Notion) | ✓ |
 | [[HST - HCT]] | Dicionário (Notion) | ✓ |
 | [[ISO 8583]] | Dicionário (Notion) | ✓ |
@@ -67,7 +67,7 @@ De dónde viene cada nota y su estado de verificación. Se regenera con el vault
 | [[ITSP]] | Dicionário (Notion) | ✓ |
 | [[Mandato]] | Dicionário (Notion) | ✓ |
 | [[Manual provisioning]] | Dicionário (Notion) | ✓ |
-| [[MAR (Minimum Approval Rate)]] | Handover de autorizaciones y fraude — Bapro (10/ago/2026) | ✓ |
+| [[MAR (Minimum Approval Rate)]] | Handover de autorizações e fraude — Bapro (10/ago/2026) | ✓ |
 | [[Modelo de quatro partes]] | Dicionário (Notion) | ✓ |
 | [[MPAN]] | Dicionário (Notion) | ✓ |
 | [[OBO (On-Behalf-Of)]] | Dicionário (Notion) | ✓ |
@@ -97,7 +97,7 @@ De dónde viene cada nota y su estado de verificación. Se regenera con el vault
 | [[TestFlight]] | Dicionário (Notion) | ✓ |
 | [[Thales]] | Dicionário (Notion) | ✓ |
 | [[Third Party Agent]] | Dicionário (Notion) | ✓ |
-| [[TLCM (Token Lifecycle Manager)]] | Seguimiento BBVA Uruguay (18/ago/2026) | ~ |
+| [[TLCM (Token Lifecycle Manager)]] | Seguimento BBVA Uruguay (18/ago/2026) | ~ |
 | [[Tokenização]] | Dicionário (Notion) | ✓ |
 | [[TPM (Technical Project Manager)]] | Dicionário (Notion) | ✓ |
 | [[TSM]] | Dicionário (Notion) | ✓ |
@@ -114,15 +114,15 @@ De dónde viene cada nota y su estado de verificación. Se regenera con el vault
 | [[Wallet Extensions]] | Dicionário (Notion) | ✓ |
 | [[Whitelist]] | Dicionário (Notion) | ✓ |
 
-## Proyecto (10)
+## Projeto (10)
 
-| Nota | Fuente | Estado |
+| Nota | Fonte | Estado |
 |---|---|---|
-| [[Banco de Chile (Nuek) — dossiê]] | Dailies de estabilización — Banco de Chile × Nuek; transcrições automáticas de ago–nov/2026 (não validadas) | ~ |
+| [[Banco de Chile (Nuek) — dossiê]] | Dailies de estabilização — Banco de Chile × Nuek; transcrições automáticas de ago–nov/2026 (não validadas) | ~ |
 | [[Banco de Corrientes — dossiê]] | Reports e atas — Banco de Corrientes; transcrições automáticas de ago–nov/2026 (não validadas) | ~ |
-| [[Banco Provincia (Bapro) — dossiê]] | Handover de autorizaciones y fraude (10/ago/2026) + transcrições de set–nov/2026 (seção de atualização) | ~ |
-| [[BancoEstado — dossiê]] | Sesiones de presentación del proceso — BancoEstado (ago/2026); transcrições automáticas de reuniões set–nov/2026 (não validadas) | ~ |
-| [[BBVA Uruguay — dossiê]] | Seguimiento Switch ITSP + Google Pay (18/ago/2026); transcrições automáticas de ago–nov/2026 (seguimento ~24/ago, weekly 31/ago, Pipeline Review 4/set, Weekly Tech 28/set–16/nov) | ~ |
+| [[Banco Provincia (Bapro) — dossiê]] | Handover de autorizações e fraude (10/ago/2026) + transcrições de set–nov/2026 (seção de atualização) | ~ |
+| [[BancoEstado — dossiê]] | Sessões de apresentação do processo — BancoEstado (ago/2026); transcrições automáticas de reuniões set–nov/2026 (não validadas) | ~ |
+| [[BBVA Uruguay — dossiê]] | Seguimento Switch ITSP + Google Pay (18/ago/2026); transcrições automáticas de ago–nov/2026 (seguimento ~24/ago, weekly 31/ago, Pipeline Review 4/set, Weekly Tech 28/set–16/nov) | ~ |
 | [[BCI (Featurespace) — dossiê]] | Transcrições de set–nov/2026 (reunião interna de 05/10, demo Featurespace de 09/10, 1:1 com Lina, Weekly Tech, weeklies SOCO) | ~ |
 | [[BROU — dossiê]] | Reports e atas — BROU; transcrições automáticas de ago–nov/2026 (não validadas) | ~ |
 | [[Comafi — dossiê]] | Transcrições automáticas — Weekly Visa SDK (~20/ago/2026), alinhamento interno (27/ago), Pipeline Review VCA × CS (4/set), Weekly Tech (28/set–16/nov/2026) | ~ |
@@ -131,7 +131,7 @@ De dónde viene cada nota y su estado de verificación. Se regenera con el vault
 
 ## Troubleshooting (3)
 
-| Nota | Fuente | Estado |
+| Nota | Fonte | Estado |
 |---|---|---|
 | [[Troubleshooting — certificação de tokenização (provas e janelas)]] | Certificação VTS COF/e-Commerce — BROU (jul–ago/2026) | ✓ |
 | [[Troubleshooting — crash do fluxo verde (push provisioning)]] | Reports/atas de projeto | ✓ |
@@ -139,7 +139,7 @@ De dónde viene cada nota y su estado de verificación. Se regenera con el vault
 
 ## Técnico (12)
 
-| Nota | Fuente | Estado |
+| Nota | Fonte | Estado |
 |---|---|---|
 | [[Apple Pay — Issuer Functional Requirements v3.5]] | Guias da pasta + fontes públicas | ✓ |
 | [[Aprendizados das reuniões — set a nov 2026]] | Transcrições de reuniões set–nov/2026 | ~ |
@@ -150,6 +150,6 @@ De dónde viene cada nota y su estado de verificación. Se regenera con el vault
 | [[Google Pay — Onboarding e UPP]] | Guias da pasta + fontes públicas | ✓ |
 | [[Google Pay — Push Provisioning (proceso)]] | Guias da pasta + fontes públicas | ✓ |
 | [[PMO de Carteiras — rol e responsabilidades]] | Guias da pasta + fontes públicas | ✓ |
-| [[Squad de autorizações e fraude]] | Handover de autorizaciones y fraude — Bapro (10/ago/2026) | ✓ |
+| [[Squad de autorizações e fraude]] | Handover de autorizações e fraude — Bapro (10/ago/2026) | ✓ |
 | [[Tokenização — arquitetura VTS e provisioning (aprofundamento)]] | Guias da pasta + fontes públicas | ✓ |
 | [[Visa Direct e mandatos (OCT-AFT, ANI) — aprofundamento]] | Guias da pasta + fontes públicas | ✓ |

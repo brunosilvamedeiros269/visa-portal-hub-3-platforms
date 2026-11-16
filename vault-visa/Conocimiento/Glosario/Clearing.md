@@ -12,4 +12,4 @@ estado: verificado
 
 Troca e conciliação das informações das transações entre as partes.
 
-**Categoría:** [[MOC — Fundamentos]]
+**Categoria:** [[MOC — Fundamentos]]

@@ -12,4 +12,4 @@ estado: verificado
 
 [[Processador]] do BROU; faria o enrolamento massivo do [[Click to Pay]].
 
-**Categoría:** [[MOC — Processo-PMO]]
+**Categoria:** [[MOC — Processo-PMO]]

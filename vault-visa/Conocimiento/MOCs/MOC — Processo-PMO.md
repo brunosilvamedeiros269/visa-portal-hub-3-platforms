@@ -4,7 +4,7 @@ tags: ["moc"]
 
 # MOC — Processo/PMO
 
-Términos del glosario en esta categoría.
+Termos do glossário nesta categoria.
 
 - [[CS Implementations]] — Quem configura no VisaNet (Miami executa, Argentina orquestra). Direção: Melina Albornoz. Fornece o TPM.
 - [[CSM (Customer Success Manager)]] — Contato do emissor; abre os projetos, entrega os pré-requisitos e o SOW.

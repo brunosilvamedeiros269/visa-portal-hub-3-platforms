@@ -12,4 +12,4 @@ estado: verificado
 
 Banco que emitiu o cartão; confere saldo/fraude e aprova.
 
-**Categoría:** [[MOC — Fundamentos]]
+**Categoria:** [[MOC — Fundamentos]]

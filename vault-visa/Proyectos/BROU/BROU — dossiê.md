@@ -14,7 +14,7 @@ estado: parcial
 - **País:** Uruguai. **PM Visa (líder):** Jenny (Lina / Bruno).
 - **Engajamento:** PMs por ~6 meses, desde **14/abr/2026** ("até onde chegarem"). Track de tokenização iniciado em **21/abr/2026**; contrato VCA vence **21/set/2026**.
 - **[[Processador]]:** [[Sistarbank]] — **PCR 1913**. **Habilitador [[Click to Pay]] / [[ITSP]]:** [[HST - HCT|HST]] / HCT.
-- **Rota crítica (débito):** [[Tokenização]] → billeteras e [[Click to Pay]] de débito.
+- **Rota crítica (débito):** [[Tokenização]] → carteiras e [[Click to Pay]] de débito.
 - **Modelo comercial:** **sem VIK / sem incentivos** — o banco pagou com recursos próprios, com desconto negociado. Escopo vendido em **6 meses** quando o time estimava **9**.
 
 **Contatos —** Banco: Jimena ("Jime", coordenação técnica/funcional), Alfredo (switch/integração), Eduardo (canais digitais), Gonzalo (simulador/BTS), Pablo, Luis, Rosa, Ariel; **UPLA** (Unidad de Prevención de Lavado de Activos) define a postura de [[OCT - AFT|OCT/AFT]]. Visa: Jenny, Lina Torres, Bruno Medeiros, **Emiliano ("Emi", [[CSM (Customer Success Manager)|CSM]])**, Melina Albornoz (stakeholder técnica), **Fernando** (Implementation Manager da tokenização), Juliana (engenheira de provas), Klaus (mandatos OCT/AFT), Mauro (Produto — ANI e OCT/AFT), Alexis (Produto — [[Click to Pay]]), Joyce (suporte técnico Google Pay), Vanessa, Soledad Rua. [[Sistarbank]]: Ivana, Juan Pablo, Adiel (Smart Vista). HCT: Carlos, José, Juan Pablo.
@@ -37,7 +37,7 @@ estado: parcial
 
 ## Status atual (base: seguimento de tokenização, 12/ago/2026)
 > [!note] Registro de 12/ago, mantido como histórico — o status vigente é o bloco acima.
-**A tokenização deixou de ser o bloqueio.** A certificação de host foi concluída em **11/ago** com a carta obtida, e o ticket de configuração produtiva foi criado em **12/ago**. O marco que destrava as billeteras é o **BIN produtivo (~31/ago)** — não o fim do projeto. A partir daí o gargalo do programa passa a ser **contratual**: o contrato VCA vence **21/set** e a decisão de extensão, pedida pelo banco no SteerCo de 29/jul, segue em aberto.
+**A tokenização deixou de ser o bloqueio.** A certificação de host foi concluída em **11/ago** com a carta obtida, e o ticket de configuração produtiva foi criado em **12/ago**. O marco que destrava as carteiras é o **BIN produtivo (~31/ago)** — não o fim do projeto. A partir daí o gargalo do programa passa a ser **contratual**: o contrato VCA vence **21/set** e a decisão de extensão, pedida pelo banco no SteerCo de 29/jul, segue em aberto.
 
 ## Frentes / tracks
 | Frente | Situação |
@@ -49,7 +49,7 @@ estado: parcial
 | Garmin Pay | Sem iniciar — declarado o track de **menor prioridade** no SteerCo |
 | Mandato [[OCT - AFT|OCT/AFT]] | Espera do banco — falta a postura normativa da **UPLA**. Waiver formal **vencido em junho** |
 | Mandato [[ANI]] | Espera de fornecedor — "fábrica" não priorizou. Extensão vence **31/ago** |
-| Billetera própria do BROU | **Fora de escopo** — tem Token Requestor ID próprio |
+| Carteira própria do BROU | **Fora de escopo** — tem Token Requestor ID próprio |
 
 ## Histórico (linha do tempo)
 - **21/abr/2026** — Início do track de [[Tokenização]].
@@ -63,9 +63,9 @@ estado: parcial
 - **6/ago/2026** — Seguimento: compromisso de enviar o **[[DEF (Digital Enrollment Form)|DEF]]** e o Processor Digital Activation Request de produção já em 7/ago, ganhando ~1 semana.
 - **11/ago/2026** — ✅ **Certificação de host concluída** em duas janelas de 1 h (09h30 e 17h30 Uruguai). **Carta obtida.**
 - **12/ago/2026** — Ticket de configuração produtiva criado. Replanejamento até o encerramento.
-- **~31/ago/2026** — **BIN produtivo** — marco de desbloqueio das billeteras.
+- **~31/ago/2026** — **BIN produtivo** — marco de desbloqueio das carteiras.
 - **1/set/2026** — Início do **[[Friends and Family]]** (5 dias).
-- **1ª semana de set/2026** — Remoção da [[Whitelist|whitelist]] = **go-live**; abertura tentativa dos projetos de billeteras.
+- **1ª semana de set/2026** — Remoção da [[Whitelist|whitelist]] = **go-live**; abertura tentativa dos projetos de carteiras.
 - **15/set/2026** — Encerramento do projeto de tokenização.
 - **21/set/2026** — Fim do contrato VCA atual.
 - **30/set/2026** — Vence o [[Waiver|waiver]] de [[Click to Pay]].
@@ -91,7 +91,7 @@ Primeiro Steering Committee do programa, presencial na sede do banco. A governan
 
 Leitura executiva declarada: *"Estamos mal que bien, estamos avanzando en todos los frentes menos en Garmin. Apple va un poquito más lento… varias de las billeteras todavía están dependientes de este primer proyecto que va en curso."*
 
-**Decisão pedida pelo banco — extensão do contrato.** Restam ~2 meses de 6 e o gatilho das billeteras só ocorre no fim de agosto. O BROU pediu explicitamente a possibilidade de estender. A Visa ficou de dimensionar **capacity, continuidade da PM e preço** para cenários de **1, 2 ou 3 meses**, com visibilidade **até meados de agosto** e decisão na **SteerCo de agosto**. Cenário alternativo levantado: **tirar o mandato [[ANI]] do escopo VCA** e concentrar recursos nas billeteras.
+**Decisão pedida pelo banco — extensão do contrato.** Restam ~2 meses de 6 e o gatilho das carteiras só ocorre no fim de agosto. O BROU pediu explicitamente a possibilidade de estender. A Visa ficou de dimensionar **capacity, continuidade da PM e preço** para cenários de **1, 2 ou 3 meses**, com visibilidade **até meados de agosto** e decisão na **SteerCo de agosto**. Cenário alternativo levantado: **tirar o mandato [[ANI]] do escopo VCA** e concentrar recursos nas carteiras.
 
 **Feedback do banco sobre o serviço (favorável):** o modelo de PM dedicada foi considerado fundamental — ordenou prioridades, centralizou a abertura dos projetos individuais e supre a limitação de banda do CSM (*"Emi es muy bueno, pero Emi está asignado a un montón"*). É a primeira vez que o BROU contrata este tipo de consultoria da Visa.
 
@@ -106,17 +106,17 @@ O ciclo que destravou o programa, e que vale como referência para outros emisso
 ## Caminho até produção (replanejado em 12/ago)
 `Carta de certificação` → `ticket de configuração produtiva (10 dias úteis)` → **`BIN produtivo ~31/ago`** → `[[Friends and Family]] 1/set (5 dias)` → `remover whitelist = go-live` → `Post Launch Tracking` → `fim do projeto 15/set`.
 
-> [!important] O marco que destrava as billeteras
-> Perguntado qual entregável libera a abertura dos projetos de carteiras, o Implementation Manager foi explícito: *"tan pronto el BIN esté productivo, o sea las configuraciones estén productivas, ya podrían iniciar el proyecto"*. **Não é preciso esperar 15/set** — a abertura das billeteras ficou marcada como tentativa para o **início de setembro**.
+> [!important] O marco que destrava as carteiras
+> Perguntado qual entregável libera a abertura dos projetos de carteiras, o Implementation Manager foi explícito: *"tan pronto el BIN esté productivo, o sea las configuraciones estén productivas, ya podrían iniciar el proyecto"*. **Não é preciso esperar 15/set** — a abertura das carteiras ficou marcada como tentativa para o **início de setembro**.
 
 ## Decisões e pontos importantes
-- **Rota crítica:** reforçar toda semana a sequência tokenização → billeteras / [[Click to Pay]] de débito.
+- **Rota crítica:** reforçar toda semana a sequência tokenização → carteiras / [[Click to Pay]] de débito.
 - **[[Click to Pay]]:** waiver até **30/set** (crédito, pré-pago e débito); meta de subida massiva **1/out**.
-- **[[External Consumer ID]]:** BROU tem **4 códigos emisores** → até 4 perfis por cliente. O impacto apurado é de **performance** (múltiplas invocações de API), não de experiência — mas o desenho segue pendente de validação com o time regional.
+- **[[External Consumer ID]]:** BROU tem **4 códigos de emissor** → até 4 perfis por cliente. O impacto apurado é de **performance** (múltiplas invocações de API), não de experiência — mas o desenho segue pendente de validação com o time regional.
 - **[[Enrolamento massivo]] — desenho confirmado:** arquivo do banco → [[Sistarbank]] → API massiva da HCT → API massiva da Visa.
 - **[[Destination Site]]:** será desativado região a região. Onde o emissor faz o enrolamento massivo, **o que ele enviou prevalece** e o site fica somente leitura.
 - **Regras de risco são decisão do emissor.** A Visa envia os casos de uso sugeridos para token e-Commerce/COF (incluindo whitelist); o banco compara com o que já tem de crédito e pré-pago.
-- **Billetera própria fora de escopo** — tem Token Requestor ID específico, não é Card-on-File. Exige projeto de implementação adicional ou requerimento por BAU com o gerente de conta.
+- **Carteira própria fora de escopo** — tem Token Requestor ID específico, não é Card-on-File. Exige projeto de implementação adicional ou requerimento por BAU com o gerente de conta.
 - **[[OCT - AFT|AFT]] não tem correlação com tokenização** (confirmado por Klaus) — ao contrário do que a ordenação inicial sugeria.
 - **Expectativa realista:** o conjunto não sai em menos de 9 meses; com 6 de engajamento, não se chega a tudo sem extensão.
 
@@ -137,7 +137,7 @@ O ciclo que destravou o programa, e que vale como referência para outros emisso
 - Validar o formato de **[[External Consumer ID]]** com o time regional.
 - Formulário de **opt-out no home banking** + comunicação aos clientes **30 dias antes**.
 
-**Billeteras**
+**Carteiras**
 - **Apple Pay: "API de novedades"** exigida pela Apple, com problema interno do banco — risco de **+1 mês**.
 - **Google Pay:** resposta do Google sobre os provisionamentos falhos (não aparecem nem no [[Sistarbank]] nem nas ferramentas Visa); depois agendar a sessão com o time técnico. Atenção: a primeira sessão de 30 min é gratuita, as seguintes são cobradas — chegar com perguntas fechadas.
 - **[[UPP (Unified Push Provisioning)|UPP]]:** falta o material técnico escrito da HCT. **Conflito de calendário:** o Google exige até **dez/2026**, mas o **freeze do banco vai de 25/nov a janeiro** → o prazo real é fim de novembro.

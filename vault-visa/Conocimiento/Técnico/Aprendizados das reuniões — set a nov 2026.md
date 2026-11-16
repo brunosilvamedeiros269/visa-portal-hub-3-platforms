@@ -122,9 +122,9 @@ Detalhe em [[Apple Pay — Issuer Functional Requirements v3.5]]. O que foi refo
 
 ## Como a Visa trabalha
 - [[VIS (Visa Implementation Services)|VIS]] acompanha e orquestra; não executa nem promete prazos. O PM técnico de CS só entra com projeto aberto e fecha com carta de turnover (Pipe CS, 04/09; time NT, 03/09).
-- CSM é o referente antes do projeto e o primeiro nível depois; BD é dono do contrato de incentivos e pode fazer waiver de cobrança (Pipe CS, 04/09).
+- CSM é a referência antes do projeto e o primeiro nível depois; BD é dono do contrato de incentivos e pode fazer waiver de cobrança (Pipe CS, 04/09).
 - Pré-vendas de VAS cuida só da venda e do Solution Design; aberto o projeto, é CS (VAS × VIS, 20/10).
-- Pipeline VCA × CS: frentes *prospecting* e *implementing*; tablero com uma aba por semana, unidade = track; reunião às terças desde outubro (Pipe CS, 04/09; BiWeekly, 08/10).
+- Pipeline VCA × CS: frentes *prospecting* e *implementing*; painel com uma aba por semana, unidade = track; reunião às terças desde outubro (Pipe CS, 04/09; BiWeekly, 08/10).
 - Ficam fora da pipe com CS: squads de autorizações/fraude, Feature Space e BAU (Pipe CS, 04/09).
 - Sem contrato VCA vigente, CS cobra por billing — USD 3.000/mês de Tech PM (Weekly Tech, ~29/09).
 - O contrato deve começar quando o cliente já pode operar; contrato assinado vai para a pasta compartilhada com CS (Pipe CS, 04/09; Weekly Tech, 19/10).

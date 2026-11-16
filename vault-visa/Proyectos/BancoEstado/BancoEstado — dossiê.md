@@ -1,6 +1,6 @@
 ---
 tags: ["proyecto", "cliente/BancoEstado"]
-fuente: Sesiones de presentación del proceso — BancoEstado (ago/2026); transcrições automáticas de reuniões set–nov/2026 (não validadas)
+fuente: Sessões de apresentação do processo — BancoEstado (ago/2026); transcrições automáticas de reuniões set–nov/2026 (não validadas)
 estado: parcial
 ---
 

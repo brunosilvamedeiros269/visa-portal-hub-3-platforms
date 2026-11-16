@@ -12,4 +12,4 @@ estado: verificado
 
 Métodos de autenticação de baixa fricção no checkout (biométrico; ou handoff ao app do emissor).
 
-**Categoría:** [[MOC — Click to Pay]]
+**Categoria:** [[MOC — Click to Pay]]

@@ -12,4 +12,4 @@ estado: verificado
 
 Acompanhamento (~10 dias) do aprovisionamento após o Comercial Launch.
 
-**Categoría:** [[MOC — Processo-PMO]]
+**Categoria:** [[MOC — Processo-PMO]]
