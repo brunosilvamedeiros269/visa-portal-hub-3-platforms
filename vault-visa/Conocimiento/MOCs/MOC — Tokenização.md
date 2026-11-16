@@ -4,7 +4,7 @@ tags: ["moc"]
 
 # MOC — Tokenização
 
-Términos del glosario en esta categoría.
+Termos do glossário nesta categoria.
 
 - [[APAN]] — Token de conta derivado do DPAN, para pagamentos multi-comércio.
 - [[Approve Provisioning]] — API de aprovação do token; 00 = fluxo verde (sem step-up), 85 = fluxo amarelo (step-up), ou rejeição.
@@ -24,7 +24,7 @@ Términos del glosario en esta categoría.
 - [[Tokenização]] — Trocar o PAN por um token guardado no lugar do número real.
 - [[TSP (Token Service Provider)]] — Provedor de tokenização contratado pelo emissor (consoles, ciclo de vida).
 - [[VDP (Visa Developer Platform)]] — Portal com a documentação/specs das APIs (ex.: BK Batch Specification do Click to Pay).
-- [[Vital Sign]] — Ferramenta da Visa para ver os intentos/logs de provisioning (Correlation ID / Token Reference ID).
+- [[Vital Sign]] — Ferramenta da Visa para ver as tentativas/logs de provisioning (Correlation ID / Token Reference ID).
 - [[VTS (Visa Token Service)]] — Serviço de tokenização da Visa, com APIs no Visa Developer.
 
 ---

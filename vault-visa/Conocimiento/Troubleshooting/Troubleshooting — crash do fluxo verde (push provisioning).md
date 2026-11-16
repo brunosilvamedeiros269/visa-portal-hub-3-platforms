@@ -35,7 +35,7 @@ Quando o mesmo app enrola **crédito com sucesso** mas **débito falha**, o prob
 Provisioning conclui com sucesso e ainda assim a app do banco segue mostrando o cartão como **não enrolado**, deixando o usuário repetir a operação. Aqui o defeito está na **devolução do status do token** para a app depois do enrolamento — verificar a atualização de estado nas plataformas envolvidas antes de mexer na app.
 
 > [!example] Visto em produção
-> [[Banco de Corrientes — dossiê|Banco de Corrientes]] (Apple Pay) — flujo verde travado; config Visa OK, chamada não chegava à Visa.
+> [[Banco de Corrientes — dossiê|Banco de Corrientes]] (Apple Pay) — fluxo verde travado; config Visa OK, chamada não chegava à Visa.
 > [[Banco de Corrientes — dossiê|Banco de Corrientes]], 30/jul/2026 — crédito enrolando OK após ajuste da [[Prisma]]; **débito** com HTTP 400 / responseCode 911, e **estado pós-provisioning** não refletindo na app.
 
 ---

@@ -12,4 +12,4 @@ estado: verificado
 
 Banco do comércio; captura a transação e a envia à Visa.
 
-**Categoría:** [[MOC — Fundamentos]]
+**Categoria:** [[MOC — Fundamentos]]

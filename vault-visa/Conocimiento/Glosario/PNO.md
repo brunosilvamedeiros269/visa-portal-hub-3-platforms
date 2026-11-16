@@ -12,4 +12,4 @@ estado: verificado
 
 Payment Network Operator (Visa, Mastercard, Amex, Discover).
 
-**Categoría:** [[MOC — Carteiras]]
+**Categoria:** [[MOC — Carteiras]]

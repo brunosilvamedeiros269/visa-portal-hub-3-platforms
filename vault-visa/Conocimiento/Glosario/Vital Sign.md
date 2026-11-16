@@ -10,6 +10,6 @@ estado: verificado
 
 > [!info] Tokenização
 
-Ferramenta da Visa para ver os intentos/logs de provisioning (Correlation ID / Token Reference ID).
+Ferramenta da Visa para ver as tentativas/logs de provisioning (Correlation ID / Token Reference ID).
 
-**Categoría:** [[MOC — Tokenização]]
+**Categoria:** [[MOC — Tokenização]]

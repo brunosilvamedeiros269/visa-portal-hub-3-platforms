@@ -12,4 +12,4 @@ estado: verificado
 
 Credencial de provisionamento passada durante o fluxo [[UPP (Unified Push Provisioning)|UPP]].
 
-**Categoría:** [[MOC — Carteiras]]
+**Categoria:** [[MOC — Carteiras]]

@@ -12,4 +12,4 @@ estado: verificado
 
 Representante de Wallets ou [[Click to Pay]] (Alexis Maso / Damian Ortiz); dá a palestra ao cliente.
 
-**Categoría:** [[MOC — Processo-PMO]]
+**Categoria:** [[MOC — Processo-PMO]]

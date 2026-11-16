@@ -12,4 +12,4 @@ estado: verificado
 
 [[Processador]] do Banco de Corrientes.
 
-**Categoría:** [[MOC — Processo-PMO]]
+**Categoria:** [[MOC — Processo-PMO]]

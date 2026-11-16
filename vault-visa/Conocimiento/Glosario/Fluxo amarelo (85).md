@@ -12,4 +12,4 @@ estado: verificado
 
 Provisioning com step-up; o token fica inativo até a verificação.
 
-**Categoría:** [[MOC — Tokenização]]
+**Categoria:** [[MOC — Tokenização]]

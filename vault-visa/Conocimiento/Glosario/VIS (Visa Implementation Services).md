@@ -12,4 +12,4 @@ estado: verificado
 
 Nosso time: PM dos projetos de tecnologia (carteiras e mandatos), dentro de Visa Consulting e Analytics.
 
-**Categoría:** [[MOC — Processo-PMO]]
+**Categoria:** [[MOC — Processo-PMO]]

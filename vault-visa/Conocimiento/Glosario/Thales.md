@@ -12,4 +12,4 @@ estado: verificado
 
 Provedor de tokenização (TSP/[[ITSP]]) e SDK do Banco de Corrientes.
 
-**Categoría:** [[MOC — Processo-PMO]]
+**Categoria:** [[MOC — Processo-PMO]]

@@ -4,9 +4,9 @@ fuente: Guias da pasta + fontes públicas
 estado: verificado
 ---
 
-# PMO de Carteiras — rol e responsabilidades
+# PMO de Carteiras — papel e responsabilidades
 
-Fonte: Guia de implementação de billeteras virtuais (PMO Wallet v2). Complementa [[6. Processo PMO de Carteiras]].
+Fonte: Guia de implementação de carteiras virtuais (PMO Wallet v2). Complementa [[6. Processo PMO de Carteiras]].
 
 ## Objetivo do PMO
 Documentar e conduzir a implementação de Google Pay / Apple Pay nos clientes — **além** do desenvolvimento técnico (que é do banco).
@@ -16,7 +16,7 @@ Documentar e conduzir a implementação de Google Pay / Apple Pay nos clientes �
 - Define **políticas e processos** que garantem a implementação.
 - Dá **apoio e orientação** ao cliente.
 - Faz **seguimento periódico** e aciona correções.
-- **Facilita a comunicação** entre o time, o cliente e os equipos internos.
+- **Facilita a comunicação** entre o time, o cliente e as equipes internas.
 - Produz **relatórios** de avanço às partes interessadas.
 
 ## RACI (resumo)

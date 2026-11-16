@@ -73,7 +73,7 @@ Naquele momento o fechamento parecia depender de duas coisas: o erro 303 e o lan
 
 Na Pipeline Review VCA × CS de **4/set** a conta foi outra. O contrato **já tinha sido estendido** e passara ~3 meses em "freeze" à espera do desenvolvimento do cliente. A decisão: **não fazer nova adenda; fechar formalmente**. O e-mail de fechamento ficou com Bruno, como PM — recap, fases, o CSM Facundo como ponto focal dali em diante, cópia a CS.
 
-Em ~28/set o Comafi aparece como fechado (mail de cierre); em 5/out, "Apple Pay fechado la semana pasada", e Bruno confirma à Lina que o projeto já não está com ele.
+Em ~28/set o Comafi aparece como fechado (e-mail de encerramento); em 5/out, "Apple Pay fechado la semana pasada", e Bruno confirma à Lina que o projeto já não está com ele.
 
 > [!note] Dois pontos que o registro não fecha
 > - A tarefa de 4/set descreve o recap com "Apple Pay **e Google Pay** em produção", mas na mesma reunião consta que o cliente não tinha lançado o Google. **Confirmar o que o e-mail disse.**
@@ -92,7 +92,7 @@ O projeto continua a aparecer nas conversas internas como caso de consulta:
 - **~20/ago** — Weekly Visa SDK (data inferida): erro 303, rebranding, transição Maxi → Pablo.
 - **27/ago** — Alinhamento interno: Bruno assume o seguimento.
 - **4/set** — Pipeline Review VCA × CS: **sem adenda; fechar formalmente**.
-- **~28/set** — Fechado (mail de cierre).
+- **~28/set** — Fechado (e-mail de encerramento).
 - **5/out** — Fora da carteira de Bruno.
 - **2/nov** — Comafi implementa Click to Pay com SDK Visa por conta própria.
 - **16/nov** — Citado como fonte de relatórios e de experiência reaproveitáveis.

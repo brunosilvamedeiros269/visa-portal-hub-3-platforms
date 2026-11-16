@@ -53,7 +53,7 @@ A proposta de PMO foi carregada, o cliente "teoricamente disse sim" (02/nov) e e
 - **19/nov** — Próxima semanal com o cliente.
 
 ## Kickoff (12/nov/2026)
-A PMO apresentou cinco funções: governança (papéis e semanal), planeamento e seguimento, coordenação entre áreas e bancos, gestão de riscos e documentação num arquivo único. A parte mais útil veio do cliente, em três pedidos claros:
+A PMO apresentou cinco funções: governança (papéis e semanal), planejamento e seguimento, coordenação entre áreas e bancos, gestão de riscos e documentação num arquivo único. A parte mais útil veio do cliente, em três pedidos claros:
 
 - **Nada pode ser bloqueante para a migração.** Daí a pergunta sobre [[Mandato|mandatos]]: se algum exige [[Waiver|waiver]], o grupo quer saber já.
 - **Confirmações por escrito.** Google e Apple responderam verbalmente que a fusão não exige nada nos contratos. A Visa quer isso escrito e ainda não conseguiu. O mesmo vale para a [[Tokenização|tokenização]] e para a dúvida de o cliente final ter de voltar a enrolar o cartão nas carteiras.
@@ -72,7 +72,7 @@ A sessão deixou duas mensagens Visa diferentes. Cindy pediu um levantamento com
 ## VDMU — arte digital do parque tokenizado (16/nov/2026)
 O problema do grupo: na fusão, todos os cartões de Santa Fe, San Juan e BERSA mudam de arte e de nome de emissor, incluindo os que já estão em carteiras digitais.
 
-O **Visa Dynamic Metadata Updater** resolve a parte Visa sem desenvolvimento. O emissor altera a arte no portal de metadata ([[VCMM]] `[grafia do portal a confirmar]`, acedido pelo [[PRM (Visa Access)|Visa Access]]) e a Visa notifica os token requesters em nome dele ([[OBO (On-Behalf-Of)|OBO]]), que vão buscar a novidade ao [[VTS (Visa Token Service)|VTS]]. Sem o VDMU, mudar a arte no portal só vale para novos aprovisionamentos.
+O **Visa Dynamic Metadata Updater** resolve a parte Visa sem desenvolvimento. O emissor altera a arte no portal de metadata ([[VCMM]] `[grafia do portal a confirmar]`, acessado pelo [[PRM (Visa Access)|Visa Access]]) e a Visa notifica os token requesters em nome dele ([[OBO (On-Behalf-Of)|OBO]]), que vão buscar a novidade ao [[VTS (Visa Token Service)|VTS]]. Sem o VDMU, mudar a arte no portal só vale para novos aprovisionamentos.
 
 - **Limites:** só credenciais Visa; só por account range (o grupo já usa essa configuração).
 - **Datas:** todos os emissores LAC ficam enrolados a partir de fev/2027, com opt-out. Como a fusão é em junho, não é preciso pedir ativação antecipada.

@@ -12,4 +12,4 @@ estado: verificado
 
 API pela qual a Visa pergunta ao emissor se um PAN é elegível para tokenização.
 
-**Categoría:** [[MOC — Tokenização]]
+**Categoria:** [[MOC — Tokenização]]

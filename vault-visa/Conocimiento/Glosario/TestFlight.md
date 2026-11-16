@@ -12,4 +12,4 @@ estado: verificado
 
 Ambiente da Apple para publicar/testar a app (recomendado em vez de rodar só local no device).
 
-**Categoría:** [[MOC — Carteiras]]
+**Categoria:** [[MOC — Carteiras]]

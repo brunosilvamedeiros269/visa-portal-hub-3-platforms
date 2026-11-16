@@ -12,4 +12,4 @@ estado: verificado
 
 Verificação de identidade quando o enrolamento é feito pela carteira. Mínimo 2 métodos (OTP, call center, app, tap-to-add, foto).
 
-**Categoría:** [[MOC — Carteiras]]
+**Categoria:** [[MOC — Carteiras]]

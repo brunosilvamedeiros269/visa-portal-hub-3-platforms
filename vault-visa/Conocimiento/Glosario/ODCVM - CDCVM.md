@@ -12,4 +12,4 @@ estado: verificado
 
 Verificação do titular no próprio dispositivo (Face/Touch/Optic ID) equiparada a um CVM.
 
-**Categoría:** [[MOC — Carteiras]]
+**Categoria:** [[MOC — Carteiras]]

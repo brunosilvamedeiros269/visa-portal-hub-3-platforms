@@ -12,4 +12,4 @@ estado: verificado
 
 Empresa técnica que opera as mensagens da transação, por conta de um emissor OU de um adquirente.
 
-**Categoría:** [[MOC — Fundamentos]]
+**Categoria:** [[MOC — Fundamentos]]

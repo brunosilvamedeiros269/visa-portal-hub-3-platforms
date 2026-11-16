@@ -12,4 +12,4 @@ estado: verificado
 
 Acordo do Google que o emissor aceita antes de tokenizar em produção (padrão, não customizável).
 
-**Categoría:** [[MOC — Carteiras]]
+**Categoria:** [[MOC — Carteiras]]

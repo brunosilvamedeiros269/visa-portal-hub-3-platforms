@@ -12,4 +12,4 @@ estado: verificado
 
 Exigência da Apple (não do Google) nos pré-requisitos.
 
-**Categoría:** [[MOC — Carteiras]]
+**Categoria:** [[MOC — Carteiras]]

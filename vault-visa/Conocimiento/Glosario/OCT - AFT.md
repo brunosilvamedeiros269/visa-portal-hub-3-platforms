@@ -12,4 +12,4 @@ estado: verificado
 
 Mandatos [[Visa Direct]] do BROU (Original Credit Transaction / Account Funding Transaction).
 
-**Categoría:** [[MOC — Mandatos]]
+**Categoria:** [[MOC — Mandatos]]

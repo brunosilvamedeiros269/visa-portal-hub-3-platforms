@@ -12,4 +12,4 @@ estado: verificado
 
 Device binding para tokens de e-commerce/CoF existentes; verificação do titular sob demanda.
 
-**Categoría:** [[MOC — Tokenização]]
+**Categoria:** [[MOC — Tokenização]]

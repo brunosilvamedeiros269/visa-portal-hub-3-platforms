@@ -12,4 +12,4 @@ estado: verificado
 
 Trilho de push payments associado aos mandatos [[OCT - AFT|OCT]]/AFT.
 
-**Categoría:** [[MOC — Mandatos]]
+**Categoria:** [[MOC — Mandatos]]

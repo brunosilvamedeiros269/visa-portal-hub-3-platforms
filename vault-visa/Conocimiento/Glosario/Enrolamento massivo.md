@@ -12,4 +12,4 @@ estado: verificado
 
 Despejar todas as credenciais Visa já emitidas no [[Click to Pay]] via processador/tokenizador.
 
-**Categoría:** [[MOC — Click to Pay]]
+**Categoria:** [[MOC — Click to Pay]]

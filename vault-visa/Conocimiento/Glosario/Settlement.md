@@ -12,4 +12,4 @@ estado: verificado
 
 Liquidação: quando o dinheiro efetivamente se move (em lotes).
 
-**Categoría:** [[MOC — Fundamentos]]
+**Categoria:** [[MOC — Fundamentos]]

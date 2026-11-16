@@ -12,4 +12,4 @@ estado: verificado
 
 Contato do emissor; abre os projetos, entrega os pré-requisitos e o SOW.
 
-**Categoría:** [[MOC — Processo-PMO]]
+**Categoria:** [[MOC — Processo-PMO]]

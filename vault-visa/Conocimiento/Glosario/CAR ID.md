@@ -24,7 +24,7 @@ Um **PAN só pode estar registrado uma vez** com um dado CAR ID. Tentar registr�
 > [!note] Estado desta nota
 > Nome e papel vêm de ata de reunião, não da especificação. **Contrato exato e formato do identificador não confirmados** contra a documentação do [[ITSP]].
 
-**Categoría:** [[MOC — Click to Pay]]
+**Categoria:** [[MOC — Click to Pay]]
 
 ---
 [[Home]]

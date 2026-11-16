@@ -2,7 +2,7 @@
 aliases: ["TLCM", "Token Lifecycle Manager"]
 tags: ["glosario/tokenizacao"]
 categoria: Tokenização
-fuente: Seguimiento BBVA Uruguay (18/ago/2026)
+fuente: Seguimento BBVA Uruguay (18/ago/2026)
 estado: parcial
 ---
 
@@ -23,7 +23,7 @@ Comportamento observado em teste: ao forçar uma substituição, **o cartão "an
 > [!note] Estado desta nota
 > Comportamento observado em teste e entendimento preliminar da Visa; **não confirmado contra a documentação**.
 
-**Categoría:** [[MOC — Tokenização]]
+**Categoria:** [[MOC — Tokenização]]
 
 ---
 [[Home]]

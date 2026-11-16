@@ -12,4 +12,4 @@ estado: verificado
 
 Funding PAN: o número real do cartão/conta.
 
-**Categoría:** [[MOC — Tokenização]]
+**Categoria:** [[MOC — Tokenização]]

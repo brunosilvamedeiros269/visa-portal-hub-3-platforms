@@ -12,4 +12,4 @@ estado: verificado
 
 Enrolar o cartão na carteira de dentro do app do banco, sem autenticação extra.
 
-**Categoría:** [[MOC — Carteiras]]
+**Categoria:** [[MOC — Carteiras]]

@@ -12,4 +12,4 @@ estado: verificado
 
 Issuer [[TSP (Token Service Provider)|TSP]]: o provedor de tokenização do lado do emissor (ex.: [[Thales]] no Corrientes).
 
-**Categoría:** [[MOC — Tokenização]]
+**Categoria:** [[MOC — Tokenização]]

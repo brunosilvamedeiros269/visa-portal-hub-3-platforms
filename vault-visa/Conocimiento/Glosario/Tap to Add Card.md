@@ -12,4 +12,4 @@ estado: verificado
 
 Adicionar cartão encostando-o no iPhone; cryptograma no Secure Element validado pelo emissor (ou via [[OBO (On-Behalf-Of)|OBO]]). iOS 18+.
 
-**Categoría:** [[MOC — Carteiras]]
+**Categoria:** [[MOC — Carteiras]]

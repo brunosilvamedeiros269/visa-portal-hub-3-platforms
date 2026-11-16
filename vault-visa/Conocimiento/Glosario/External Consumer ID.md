@@ -12,4 +12,4 @@ estado: verificado
 
 Identificador do consumidor gerado pelo emissor para o enrolamento massivo.
 
-**Categoría:** [[MOC — Click to Pay]]
+**Categoria:** [[MOC — Click to Pay]]

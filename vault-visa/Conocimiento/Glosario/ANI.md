@@ -12,4 +12,4 @@ estado: verificado
 
 3º mandato do BROU (antes anotado como Annie); waiver até agosto/2026.
 
-**Categoría:** [[MOC — Mandatos]]
+**Categoria:** [[MOC — Mandatos]]

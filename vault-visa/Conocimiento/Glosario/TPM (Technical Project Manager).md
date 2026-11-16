@@ -12,4 +12,4 @@ estado: verificado
 
 PM técnico de cada implementação/track.
 
-**Categoría:** [[MOC — Processo-PMO]]
+**Categoria:** [[MOC — Processo-PMO]]

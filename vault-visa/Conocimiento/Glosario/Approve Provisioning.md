@@ -12,4 +12,4 @@ estado: verificado
 
 API de aprovação do token; 00 = fluxo verde (sem step-up), 85 = fluxo amarelo (step-up), ou rejeição.
 
-**Categoría:** [[MOC — Tokenização]]
+**Categoria:** [[MOC — Tokenização]]

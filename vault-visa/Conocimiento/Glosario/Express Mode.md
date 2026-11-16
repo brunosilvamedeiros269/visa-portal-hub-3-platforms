@@ -12,4 +12,4 @@ estado: verificado
 
 Pagamento NFC sem desbloquear o dispositivo (típico de transporte).
 
-**Categoría:** [[MOC — Carteiras]]
+**Categoria:** [[MOC — Carteiras]]

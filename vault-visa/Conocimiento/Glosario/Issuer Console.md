@@ -12,4 +12,4 @@ estado: verificado
 
 Google Pay e Wallet Console: onde o emissor faz o onboarding no Google.
 
-**Categoría:** [[MOC — Carteiras]]
+**Categoria:** [[MOC — Carteiras]]
