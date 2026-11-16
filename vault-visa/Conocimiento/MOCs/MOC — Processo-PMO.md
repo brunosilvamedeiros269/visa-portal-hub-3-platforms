@@ -25,5 +25,7 @@ Términos del glosario en esta categoría.
 - [[VIS (Visa Implementation Services)]] — Nosso time: PM dos projetos de tecnologia (carteiras e mandatos), dentro de Visa Consulting e Analytics.
 - [[Whitelist]] — Lista de PANs/cartões liberada com o processador para a fase de testing.
 
+**Ver também:** [[Aprendizados das reuniões — set a nov 2026]] — o que as reuniões de set–nov/2026 ensinaram sobre processo, papéis e regras.
+
 ---
 [[Home]]

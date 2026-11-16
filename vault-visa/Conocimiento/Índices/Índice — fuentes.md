@@ -6,9 +6,9 @@ tags: ["indice"]
 
 De dónde viene cada nota y su estado de verificación. Se regenera con el vault.
 
-**Total:** 109 notas · **verificadas:** 105 · **parciales (~):** 4
+**Total:** 114 notas · **verificadas:** 100 · **parciales (~):** 14
 
-`~` = el término y su papel vienen de ata de reunión, no de la especificación; falta confirmar contra documentación.
+`~` = el término y su papel vienen de ata o transcripción de reunión, no de la especificación; falta confirmar contra documentación.
 
 ## Concepto (7)
 
@@ -114,16 +114,20 @@ De dónde viene cada nota y su estado de verificación. Se regenera con el vault
 | [[Wallet Extensions]] | Dicionário (Notion) | ✓ |
 | [[Whitelist]] | Dicionário (Notion) | ✓ |
 
-## Proyecto (6)
+## Proyecto (10)
 
 | Nota | Fuente | Estado |
 |---|---|---|
-| [[Banco de Chile (Nuek) — dossiê]] | Dailies de estabilización — Banco de Chile × Nuek | ✓ |
-| [[Banco de Corrientes — dossiê]] | Reports e atas — Banco de Corrientes | ✓ |
-| [[Banco Provincia (Bapro) — dossiê]] | Handover de autorizaciones y fraude (10/ago/2026) | ✓ |
-| [[BancoEstado — dossiê]] | Sesiones de presentación del proceso — BancoEstado (ago/2026) | ~ |
-| [[BBVA Uruguay — dossiê]] | Seguimiento Switch ITSP + Google Pay (18/ago/2026) | ✓ |
-| [[BROU — dossiê]] | Reports e atas — BROU | ✓ |
+| [[Banco de Chile (Nuek) — dossiê]] | Dailies de estabilización — Banco de Chile × Nuek; transcrições automáticas de ago–nov/2026 (não validadas) | ~ |
+| [[Banco de Corrientes — dossiê]] | Reports e atas — Banco de Corrientes; transcrições automáticas de ago–nov/2026 (não validadas) | ~ |
+| [[Banco Provincia (Bapro) — dossiê]] | Handover de autorizaciones y fraude (10/ago/2026) + transcrições de set–nov/2026 (seção de atualização) | ~ |
+| [[BancoEstado — dossiê]] | Sesiones de presentación del proceso — BancoEstado (ago/2026); transcrições automáticas de reuniões set–nov/2026 (não validadas) | ~ |
+| [[BBVA Uruguay — dossiê]] | Seguimiento Switch ITSP + Google Pay (18/ago/2026); transcrições automáticas de ago–nov/2026 (seguimento ~24/ago, weekly 31/ago, Pipeline Review 4/set, Weekly Tech 28/set–16/nov) | ~ |
+| [[BCI (Featurespace) — dossiê]] | Transcrições de set–nov/2026 (reunião interna de 05/10, demo Featurespace de 09/10, 1:1 com Lina, Weekly Tech, weeklies SOCO) | ~ |
+| [[BROU — dossiê]] | Reports e atas — BROU; transcrições automáticas de ago–nov/2026 (não validadas) | ~ |
+| [[Comafi — dossiê]] | Transcrições automáticas — Weekly Visa SDK (~20/ago/2026), alinhamento interno (27/ago), Pipeline Review VCA × CS (4/set), Weekly Tech (28/set–16/nov/2026) | ~ |
+| [[Grupo Petersen — dossiê]] | Transcrições automáticas de set–nov/2026 (kickoff 12/11, Tesouraria 12/11, alinhamento interno 12/11, demo VDMU 16/11, Weekly Tech) | ~ |
+| [[Naranja X — dossiê]] | Transcrições automáticas de reuniões (set–nov/2026) — Naranja X, Weekly Tech e 1:1 internas | ~ |
 
 ## Troubleshooting (3)
 
@@ -133,11 +137,12 @@ De dónde viene cada nota y su estado de verificación. Se regenera con el vault
 | [[Troubleshooting — crash do fluxo verde (push provisioning)]] | Reports/atas de projeto | ✓ |
 | [[Troubleshooting — Google push provisioning que não chega]] | Reports/atas de projeto | ✓ |
 
-## Técnico (11)
+## Técnico (12)
 
 | Nota | Fuente | Estado |
 |---|---|---|
 | [[Apple Pay — Issuer Functional Requirements v3.5]] | Guias da pasta + fontes públicas | ✓ |
+| [[Aprendizados das reuniões — set a nov 2026]] | Transcrições de reuniões set–nov/2026 | ~ |
 | [[Carteiras — provisioning in-app (fluxo técnico end-to-end)]] | Guias da pasta + fontes públicas | ✓ |
 | [[Click to Pay — comunicação e marketing (fase 3)]] | Guias da pasta + fontes públicas | ✓ |
 | [[Click to Pay — SRC, enrolamento e ciclo de vida (aprofundamento)]] | Guias da pasta + fontes públicas | ✓ |

@@ -1,7 +1,7 @@
 ---
 tags: ["proyecto", "cliente/BROU"]
-fuente: Reports e atas — BROU
-estado: verificado
+fuente: Reports e atas — BROU; transcrições automáticas de ago–nov/2026 (não validadas)
+estado: parcial
 ---
 
 # 🇺🇾 BROU — Banco de la República (Uruguai)
@@ -19,7 +19,24 @@ estado: verificado
 
 **Contatos —** Banco: Jimena ("Jime", coordenação técnica/funcional), Alfredo (switch/integração), Eduardo (canais digitais), Gonzalo (simulador/BTS), Pablo, Luis, Rosa, Ariel; **UPLA** (Unidad de Prevención de Lavado de Activos) define a postura de [[OCT - AFT|OCT/AFT]]. Visa: Jenny, Lina Torres, Bruno Medeiros, **Emiliano ("Emi", [[CSM (Customer Success Manager)|CSM]])**, Melina Albornoz (stakeholder técnica), **Fernando** (Implementation Manager da tokenização), Juliana (engenheira de provas), Klaus (mandatos OCT/AFT), Mauro (Produto — ANI e OCT/AFT), Alexis (Produto — [[Click to Pay]]), Joyce (suporte técnico Google Pay), Vanessa, Soledad Rua. [[Sistarbank]]: Ivana, Juan Pablo, Adiel (Smart Vista). HCT: Carlos, José, Juan Pablo.
 
+## Status atual (base: Weekly Tech interna de 16/nov/2026)
+> [!warning] Atualização a partir de transcrições automáticas — não validada
+> Tudo o que vem de set–nov/2026 saiu de relatos **internos** da Visa (Weekly Tech, 1:1). Não há transcrição de reunião com o banco depois de 19/ago. Itens marcados *(a confirmar)* não devem ser levados ao cliente sem checagem.
+
+**O programa atravessou a renovação e mudou de gargalo outra vez.** O contrato VCA foi **renovado e assinado antes de 19/out**; cinco tracks voltaram a *implementing*. O ponto de atenção agora é o **Apple Pay, em warning**: o banco perdeu as datas de laboratório [[FIME]] e o lançamento que queria para **1/dez não ocorre**. O [[Click to Pay]] segue em [[Enrolamento massivo|enrolamento massivo]]; o Google Pay tem o BIN de débito configurado; o Garmin foi dado como concluído. Os dois mandatos continuam sem execução: [[OCT - AFT|OCT/AFT]] foi retirado da pipeline (recuperável) e o [[ANI]] não tem projeto aberto em CS.
+
+| Frente | Situação em 16/nov |
+|---|---|
+| [[Tokenização]] — COF / e-Commerce | Em 19/ago: configuração produtiva para 27/ago e go-live estimado para 3/set. **Resultado não consta**; as carteiras passaram a ser tratadas como destravadas *(dedução — a confirmar)* |
+| [[Click to Pay]] | Projeto aberto em CS; fase 1 configurada; em enrolamento massivo. Fornecedor próprio, sem SDK Visa. Situação do [[Waiver|waiver]] de 30/set não dita |
+| Google Pay | Em curso; BIN de débito configurado "dia 22" *(~22/out, a confirmar)* |
+| Apple Pay | Projeto aberto em CS (antes de 10/nov). **Warning** — datas FIME perdidas; 1/dez não ocorre |
+| Garmin Pay | *Completed* (2/nov) — descrito como inclusão de BIN |
+| Mandato [[OCT - AFT|OCT/AFT]] | *Withdrawn* na pipeline — pode voltar |
+| Mandato [[ANI]] | Em implementing na pipeline VCA, sem projeto em CS; dúvida sobre quem abre |
+
 ## Status atual (base: seguimento de tokenização, 12/ago/2026)
+> [!note] Registro de 12/ago, mantido como histórico — o status vigente é o bloco acima.
 **A tokenização deixou de ser o bloqueio.** A certificação de host foi concluída em **11/ago** com a carta obtida, e o ticket de configuração produtiva foi criado em **12/ago**. O marco que destrava as billeteras é o **BIN produtivo (~31/ago)** — não o fim do projeto. A partir daí o gargalo do programa passa a ser **contratual**: o contrato VCA vence **21/set** e a decisão de extensão, pedida pelo banco no SteerCo de 29/jul, segue em aberto.
 
 ## Frentes / tracks
@@ -53,6 +70,19 @@ estado: verificado
 - **21/set/2026** — Fim do contrato VCA atual.
 - **30/set/2026** — Vence o [[Waiver|waiver]] de [[Click to Pay]].
 - **25/nov/2026** — Última janela de instalação antes do **freeze** do banco (até janeiro).
+
+**Acréscimo — ago a nov/2026 (transcrições; datas de planejamento acima podem ter mudado):**
+- **19/ago/2026** — Seguimento [[VTS (Visa Token Service)|VTS]] COF + e-Commerce: configuração produtiva marcada para **27/ago**, piloto [[Friends and Family]] de 5 dias dentro da [[Whitelist|whitelist]] e go-live formal estimado para **3/set**. Projeto adiantado ("ganamos unos días"). *Substitui a previsão de BIN produtivo ~31/ago do replanejamento de 12/ago.*
+- **4/set/2026** — 1ª Pipeline Review VCA × CS: todos os tracks dependem da tokenização; CS só tem aberto COF / e-Commerce; risco de penalidades por mandatos.
+- **8/set/2026** — Reunião sobre renovar o contrato por mais 6 meses *(resultado não consta)*. O vencimento passa a ser citado como **14/out** — diverge do 21/set registrado acima.
+- **~29/set/2026** — Com o contrato a vencer, CS pede passar todos os tracks a *prospecting* até haver fundos; Garmin (inclusão de BIN) sai da vista de CS. Legal trabalha a cláusula de continuidade.
+- **5/out/2026** — Fundos confirmados; proposta enviada ao banco. CS **rejeita abrir o projeto de Apple Pay**: contrato com ~3 semanas de vigência.
+- **13/out/2026** — Renovação pendente do OK do BD e da parte contratual.
+- **19/out/2026** — ✅ **Contrato renovado/assinado.** 5 tracks em implementing; OCT/AFT *withdrawn*; ANI sem track em CS.
+- **22/out/2026** — No BiWeekly do time, o roadmap digital do BROU é citado como caso a divulgar: acompanha 3 mandatos e alivia CS.
+- **2/nov/2026** — Google Pay com BIN de débito configurado; Garmin *completed*; Click to Pay com fase 1 configurada, em testes de carga massiva.
+- **10–11/nov/2026** — Apple Pay com projeto aberto; Bruno cobre Jenny no seguimento de 11/nov.
+- **16/nov/2026** — **Apple Pay em warning**: datas FIME perdidas, 1/dez não ocorre. Click to Pay em enrolamento massivo.
 
 ## 1º SteerCo (29/jul/2026)
 Primeiro Steering Committee do programa, presencial na sede do banco. A governança prevista — SteerCo mensal — nunca havia ocorrido; esta foi a sessão de inauguração.
@@ -126,6 +156,67 @@ O ciclo que destravou o programa, e que vale como referência para outros emisso
 - ~~Aprovação do Google para [[UPP (Unified Push Provisioning)|UPP]]~~ — obtida.
 - ~~1º SteerCo pendente~~ — realizado em 29/jul.
 - ~~Fases do enrolamento massivo no [[Sistarbank]]~~ — confirmado que suporta, com layout entregue.
+
+## Go-live da tokenização: o que ficou combinado em 19/ago
+Última reunião com o banco de que há registro. O que se combinou explica como a tokenização deveria ter saído de cena:
+
+- **Configuração produtiva com fim em 27/ago** — data "preliminar" no sistema; mudanças produtivas na Visa entram entre 5h e 7h de Miami. *"Del lado Visa, el día 27 ya estarían en producción."*
+- **[[Whitelist]] no BRM antes de 27/ago.** O banco já tinha a lista montada; faltava saber a que regra associá-la para e-Commerce e Card on File.
+- **A Visa deixou de enviar regras sugeridas.** O Implementation Manager não entra no BRM do emissor (as regras são próprias e confidenciais) e relatou orientação recente de evitar o envio de sugestões: o banco manda a captura da whitelist e das regras previstas, e a Visa valida com o time de BRM. *Isto corrige a decisão registrada acima ("a Visa envia os casos de uso sugeridos").*
+- **Mesmos certificados**; pediu-se o Key ID produtivo para duplo cheque. API Key e Shared Secret ficam no [[VDP (Visa Developer Platform)|VDP]] depois da configuração produtiva.
+- **Acesso de Carlos ([[HST - HCT|HCT]]) ao VDP falhando** — convite reenviado pelo banco e caso aberto pela Visa.
+- **Sequência:** configuração produtiva → API Key → piloto [[Friends and Family|F&F]] de 5 dias → remoção da whitelist = **go-live formal (3/set)**.
+
+> [!question] Lacuna
+> Não há registro de que 27/ago e 3/set tenham sido cumpridos. A evidência é indireta: em outubro–novembro as carteiras e o Click to Pay aparecem com projeto aberto e BIN de débito configurado.
+
+## A renovação do contrato (set–out/2026)
+A decisão de extensão pedida pelo banco no SteerCo de 29/jul só se resolveu em outubro, e o intervalo teve custo.
+
+**O que aconteceu.** O contrato de ~6 meses chegou ao fim com a tokenização recém-entregue e seis tracks dependentes dela. Em 8/set discutia-se renovar por mais 6 meses; a extensão ficou com Jenny e Desi (pricing), e Bruno saiu do escopo comercial do BROU. No fim de setembro, sem fundos definidos, o time de [[CS Implementations|CS]] pediu reclassificar todos os tracks como *prospecting*. Em 5/out os fundos foram confirmados e a proposta seguiu para o banco; no mesmo dia CS **recusou abrir o projeto de Apple Pay** porque o contrato tinha ~3 semanas de vigência. A assinatura saiu antes de 19/out.
+
+**Por que importa.**
+- A regra de CS ficou explícita: abrir projeto exige pré-requisitos completos, data comprometida pelo emissor **e contrato VCA com vigência suficiente**.
+- Sem renovação, a alternativa é CS cobrar por *billing* mês a mês, com serviço mais limitado. Legal passou a trabalhar uma cláusula para o cliente autorizar essa continuidade; em contratos vigentes vale a autorização por e-mail.
+- O efeito prático foi cerca de um mês em que nenhuma carteira pôde ser aberta, justamente depois de a tokenização destravar o programa.
+
+> [!warning] Divergência de datas
+> O vencimento do contrato original aparece como **21/set** neste dossiê (fonte: atas até agosto) e como **14/out** nas reuniões internas de set–out. A duração e o fim do contrato renovado não foram ditos.
+
+## Apple Pay: do "sem iniciar" ao warning
+Em julho o Apple Pay era vermelho por não ter começado. A sequência desde então:
+
+1. **Agosto** — checklist aprovado pelo [[CSM (Customer Success Manager)|CSM]], exceto a "API de novedades".
+2. **5/out** — CS recusa abrir o projeto (vigência de contrato).
+3. **Entre 19/out e 10/nov** — projeto aberto em CS depois da renovação.
+4. **10/nov** — o Implementation Manager está de férias; Franco cobre e deve ao banco: confirmar o fim da configuração, compartilhar chaves ouvidas como "WSD" *(grafia a confirmar)* e responder dúvidas de funcionalidades Apple enviadas por Jimena.
+5. **16/nov** — **warning**: o banco perdeu as datas de laboratório [[FIME]]. Queria lançar em 1/dez; não ocorrerá. Faltam novas datas e desenvolvimentos do banco para a certificação.
+
+A FIME é o único laboratório aceito pela Apple, e a reserva é do emissor: perdida a janela, pede-se outra. *(O motivo da perda e as datas originais não constam.)* Vale cruzar com o freeze do banco (25/nov a janeiro, registrado acima): se continuar valendo, um lançamento depois de 1/dez tende a cair em 2027 *(dedução — a confirmar)*.
+
+## Click to Pay, Google Pay, Garmin e mandatos — o que mudou
+- **[[Click to Pay]].** Projeto aberto em CS com a fase 1 configurada; em 2/nov estava em testes de carga massiva e em 16/nov "em enrolamento massivo". É implementado com fornecedor próprio, sem SDK Visa. O que não se sabe: se o [[Waiver|waiver]] de 30/set foi prorrogado, se houve multa e que percentual da base sobe.
+- **Google Pay.** BIN de débito configurado. Ficou anotado que o banco deve subir informação ao Google "para evitar flujo verde" — redação do extrato, sentido a confirmar.
+- **Garmin Pay.** De track de menor prioridade a *completed* em 2/nov. Em setembro foi descrito como inclusão de BIN e saiu da vista de CS.
+- **[[Mandato]] [[OCT - AFT|OCT/AFT]].** Passou a *withdrawn* na pipeline em 19/out, recuperável.
+- **[[Mandato]] [[ANI]].** Segue em implementing na pipeline VCA, mas sem projeto aberto em CS; em 2/nov não estava claro quem deveria abri-lo.
+- **Featurespace.** Aparece como prospect separado, em espera enquanto o banco implementa outra solução ouvida como "VCAS" *(sigla a confirmar)*.
+
+## Decisões e aprendizados de ago–nov/2026
+- **Renovar em vez de operar por billing de CS** — foi o que devolveu os tracks a implementing.
+- **Tirar OCT/AFT da pipeline ativa** em vez de mantê-lo parado como track aberto.
+- **Começar a renovação meses antes do vencimento**: contrato curto com implementação em curso bloqueia a abertura de projetos novos em CS.
+- **Tratar a reserva de laboratório FIME como marco do plano**, com dono no banco e margem para o freeze de fim de ano.
+- **Acessos de terceiros ao VDP** entram no checklist anterior à janela de produção.
+- O modelo de roadmap digital com mandatos e carteiras no mesmo programa foi reconhecido internamente como caso a divulgar a BDs e CS.
+
+## Lacunas desta atualização
+- Confirmação do go-live da tokenização (27/ago e 3/set).
+- Quais são os "5 tracks em implementing" e a data de fim do contrato renovado.
+- Origem dos fundos da renovação: "haverá fundos" (5/out) × "sem VIK / sem incentivos" (ficha acima).
+- Waiver e multas de Click to Pay; extensão do ANI (vencia em 31/ago).
+- Conteúdo do seguimento de Apple Pay de 11/nov e novas datas FIME.
+- Em 3/set Bruno citou internamente um "SDK" como primeiro track e "talvez Thales" como terceiro — não bate com os demais registros (tokenização via HCT); provável imprecisão do relato.
 
 ---
 [[Home]]
