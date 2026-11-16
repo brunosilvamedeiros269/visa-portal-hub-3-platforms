@@ -10,6 +10,7 @@ Términos del glosario en esta categoría.
 - [[Approve Provisioning]] — API de aprovação do token; 00 = fluxo verde (sem step-up), 85 = fluxo amarelo (step-up), ou rejeição.
 - [[Check Eligibility]] — API pela qual a Visa pergunta ao emissor se um PAN é elegível para tokenização.
 - [[CTF (Cloud Token Framework)]] — Device binding para tokens de e-commerce/CoF existentes; verificação do titular sob demanda.
+- [[DEF (Digital Enrollment Form)]] — Formulário de URLs e campos a nível de PCR; junto com o Processor Digital Activation Request, insumo das configurações produtivas (10 dias úteis).
 - [[DPAN]] — Device PAN: token no dispositivo (Apple/Google Pay).
 - [[Fluxo amarelo (85)]] — Provisioning com step-up; o token fica inativo até a verificação.
 - [[Fluxo verde (00)]] — Provisioning sem step-up; típico de enrolar de dentro do app do banco (cliente já autenticado).
@@ -19,6 +20,7 @@ Términos del glosario en esta categoría.
 - [[MPAN]] — Merchant PAN: token vinculado a um comércio (recorrência/assinaturas).
 - [[Send Passcode]] — API do fluxo de OTP no step-up.
 - [[TAVV]] — Cryptograma de verificação enviado na transação de um token.
+- [[TLCM (Token Lifecycle Manager)]] — Gestão do ciclo de vida dos tokens; reatribuição de tokens entre PANs (rollback não confirmado).
 - [[Tokenização]] — Trocar o PAN por um token guardado no lugar do número real.
 - [[TSP (Token Service Provider)]] — Provedor de tokenização contratado pelo emissor (consoles, ciclo de vida).
 - [[VDP (Visa Developer Platform)]] — Portal com a documentação/specs das APIs (ex.: BK Batch Specification do Click to Pay).

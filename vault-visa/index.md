@@ -19,6 +19,7 @@ Mi base personal. Está **separada en dos**: conocimiento **general** (reutiliza
 6. [[6. Processo PMO de Carteiras]]
 7. [[7. Mandatos e Waivers]]
 ### Glosario por categoría
+- [[MOC — Autorizações e Fraude]]
 - [[MOC — Carteiras]]
 - [[MOC — Click to Pay]]
 - [[MOC — Fundamentos]]
@@ -39,15 +40,27 @@ Mi base personal. Está **separada en dos**: conocimiento **general** (reutiliza
 - [[Visa Direct e mandatos (OCT-AFT, ANI) — aprofundamento]]
 - [[Click to Pay — comunicação e marketing (fase 3)]]
 - [[PMO de Carteiras — rol e responsabilidades]]
+- [[Squad de autorizações e fraude]]
+- [[Aprendizados das reuniões — set a nov 2026]]
 ### Troubleshooting
 - [[Troubleshooting — crash do fluxo verde (push provisioning)]]
 - [[Troubleshooting — Google push provisioning que não chega]]
+- [[Troubleshooting — certificação de tokenização (provas e janelas)]]
 ### Índices
 - [[Índice — fuentes]] — de dónde viene cada nota y su estado
 
 ## 🗂️ Proyectos (contexto por cliente)
-- [[BROU — dossiê]] *(BROU)*
-- [[Banco de Corrientes — dossiê]] *(Banco de Corrientes)*
+*Estado en 16/nov/2026 — detalle vivo en el app de seguimiento.*
+- [[Grupo Petersen — dossiê]] *(Grupo Petersen · Argentina)* — Proyecto Fusión: PMO de la integración bancaria; kickoff 12/nov
+- [[BancoEstado — dossiê]] *(BancoEstado · Chile)* — SDK + Apple Pay; prerrequisitos cumplidos, apertura del proyecto técnico
+- [[Naranja X — dossiê]] *(Naranja X · Argentina)* — migración de prepago/débito a Pismo; contrato firmado, sin kickoff de Pismo
+- [[Banco Provincia (Bapro) — dossiê]] *(Banco Provincia · Argentina)* — squad de autorizações e fraude + disputas; en ejecución
+- [[BCI (Featurespace) — dossiê]] *(BCI · Chile)* — preventa de Featurespace (ARIC)
+- [[BROU — dossiê]] *(BROU · Uruguai)* — contrato renovado; Apple Pay en warning, Click to Pay en enrolamiento masivo
+- [[Banco de Chile (Nuek) — dossiê]] *(Banco de Chile)* — migración de procesador cerrada; etapa 2 en preventa
+- [[Banco de Corrientes — dossiê]] *(Banco de Corrientes · Argentina)* — Click to Pay en producción (mandato cumplido); programa VCA cerrado 30/set
+- [[BBVA Uruguay — dossiê]] *(BBVA Uruguay)* — Google Pay en producción; cerrado para VCA
+- [[Comafi — dossiê]] *(Comafi · Argentina)* — SDK + Apple Pay; cerrado para VCA
 
 ## Cómo está organizado
 - **Conocimiento/** — general y reutilizable: `Conceptos/` (temas + mermaid), `Glosario/` (1 nota por término, con siglas como `aliases`), `MOCs/` (mapas por categoría) y `Estudo/`.

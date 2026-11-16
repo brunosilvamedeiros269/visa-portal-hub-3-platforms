@@ -1,66 +1,100 @@
 ---
 name: development-workflow
-description: O padrão de desenvolvimento da Base de Conhecimento Visa — onde os dados vivem, como o app lê/escreve, o design, o idioma e o fluxo de deploy. Use SEMPRE antes de mexer no código ou nos dados do projeto.
+description: O padrão de desenvolvimento da Base de Conhecimento Visa — onde os dados vivem (Supabase + vault Obsidian), como o app lê/escreve, o design, o idioma e o fluxo de deploy dos dois sites. Use SEMPRE antes de mexer no código ou nos dados do projeto.
 ---
 
 # Fluxo de Desenvolvimento — Visa Base de Conhecimento Ativa
 
-Este é o padrão único do projeto. Leia também o `CLAUDE.md` da raiz.
+Padrão único do projeto. Leia também o `CLAUDE.md` da raiz.
 
-## 1. Arquitetura (não reintroduzir sistemas paralelos)
+## 1. Arquitetura
 
-- **Fonte da verdade = Notion** (teamspace VISA). Todo dado de projeto vive lá.
-- **App = vitrine + edição** — React + Vite (`app/`), publicado no **Vercel**.
-- **Ponte = `api/notion.js`** (serverless no Vercel). Guarda o `NOTION_TOKEN`. O browser
-  **nunca** fala com o Notion direto. Toda leitura/escrita passa por `/api/notion`.
-- Regra de ouro: **Notion + 1 app**. Nada de OpenProject, BookStack, Supabase ou pastas
-  markdown como fonte. Se pensar em adicionar plataforma, pare — algo já existe.
+> ⚠️ **A fase Notion acabou.** Não existe `api/notion.js`, `NOTION_TOKEN` nem
+> `services/notionApi.js`. Se alguma doc disser isso, está velha — conserte-a.
 
-## 2. Modelo de dados (hierarquia)
+- **Fonte da verdade dos dados de projeto = Supabase** (projeto `iuwvwhofxuvmwnpbsnth`).
+- **App = cockpit** — React + Vite (`app/`), publicado no Vercel. Lê **e escreve** no Supabase
+  direto pelo cliente `anon` (`app/src/lib/supabase.js`), com RLS aberto. Camada de acesso em
+  `app/src/services/data.js`.
+- **Vault = `vault-visa/`** — markdown com wikilinks, aberto no Obsidian.
+- **Wiki = `wiki/`** — Quartz, publica o vault como site estático no Vercel.
+- **IA de ingestão = `api/procesar-minuta.js`** — motores Gemini, xAI e Claude; as chaves vivem
+  só como env var no Vercel, **nunca** com prefixo `VITE_`.
+
+**Duas URLs, duas fontes:**
+| Site | Fonte | Muda quando |
+|---|---|---|
+| `visa-portal-hub-3-platforms.vercel.app` | Supabase | você grava no banco — **na hora**, sem deploy |
+| `visa-wiki.vercel.app` | `vault-visa/` | você comita no vault **e** faz merge em `main` |
+
+Atualizar um e esquecer o outro é o erro mais comum aqui.
+
+## 2. Modelo de dados
 
 ```
-Clientes → Projetos (macro) → Tracks → Atividades
-                                  ├─ Reuniões (SteerCo mensal / Semanal / Ad-hoc)
-                                  └─ Documentos
+clientes → projetos → tracks → tareas
+                        ├─ marcos
+                        ├─ documentos  (Storage: bucket track-docs)
+                        └─ reunion_tracks ─ reunioes
+riscos / tareas → projeto_id XOR track_id
 ```
 
-Databases e IDs ficam em `api/notion.js` (const `DB`) e na memória `notion-base-estrutura`.
-Ao criar entidade nova, ligue-a por **relação** (não texto): Track→Projeto, Atividade→Track,
-Documento→Track/Projeto, Reunião→Track.
+Vocabulário fixo (não invente valor novo): ver seção 3 do `CLAUDE.md`. As fontes são
+`app/src/components/trackingUi.jsx` e `app/src/lib/raidConstants.js`.
 
-## 3. Idioma e design (regras fixas)
+## 3. Idioma e design
 
-- **Interface pública 100% em espanhol.** Sem seletor de idioma. Rótulos, botões, mensagens
-  e datas em ES. Valores de status vêm do Notion (podem estar em PT) e são exibidos em ES via
-  mapa `STATUS_LABEL` no app — não traduza o dado, traduza a exibição.
+- **Interface pública 100% em espanhol.** Sem seletor de idioma. Os valores de status ficam
+  como estão no banco (podem estar em PT) e são exibidos em ES pelos mapas de `trackingUi.jsx`
+  — **não traduza o dado, traduza a exibição.**
 - **Design system Visa:** navy `#0A142F`/`#051424`, superfície `#122131`/`#1C2B3C`, borda
-  `#273647`, dourado `#FAA61A`, índigo `#1A1F71`. Cantos `rounded-xl`. Consistência acima de
-  ornamento. Ver skill `ux-ui-designer`.
+  `#273647`, dourado `#FAA61A`, índigo `#1A1F71`. Cantos `rounded-xl`. Ver skill `ux-ui-designer`.
 
 ## 4. Como adicionar/mudar coisas
 
-- **Nova leitura no app:** adicione um `resource` em `api/notion.js` + um fetcher em
-  `app/src/services/notionApi.js`; consuma no componente.
-- **Escrita no app:** só funciona se a conexão Notion tiver as capacidades **Inserir** e
-  **Atualizar conteúdo** habilitadas. Escrita também passa por `/api/notion` (POST/PATCH).
-- **Ingestão de reunião/documento:** ver skill `knowledge-base-architect` — produza Decisões,
-  Action Items (viram Atividades) e Riscos, e ligue às entidades certas.
-- **Novo cliente/projeto:** replique o padrão do BROU (cliente → projeto → tracks →
-  atividades), usando dados reais dos dossiês/documentos, sem inventar números.
+- **Nova leitura/escrita no app:** adicione a função em `app/src/services/data.js` (padrão
+  `run(supabase.from(...))`) e consuma no componente. `fetchAll()` traz tudo de uma vez.
+- **Mudança de schema:** arquivo novo em `db/`, nomeado `AAAA-MM-DD-descricao.sql`,
+  **idempotente** (`if not exists`, `where not exists`), rodado no SQL Editor do Supabase.
+  Se criar tabela, lembre de `enable row level security` + policy anon, como nas migrações
+  existentes.
+- **Carga de dados em lote:** mesma convenção, dentro de `begin/commit`. Valide contra um
+  Postgres local e **rode duas vezes** para provar que não duplica.
+- **Ingestão de reunião:** use a tela do app. Ver skill `knowledge-base-architect`.
+- **Novo cliente/projeto:** cliente → projeto → tracks, com dados reais dos dossiês. Depois
+  crie o dossiê correspondente em `vault-visa/Proyectos/`.
 
 ## 5. Fluxo de entrega (git + deploy)
 
-1. Trabalhe no branch (nunca commitar direto sem necessidade).
-2. **Verifique o build:** `cd app && npm run build` deve passar antes de commitar.
-3. Commit com mensagem clara (o que + porquê); co-autoria Claude.
-4. Deploy = **push para `main`** → o Vercel publica produção automaticamente.
-   Se o push for bloqueado pelo modo de segurança, peça ao usuário para rodar
-   `git push origin HEAD:main`.
-5. **Valide no ar:** `SUA-URL/api/notion?resource=health` e a aba **Seguimiento**.
+1. Trabalhe em **branch** (`claude/...`). Nunca direto em `main`.
+2. Mexeu no app → `cd app && npm run build` tem de passar.
+3. Mexeu no vault → `cd wiki && npm install && npx quartz build -d ../vault-visa -o public`
+   tem de passar; confira as páginas novas em `wiki/public/`.
+4. Mexeu em links do vault → verifique wikilinks quebrados antes de commitar.
+5. Criou nota nova → atualize `vault-visa/index.md`, o MOC da categoria e regenere
+   `Conocimiento/Índices/Índice — fuentes.md`.
+6. Commit com mensagem clara (o quê + por quê), co-autoria Claude.
+7. **Push → PR → merge em `main`.** O Vercel publica os dois sites a partir de `main`.
+   **Branch sozinha gera preview, não produção.**
 
-## 6. Princípios
+## 6. Armadilhas de ambiente
 
-- Não fabricar dados (ex.: % de progresso). Derive de status reais; se não houver, mostre o
-  que existe.
-- Enxuto: menos telas e menos dependências, bem-feitas, em vez de muitas pela metade.
-- Ao terminar, diga o que foi verificado (build, deploy) com honestidade.
+- O **shell da máquina do usuário não tem rede** — nada de push, npm install ou chamada de API.
+- O **host do Supabase pode estar fora da allowlist de egresso** do container. Se der 403
+  "Host not in allowlist", rode o SQL no **SQL Editor** ou peça a liberação do host.
+- Push com **"not in this session's authorized repository set"** é escopo de credencial: o repo
+  precisa entrar nas fontes da sessão.
+- O working tree mostra **~100 arquivos modificados por CRLF**. Não commite isso — `git add`
+  apenas nos caminhos que você alterou de fato.
+- No mount da máquina do usuário o git **não apaga arquivos**; locks sobram. Mova-os para
+  `_to_delete/`.
+
+## 7. Princípios
+
+- **Não reintroduza plataforma paralela.** O projeto já foi resgatado de OpenProject, BookStack
+  e Notion. Se pensar em adicionar uma, algo já existe — procure.
+- **Não fabrique dados** (% de progresso, datas, responsáveis). Derive do que existe; o que não
+  foi validado entra marcado como `[a confirmar]`.
+- Enxuto: menos telas e menos dependências, bem-feitas.
+- Ao terminar, diga **o que foi verificado** (build, migração, deploy) com honestidade — e o que
+  não deu para verificar.

@@ -2,128 +2,174 @@
 
 > Instruções mestras do projeto. Este arquivo é o **ponto único de contexto** para
 > qualquer pessoa (ou IA) que trabalhe no repositório. Leia-o antes de tudo.
+>
+> **Última revisão: 19/08/2026.** Se algo aqui divergir do código, o código ganha —
+> e conserte este arquivo no mesmo commit.
 
 ## 1. O que é este projeto
 
-Um **dashboard web compartilhado pela equipe** que serve a dois propósitos ligados:
+Um **repositório único** que produz **duas coisas publicadas** e serve a dois propósitos ligados:
 
-1. **Acompanhar projetos** de implementação de carteiras digitais Visa junto a clientes
-   (bancos/fintechs), na hierarquia **Cliente → Macro-projeto → Micro-projeto (track) → atividades**.
-2. **Consultar conhecimento** do mundo Visa em segundos: conceitos, siglas, processos,
-   produtos (Apple Pay, Google Pay, Garmin Pay, VTS…), mandatos e dicionário de dados.
+1. **Acompanhar projetos** de implementação Visa junto a clientes (bancos/fintechs), na
+   hierarquia **Cliente → Projeto → Track → tarefas**, com marcos, riscos (RAID) e reuniões.
+2. **Consultar conhecimento** do mundo Visa: conceitos, siglas, processos, produtos, mandatos
+   e dossiês por cliente.
 
-Usuário-alvo: **Gerente de Projetos Visa** (Client Onboarding & Implementation) e a equipe,
-que acessam por URL para ver andamento e status de cada projeto de cada cliente. A dor
+Usuário-alvo: o **Gerente de Projetos Visa** (Visa Implementation Services) e a equipe. A dor
 central é **carga cognitiva** — informação fragmentada em reuniões, PDFs, PPTX e e-mails.
-A solução é um **Single Source of Truth** consultável e alimentável por IA.
 
-## 2. Arquitetura — decisão vigente
+## 2. Arquitetura — o que existe de verdade
 
-**Regra de ouro: Notion é a fonte da verdade; o app é uma vitrine read-only. Nada de
-sistemas paralelos.** O projeto herdou de uma IA anterior a ambição de 5 sistemas
-(OpenProject, BookStack, Supabase, app React, markdown). A decisão final:
+> ⚠️ **Este projeto já teve uma fase Notion. Acabou.** Não existe `api/notion.js`, não existe
+> `NOTION_TOKEN`, não existe `app/src/services/notionApi.js`. Se você leu isso em algum lugar,
+> é documentação velha. **A fonte de dados de projeto é o Supabase.**
 
-| Camada | Ferramenta | Papel |
+| Camada | Onde vive | Papel |
 |---|---|---|
-| Base interna / fonte da verdade | **Notion** (teamspace VISA) | Time **edita** aqui: projetos, tracks, atividades, reuniões, wiki, dicionário |
-| Vitrine / dashboard | **App React + Vite** (`app/`) no **Vercel** | **Read-only** para os gerentes; lê o Notion e mostra o status com a cara da Visa |
-| Ponte de leitura | **Vercel serverless** `api/notion.js` | Guarda o `NOTION_TOKEN` (nunca no browser) e consulta os databases Tracks/Reuniões |
-| Seed / histórico | **Markdown** (`0X_*/`) | Material inicial; a alimentação do dia a dia é no Notion |
+| **Dados de projeto** (fonte da verdade) | **Supabase** (projeto `iuwvwhofxuvmwnpbsnth`) | Clientes, projetos, tracks, tarefas, marcos, riscos, reuniões, documentos |
+| **App / cockpit** | `app/` — React + Vite → **Vercel** | Lê **e escreve** no Supabase direto pelo cliente `anon` (RLS aberto). Ingere transcrições por IA |
+| **Vault de conhecimento** | `vault-visa/` — markdown com wikilinks | Aberto como vault no **Obsidian**. Conceitos, glossário, MOCs, técnico, troubleshooting e **dossiês por cliente** |
+| **Wiki pública** | `wiki/` — **Quartz** → **Vercel** | Publica o `vault-visa/` como site estático |
+| **Migrações de banco** | `db/*.sql` | Um arquivo datado por mudança. Idempotentes |
+| **Ponte de IA** | `api/procesar-minuta.js` + `api/engines.js` | Serverless: recebe o texto da ata e devolve decisões, action items e riscos estruturados |
 
-Databases no Notion (teamspace VISA, sob a página "Projetos"): **Tracks (subprojetos)** e
-**Reuniões**, mais os já existentes (Dicionário, wiki por tema). IDs em `api/notion.js` e na
-memória `notion-base-estrutura`.
+### As duas URLs publicadas
+- **App / seguimento:** `https://visa-portal-hub-3-platforms.vercel.app/`
+- **Wiki:** `https://visa-wiki.vercel.app/` — build: `npx quartz build -d ../vault-visa -o public`
 
-### O que foi APOSENTADO (não construir em cima, remover na limpeza)
-- **OpenProject** e **BookStack** — nunca entraram no fluxo real; não rodam no Vercel.
-  Arquivos a remover: `docker-compose.yml`, `render.yaml`, `seed_openproject.js`,
-  `seed_openproject.py`, `sync_openproject_to_supabase.js`.
-- **Supabase** — substituído pelo Notion como fonte de dados. Remover `app/src/supabaseClient.js`
-  e as chamadas relacionadas quando as demais telas migrarem para o Notion. As abas antigas
-  (Projetos/Estantes/Dicionário via mock/Supabase) ainda existem no app até a migração terminar;
-  a aba **Tracking** já lê o Notion e é a referência.
+**Elas se alimentam de fontes diferentes.** Mudar o Supabase muda só o app. Mudar o
+`vault-visa/` muda só a wiki — e **só depois de um deploy**. Atualizar um e esquecer o outro é
+o erro mais comum neste repositório.
 
-### Segurança (obrigatório)
-- O `NOTION_TOKEN` vive **apenas** como env var no Vercel e é usado só na função `api/notion.js`.
-  **Nunca** nomear com prefixo `VITE_` (isso o exporia ao navegador).
-- A conexão interna do Notion (`Dashboard Vercel VISA`) precisa estar **ligada à página
-  "Projetos"** para enxergar Tracks e Reuniões. Sem isso a API retorna vazio/erro.
-- Dá só permissão de **leitura** à conexão. O dashboard é read-only por design.
+### Segurança
+A **anon key do Supabase é pública por design** e está fixa em `app/src/lib/supabase.js` — o
+acesso é controlado por **RLS**, que hoje está **aberto ao anon** (`using (true)`). Auth de
+verdade ficou para depois. Não trate essa chave como segredo, mas também **não coloque nada
+sensível em tabela sem RLS restritiva**.
 
-## 3. Modelo de dados (databases no Notion)
+As chaves de IA (`GEMINI_API_KEY`, `XAI_API_KEY`, `ANTHROPIC_API_KEY`) vivem **só** como env
+vars no Vercel e são usadas apenas em `api/`. **Nunca** com prefixo `VITE_` — isso as exporia
+ao navegador.
 
-```
-Clientes → Projetos (macro) → Tracks → Atividades
-                                 ├─ Reuniões (SteerCo mensal / Semanal / Ad-hoc)
-                                 └─ Documentos
-Wiki por tema + Dicionário de termos   (páginas/bases de conhecimento)
-```
-
-Tudo ligado por **relação** no Notion. IDs em `api/notion.js` (const `DB`) e na memória
-`notion-base-estrutura`. O antigo bloco abaixo (tabelas Supabase) está **descontinuado** e
-mantido só como referência histórica até a limpeza:
+## 3. Modelo de dados (tabelas no Supabase)
 
 ```
-[legado] projects_macro · shelves · data_terms  (Supabase — a remover na limpeza)
+clientes → projetos → tracks → tareas
+                        ├─ marcos
+                        ├─ documentos   (Storage: bucket track-docs)
+                        └─ reunion_tracks ─ reunioes
+riscos      → projeto_id XOR track_id   (RAID)
+tareas      → projeto_id XOR track_id   (itens transversais de reunião)
+contactos   → diretório global
 ```
+
+**Colunas que importam** (o resto está nas migrações em `db/`):
+
+- `clientes`: `nome`, `pais`, `segmento`, `contatos`
+- `projetos`: `cliente_id`, `nome`, `status`, `gerente` (lista, ex. "Bruno / Jenny"), `csm`, `inicio`, `descricao`, `rag_override`
+- `tracks`: `projeto_id`, `nome`, `frente`, `status`, `responsavel`, `technical_pm`, `waiver_hasta`, `proximo_paso`, `ruta_critica`, `avance`, `rag_override`
+- `tareas`: `titulo`, `status`, `responsavel`, `previsao_entrega`, `data_fechamento`, `origen`
+- `marcos`: `track_id`, `nome`, `fecha`, `concluido`, `orden`
+- `riscos`: `descricao`, `tipo`, `severidade`, `dueno`, `status`, `mitigacion`
+- `reunioes`: `cliente_id`, `projeto_id`, `titulo`, `tipo`, `data`, `participantes` (jsonb), `ata`, `resumo_ia`, `decisoes`
+
+**Vocabulário fixo** (de `app/src/components/trackingUi.jsx` e `app/src/lib/raidConstants.js` —
+use exatamente estes valores):
+
+- `tracks.status`: `Em curso` · `Em curso - atrasado` · `Pendente` · `Sin iniciar` · `Bloqueado` · `Concluído`
+- `tareas.status`: `aberto` · `em_andamento` · `bloqueada` · `fechado`
+- `riscos.tipo`: `riesgo` · `issue` — `severidade`: `alta` · `media` · `baja` — `status`: `abierto` · `en_mitigacion` · `cerrado`
+- `reunioes.tipo`: `steerco` · `semanal` · `adhoc`
+- `origen` de tarefa: `manual` · `reunion` · `prerequisito` · `riesgo`
+- `rag_override`: `verde` · `amarelo` · `rojo` · null
 
 ## 4. Mapa do repositório
 
 ```
-app/                  O dashboard (React + Vite) — vitrine + edição, lê/escreve o Notion
-api/notion.js         Ponte serverless (Vercel) com o Notion; guarda o NOTION_TOKEN
-0X_*/                 Material markdown herdado (seed histórico; não é fonte da verdade)
-.claude/skills/       Skills que guiam o trabalho neste projeto
+app/                  Cockpit React + Vite. Lê/escreve Supabase. Deploy raiz do Vercel
+api/                  Serverless: procesar-minuta.js (IA) e engines.js
+db/*.sql              Migrações datadas e idempotentes
+vault-visa/           Vault do Obsidian — conhecimento + dossiês por cliente
+wiki/                 Quartz. Publica o vault-visa como site estático
+01_Projetos/ 02_Reunioes/ 03_Produtos/ 04_Visa_Workflows/ 05_Dicionario_Termos/
+                      Seed histórico em markdown. NÃO é fonte da verdade; ninguém alimenta mais
+.claude/skills/       Skills que guiam o trabalho aqui
 CLAUDE.md             Este arquivo
 ```
 
-A **fonte da verdade é o Notion** (teamspace VISA). O markdown `0X_*/` é só material inicial.
-A alimentação do dia a dia é no Notion ou pelo app (ambos gravam no Notion).
+## 5. Onde colocar cada coisa (a decisão que mais se erra)
 
-## 5. Padrão de metadados (para o conteúdo markdown / seed)
+| O que você tem | Onde vai |
+|---|---|
+| Status, datas, % , pendências, riscos, marcos | **Supabase** — pelo app ou por migração em `db/` |
+| Contexto, história, decisões, incidentes de um cliente | **`vault-visa/Proyectos/<Cliente>/<Cliente> — dossiê.md`** |
+| Conceito, sigla, processo reutilizável | **`vault-visa/Conocimiento/`** (Glosario, Técnico, Troubleshooting, MOCs) |
+| Transcrição bruta, PDF, PPTX | Fora do repo (OneDrive). No repo entra só o **destilado** |
 
-Toda entidade `.md` começa com **YAML frontmatter**. Exemplo (projeto):
+**A regra:** o que muda toda semana vai para o banco; o que explica **por quê** vai para o vault.
+O dossiê não repete o status — ele diz o que o status não conta.
 
-```yaml
----
-id: proj-alfa-01
-cliente: Banco Alfa
-titulo: Implementação Apple Pay & VTS
-status: Em Certificação          # ver estados válidos abaixo
-fase: Certificacao de Testes
-gerente_visa: Bruno
-data_inicio: 2026-07-01
-proximo_marco: Testes de Campo (30/07/2026)
-produtos: [Apple Pay, Visa Token Service (VTS)]
-tags: [banco-alfa, apple-pay, vts, certificacao]
----
-```
+## 6. Ingestão de reuniões — use o app, não faça na mão
 
-**Estados de status válidos:** `Em Andamento` · `Aguardando Cliente` · `Em Certificação` ·
-`Mandato Pendente` · `Concluído`.
+O app **já tem** a tela de ingestão (`ReunionProcesar.jsx` → `api/procesar-minuta.js`): cola-se
+o texto da ata/transcrição, escolhe-se o motor (Gemini, xAI ou Claude) e ele devolve
+**participantes, resumo, decisões, action items e riscos** para revisão antes de gravar. Ao
+confirmar, grava a reunião, liga às tracks (`reunion_tracks`), cria as tarefas com
+`origen: 'reunion'` e os riscos no RAID.
 
-## 6. Reuniões e ingestão de transcrições (o "ativo" da base)
+**Esse é o caminho normal.** Só escreva SQL à mão para carga em lote ou correção — e então siga
+o padrão de `db/`: arquivo datado, idempotente (`where not exists`), dentro de `begin/commit`.
 
-Três cadências, todas alimentáveis por transcrição:
-- **Board mensal** (com o board do cliente) → nível macro-projeto.
-- **Semanal** (por projeto/track do cliente) → nível micro-projeto.
-- **Ad-hoc** (sob demanda) → ligada ao projeto/track pertinente.
+Depois da ingestão, atualize **o dossiê do cliente no vault** com o que a reunião mudou de
+entendimento. O banco registra o fato; o vault registra o significado.
 
-Ao ingerir uma transcrição, produza sempre três blocos — **Decisões**, **Action Items**
-(responsável + prazo) e **Riscos/Bloqueios** — e ligue à entidade correta (skill
-`knowledge-base-architect`).
+## 7. Fluxo de entrega (git + deploy)
 
-## 7. Como trabalhar aqui (para IA e humanos)
+1. Trabalhe em **branch** (`claude/...` é o padrão do repo). Nunca direto em `main`.
+2. **Se mexeu no app:** `cd app && npm run build` tem de passar.
+3. **Se mexeu no vault:** `cd wiki && npm install && npx quartz build -d ../vault-visa -o public`
+   tem de passar. Confira que as páginas novas saíram em `wiki/public/`.
+4. **Se mexeu em links do vault:** rode um verificador de wikilinks quebrados antes de commitar.
+5. **Se criou nota nova no vault:** atualize `vault-visa/index.md`, o **MOC** da categoria e
+   regenere `Conocimiento/Índices/Índice — fuentes.md`.
+6. **Se escreveu migração:** valide contra um Postgres local e rode **duas vezes** para provar
+   idempotência.
+7. Commit com mensagem clara (o quê + por quê), co-autoria Claude.
+8. **Push → PR → merge em `main`.** O Vercel publica os dois sites a partir de `main`.
+   **Branch sozinha gera preview, não produção.**
 
-- **Antes de agir**, leia este arquivo e a skill relevante em `.claude/skills/`.
-- **Não crie nova ferramenta/serviço/pasta paralela.** Se sentir essa necessidade, algo já
-  existe — procure primeiro. A meta é permanecer em **1 app + 1 banco**.
-- Escreva em **português**, tom objetivo, coerente com o conteúdo existente.
-- Preserve o design system Visa (navy + dourado) e a consistência visual.
+## 8. Armadilhas conhecidas de ambiente (leia antes de se frustrar)
 
-## 8. Skills disponíveis (`.claude/skills/`)
+- **O shell da máquina do usuário não tem rede.** Nada de `git push`, `npm install` ou chamada
+  de API por ali. Use o container da nuvem para isso.
+- **O host do Supabase pode estar fora da allowlist de egresso** do container da nuvem. Se
+  `iuwvwhofxuvmwnpbsnth.supabase.co` der 403 "Host not in allowlist", o caminho é rodar o SQL no
+  **SQL Editor** do Supabase ou liberar o host nas configurações de rede da sessão.
+- **O push pode falhar com "not in this session's authorized repository set"** — é escopo de
+  credencial, não ausência dela. O repo precisa ser adicionado às fontes da sessão.
+- **O working tree mostra ~100 arquivos modificados que você não tocou.** É diferença de
+  fim de linha (CRLF) do checkout no Windows. **Não commite isso** — faça `git add` só nos
+  caminhos que você realmente alterou.
+- **No mount da máquina do usuário o git não consegue apagar arquivos.** Locks (`.git/index.lock`,
+  `HEAD.lock`) sobram e travam o próximo comando. Mova-os para uma pasta `_to_delete/` em vez de
+  tentar `rm`.
 
-- **development-workflow** — o padrão do projeto (arquitetura, dados, deploy). **Leia primeiro.**
-- **knowledge-base-architect** — modelo Notion, ingestão de reuniões/docs e ligação por relação.
+## 9. Princípios
+
+- **Não crie plataforma nova.** O projeto já foi resgatado de uma sprawl de 5 sistemas
+  (OpenProject, BookStack, Notion, Supabase, markdown). Se sentir vontade de adicionar uma, algo
+  já existe — procure primeiro.
+- **Não fabrique dados.** Datas, percentuais e responsáveis vêm do documento. O que veio de
+  transcrição automática e não foi validado entra marcado como `[a confirmar]` / `estado: parcial`.
+- **Interface pública em espanhol**; o vault mistura PT/ES conforme a nota. Não traduza o dado,
+  traduza a exibição.
+- **Design system Visa:** navy `#0A142F`/`#051424`, superfície `#122131`/`#1C2B3C`, borda
+  `#273647`, dourado `#FAA61A`, índigo `#1A1F71`. Cantos `rounded-xl`.
+- Ao terminar, diga **o que você verificou** — build, deploy, migração — com honestidade.
+
+## 10. Skills (`.claude/skills/`)
+
+- **development-workflow** — arquitetura, dados, deploy. **Leia primeiro.**
+- **knowledge-base-architect** — ingestão de reuniões e curadoria do vault.
 - **product-owner** — visão de produto, personas e critérios de aceite.
-- **ux-ui-designer** — design system Visa, idioma espanhol e telas do dashboard.
+- **ux-ui-designer** — design system e telas.

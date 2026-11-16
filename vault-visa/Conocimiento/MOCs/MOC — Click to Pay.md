@@ -6,6 +6,7 @@ tags: ["moc"]
 
 Términos del glosario en esta categoría.
 
+- [[CAR ID]] — Identificador do cartão registrado no ITSP; anda em par com o Consumer ID. Causa comum de colisão no Register Consumer.
 - [[Click to Pay]] — Mandato Visa para pagar sem digitar o cartão. Fase 1: enrolamento massivo (tem TPM). Fase 2: ciclo de vida (sem TPM). Fase 3: logo.
 - [[Destination Site]] — Site legado onde o consumidor se enrolava sozinho; fica somente-leitura quando o emissor assume a gestão.
 - [[Enrolamento massivo]] — Despejar todas as credenciais Visa já emitidas no Click to Pay via processador/tokenizador.
